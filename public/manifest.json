@@ -1,0 +1,21 @@
+{
+  "name": "Boîte Magique",
+  "short_name": "BoîteMagique",
+  "start_url": "/app.html",  
+  "display": "standalone",
+  "background_color": "#fff7ed",
+  "theme_color": "#6366f1",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/6366f1/ffffff?text=BM",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://placehold.co/512x512/6366f1/ffffff?text=BM",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

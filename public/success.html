@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magie Activée ! ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        body { font-family: 'Lexend', sans-serif; overflow-x: hidden; }
+        
+        /* FOND MAGIQUE */
+        .page-bg {
+            background: linear-gradient(135deg, #fff7ed 0%, #fef9c3 100%);
+            min-height: 100vh;
+        }
+
+        .gradient-text { background: linear-gradient(to right, #6366f1, #ec4899, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shine 3s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* Animation de lévitation pour la carte principale */
+        .float-card { animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        /* Confettis */
+        .confetti { position: absolute; width: 8px; height: 8px; animation: fall linear forwards; opacity: 0; z-index: 0; }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+        /* Effet Glow sur le bouton */
+        .glow-btn { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); transition: all 0.3s ease; }
+        .glow-btn:hover { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8); transform: scale(1.05) translateY(-2px); }
+    </style>
+</head>
+<body class="page-bg text-slate-800">
+
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-white/50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <div class="flex items-center gap-3">
+                    <svg class="h-8 w-8 md:h-10 md:w-10 drop-shadow-md" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="5" y="5" width="90" height="90" rx="25" fill="url(#logo_grad)" />
+                        <path d="M30 50 Q30 30 50 30 Q70 30 70 50 Q70 70 50 70 L35 80 L35 70 Q30 70 30 50" fill="white"/>
+                        <path d="M65 35 L70 25 L75 35 L85 40 L75 45 L70 55 L65 45 L55 40 Z" fill="#fcd34d"/>
+                        <defs><linearGradient id="logo_grad" x1="0" y1="0" x2="100" y2="100"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs>
+                    </svg>
+                    <span class="font-black text-sm md:text-base text-slate-900">Mes petites boites magiques</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-24 px-4 relative min-h-screen flex flex-col items-center">
+        <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none h-full w-full"></div>
+
+        <div class="max-w-3xl w-full z-10">
+            
+            <div class="text-center mb-16 relative" data-aos="zoom-out-up" data-aos-duration="1000">
+                
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-purple-200 to-pink-200 rounded-full blur-3xl opacity-50 -z-10"></div>
+
+                <div class="float-card bg-white/80 backdrop-blur-xl border border-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl inline-block w-full">
+                    <div class="text-6xl mb-6 animate-bounce">✨</div>
+                    
+                    <h1 class="text-3xl md:text-5xl font-black mb-6 leading-tight">
+                        La porte du monde des rêves<br>
+                        <span class="gradient-text">est désormais ouverte !</span>
+                    </h1>
+                    
+                    <p class="text-lg md:text-xl text-slate-600 mb-8 leading-relaxed font-medium">
+                        La petite voix vient de se réveiller.<br>
+                        Elle a déjà préparé ses crayons de lumière et ses plus belles histoires.
+                    </p>
+                    
+                    <a href="/app.html?session_id=new" class="glow-btn inline-flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-lg md:text-xl font-black px-8 py-5 rounded-full transform transition-all mb-8">
+                        <span>🚀</span> Ouvrir la Boîte Magique
+                    </a>
+
+                    <div class="bg-indigo-50/80 border border-indigo-100 rounded-2xl p-6 text-left shadow-inner max-w-lg mx-auto">
+                        <h3 class="text-indigo-900 font-bold mb-3 flex items-center gap-2 text-lg">
+                            <span class="text-2xl">📲</span> Installer l'Application
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-4 font-medium">
+                            Une fois l'application ouverte sur votre navigateur, pour une expérience magique en plein écran, installez l'application maintenant :
+                        </p>
+                        
+                        <div class="flex items-start gap-4 mb-4">
+                            <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 min-w-[50px] text-center">
+                                <span class="text-2xl">⋮</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">1. Cliquez sur les 3 points</p>
+                                <p class="text-xs text-slate-500">Tout en haut à droite de votre navigateur (Chrome).</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="bg-white p-2 rounded-lg shadow-sm border border-slate-200 min-w-[50px] text-center">
+                                <span class="text-xl">⬇️</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">2. "Installer l'application"</p>
+                                <p class="text-xs text-slate-500">Ou "Ajouter à l'écran d'accueil". C'est tout !</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+
+            <div class="text-center mb-16 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="300">
+                <p class="text-slate-500 text-sm font-medium uppercase tracking-widest mb-2">Message aux parents</p>
+                <h3 class="text-xl font-bold text-slate-800 leading-tight">C'est bien plus qu'un cadeau que vous venez de faire.</h3>
+                <p class="text-slate-600 mt-3 leading-relaxed">Vous avez offert à votre enfant les clés d'un royaume imaginaire. Un espace infini pour rêver, partir à l'aventure, apprendre et faire grandir son esprit. Le plus beau des voyages commence maintenant.</p>
+            </div>
+
+            <div class="space-y-6" data-aos="fade-up" data-aos-delay="500">
+                
+                <div class="text-center mb-8">
+                    <div class="inline-block px-4 py-1 rounded-full bg-white border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-wider shadow-sm">
+                        Guide de démarrage rapide
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-indigo-50 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition">🗣️</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2">Qui est "La petite voix" ?</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">
+                                C'est l'âme de la boîte. Elle n'est pas un robot, c'est une conteuse bienveillante. Elle invente, dessine et répond avec douceur. Elle est programmée pour protéger l'innocence de votre enfant.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-pink-50 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition">🧸</div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2">La Cérémonie d'Ouverture</h3>
+                            <p class="text-slate-600 text-sm mb-4">
+                                Au premier lancement, un moment magique vous attend. La petite voix va poser quelques questions pour tisser un lien unique :
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-pink-50/50 p-3 rounded-xl text-xs text-pink-800 font-medium border border-pink-100 flex items-center gap-2">
+                                    <span>👤</span> Prénom & Âge
+                                </div>
+                                <div class="bg-pink-50/50 p-3 rounded-xl text-xs text-pink-800 font-medium border border-pink-100 flex items-center gap-2">
+                                    <span>🎨</span> Couleurs préférées
+                                </div>
+                                <div class="bg-pink-50/50 p-3 rounded-xl text-xs text-pink-800 font-medium border border-pink-100 flex items-center gap-2">
+                                    <span>🧸</span> <strong>Le Doudou</strong> (Nom & aspect)
+                                </div>
+                                <div class="bg-pink-50/50 p-3 rounded-xl text-xs text-pink-800 font-medium border border-pink-100 flex items-center gap-2">
+                                    <span>🐶</span> <strong>Les Animaux</strong> préférés
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-3 italic">
+                                * Astuce : Ces détails permettront d'intégrer son doudou ou son animal dans les histoires pour une surprise totale !
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white p-6 md:p-8 rounded-3xl shadow-xl relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-indigo-500/30 transition"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row gap-6 items-center">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold mb-2 flex items-center gap-2 text-indigo-100">
+                                <span class="bg-indigo-500/30 p-1.5 rounded-lg">🌙</span> Le Secret du Sommeil
+                            </h3>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-0">
+                                C'est notre fonctionnalité la plus aimée. Une fois l'histoire lancée, <strong>verrouillez votre téléphone</strong>. L'écran s'éteint, mais La petite voix continue de chuchoter l'histoire.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-8 text-center mt-12">
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <svg class="h-6 w-6" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="5" width="90" height="90" rx="25" fill="url(#logo_grad_footer)" />
+                <path d="M30 50 Q30 30 50 30 Q70 30 70 50 Q70 70 50 70 L35 80 L35 70 Q30 70 30 50" fill="white"/>
+                <path d="M65 35 L70 25 L75 35 L85 40 L75 45 L70 55 L65 45 L55 40 Z" fill="#fcd34d"/>
+                <defs><linearGradient id="logo_grad_footer" x1="0" y1="0" x2="100" y2="100"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#ec4899"/></linearGradient></defs>
+            </svg>
+            <span class="font-black text-sm text-slate-900">Mes petites boites magiques</span>
+        </div>
+        <p class="text-slate-400 text-xs">© 2026. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // Confettis Magiques au chargement
+        window.addEventListener('load', () => {
+            const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#a855f7'];
+            const container = document.getElementById('confetti-container');
+            
+            // Création de 80 particules
+            for(let i=0; i<80; i++) {
+                const div = document.createElement('div');
+                div.classList.add('confetti');
+                
+                // Position aléatoire horizontale
+                div.style.left = Math.random() * 100 + 'vw';
+                
+                // Couleur aléatoire
+                div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Taille variable pour effet de profondeur
+                const size = Math.random() * 8 + 4 + 'px';
+                div.style.width = size;
+                div.style.height = size;
+                
+                // Formes variées (carrés et ronds)
+                if(Math.random() > 0.5) div.style.borderRadius = "50%";
+
+                // Durée et délai aléatoires pour le réalisme
+                div.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                div.style.animationDelay = Math.random() * 3 + 's';
+                
+                container.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>
