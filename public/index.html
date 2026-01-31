@@ -8,115 +8,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         /* --- DESIGN NEURO-INCLUSIF --- */
-        :root { 
-            --bg-main: #121212; 
-            --bg-card: #1E1E1E; 
-            --accent: #BB86FC; 
-            --accent-soft: rgba(187, 134, 252, 0.2);
-            --text-main: #E0E0E0;
-            --success: #03DAC6;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            height: 100vh; overflow: hidden; margin: 0; touch-action: none;
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-
-        /* --- MICROPHONE --- */
-        .mic-wrapper {
-            position: relative;
-            width: 120px; height: 120px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto;
-        }
-        
-        .mic-btn {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            cursor: pointer; z-index: 10;
-        }
-        
+        :root { --bg-main: #121212; --bg-card: #1E1E1E; --accent: #BB86FC; --accent-soft: rgba(187, 134, 252, 0.2); --text-main: #E0E0E0; --success: #03DAC6; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; justify-content: space-between; }
+        .mic-wrapper { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+        .mic-btn { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.3s; cursor: pointer; z-index: 10; }
         .mic-btn svg { width: 32px; height: 32px; fill: var(--text-main); transition: fill 0.3s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
         .mic-btn.active svg { fill: #121212; }
-
-        /* CERCLES D'ANIMATION */
-        .breath-circle {
-            position: absolute; border-radius: 50%;
-            border: 1px solid var(--accent); opacity: 0;
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
+        .breath-circle { position: absolute; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
         .listening .breath-circle { animation: breathe 3s infinite; }
         .listening .breath-circle:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
         .listening .breath-circle:nth-child(2) { width: 120px; height: 120px; animation-delay: 0.5s; }
         .listening .breath-circle:nth-child(3) { width: 140px; height: 140px; animation-delay: 1s; }
-
-        @keyframes breathe {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
-        }
-
-        /* --- UI ELEMENTS --- */
-        .mode-selector {
-            display: flex; gap: 10px; overflow-x: auto; padding: 20px; padding-bottom: 40px;
-            scrollbar-width: none; justify-content: center;
-        }
-        .mode-card {
-            background: var(--bg-card);
-            padding: 15px 20px;
-            border-radius: 16px;
-            min-width: 90px;
-            text-align: center;
-            border: 1px solid transparent;
-            transition: all 0.3s;
-            opacity: 0.5;
-            cursor: pointer;
-        }
-        .mode-card.active {
-            opacity: 1;
-            border-color: var(--accent);
-            background: var(--accent-soft);
-            transform: translateY(-5px);
-        }
+        @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
+        .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 20px; padding-bottom: 40px; scrollbar-width: none; justify-content: center; }
+        .mode-card { background: var(--bg-card); padding: 15px 20px; border-radius: 16px; min-width: 90px; text-align: center; border: 1px solid transparent; transition: all 0.3s; opacity: 0.5; cursor: pointer; }
+        .mode-card.active { opacity: 1; border-color: var(--accent); background: var(--accent-soft); transform: translateY(-5px); }
         .mode-icon { font-size: 24px; display: block; margin-bottom: 5px; }
         .mode-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-
-        .feedback-area {
-            flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center; padding: 30px;
-        }
+        .feedback-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; }
         .main-instruction { font-size: 18px; font-weight: 300; line-height: 1.6; max-width: 320px; transition: opacity 0.3s; }
-        .status-pill { 
-            background: #2C2C2C; padding: 6px 16px; border-radius: 20px; 
-            font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 24px; 
-            transition: all 0.3s;
-        }
-        .action-log {
-            font-size: 10px; color: var(--success); margin-top: 10px; opacity: 0; transition: opacity 0.5s;
-        }
+        .status-pill { background: #2C2C2C; padding: 6px 16px; border-radius: 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 24px; transition: all 0.3s; }
+        .action-log { font-size: 10px; color: var(--success); margin-top: 10px; opacity: 0; transition: opacity 0.5s; }
     </style>
 </head>
 <body>
 
     <div class="pt-10 text-center">
         <h1 class="text-2xl font-bold tracking-widest text-white">NEURO</h1>
-        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">Brain OS v1.0</p>
+        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">Brain OS v2.0</p>
     </div>
 
     <div class="feedback-area">
         <div id="status-display" class="status-pill">En attente</div>
         <p id="ai-response" class="main-instruction">
-            Je suis prêt.<br>Choisis un mode pour commencer.
+            Je suis prêt.<br>Choisis un mode.
         </p>
         <div id="action-feedback" class="action-log">Action envoyée ! ✅</div>
     </div>
@@ -147,210 +73,149 @@
 
     <script>
         // =========================================================================
-        // ⚠️ 👇 COLLE TON URL VERCEL ICI (Entre les guillemets) 👇 ⚠️
+        // 👇 ZONE DE CONFIGURATION (REMPLISSEZ LES 3 LIGNES) 👇
         // =========================================================================
-        const API_BASE_URL = "https://boite-adulte.vercel.app/"; 
-        // Exemple : "https://projet-neuro.vercel.app" (Sans le / à la fin)
         
-        // Ton Webhook Make est déjà configuré ici :
-        const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
+        // 1. TON LIEN VERCEL (OBLIGATOIRE)
+        const API_BASE_URL = "https://boite-adulte.vercel.app/"; 
+
+        // 2. LE WEBHOOK POUR L'AGENDA (Celui que tu as déjà)
+        const URL_CALENDRIER = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
+
+        // 3. LE NOUVEAU WEBHOOK POUR LES TÂCHES (Le nouveau)
+        const URL_TACHES = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
+
         // =========================================================================
 
         let currentMode = 'DUMP';
         let isProcessing = false;
 
-        // --- 1. PROMPTS JSON (Strict pour Make) ---
         const PROMPTS = {
             'DUMP': `Tu es un assistant exécutif.
-            L'utilisateur te donne des tâches.
             Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
             {
-                "text": "Ta phrase de confirmation courte.",
+                "text": "Ta phrase de confirmation.",
                 "actions": [
                     { "type": "CALENDAR", "detail": "Rdv dentiste..." },
                     { "type": "TODO", "detail": "Acheter pain..." }
                 ]
             }
-            REGLES :
-            - Si c'est un rendez-vous (avec date/heure) -> type = "CALENDAR"
-            - Si c'est une tâche simple (courses, rappel) -> type = "TODO"
-            - N'utilise JAMAIS d'autres types.`,
-
-            'FOCUS': `Tu es un coach anti-procrastination.
-            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
-            {
-                "text": "Ta réponse encourageante qui donne LA PREMIÈRE micro-étape.",
-                "actions": []
-            }`,
+            REGLE : Si date/heure précise -> CALENDAR. Sinon -> TODO.`,
             
-            'ROUTINE': `Tu es un pilote de routine.
-            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
-            {
-                "text": "Ta consigne dynamique.",
-                "actions": []
-            }`
+            'FOCUS': `Coach anti-procrastination. JSON Strict: { "text": "...", "actions": [] }`,
+            'ROUTINE': `Guide routine. JSON Strict: { "text": "...", "actions": [] }`
         };
 
-        // --- 2. GESTION DE L'INTERFACE ---
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
-            
-            const texts = {
-                'DUMP': "Vide ton sac. Dis-moi tout.",
-                'FOCUS': "Quelle tâche te bloque ?",
-                'ROUTINE': "Prêt pour la routine ?"
-            };
-            document.getElementById('ai-response').innerText = texts[mode];
-            window.speechSynthesis.cancel();
+            document.getElementById('ai-response').innerText = "Prêt.";
         }
 
         const btnMic = document.getElementById('btn-mic');
         const micWrapper = document.getElementById('mic-wrapper');
         const statusDisplay = document.getElementById('status-display');
 
-        btnMic.addEventListener('click', () => {
-            if (isProcessing) return;
-            startListening();
-        });
+        btnMic.addEventListener('click', () => { if (!isProcessing) startListening(); });
 
-        // --- 3. RECONNAISSANCE VOCALE ---
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Micro non supporté"); return; }
-
+            if (!Speech) { alert("Micro HS"); return; }
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.interimResults = false;
-
-            rec.onstart = () => {
-                micWrapper.classList.add('listening');
-                btnMic.classList.add('active');
-                statusDisplay.innerText = "J'écoute...";
-                statusDisplay.style.color = "#BB86FC";
-            };
-
-            rec.onend = () => {
-                micWrapper.classList.remove('listening');
-                btnMic.classList.remove('active');
-            };
-
-            rec.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                processWithAI(text);
-            };
-
+            rec.onstart = () => { micWrapper.classList.add('listening'); btnMic.classList.add('active'); statusDisplay.innerText = "J'écoute..."; };
+            rec.onend = () => { micWrapper.classList.remove('listening'); btnMic.classList.remove('active'); };
+            rec.onresult = (ev) => { processWithAI(ev.results[0][0].transcript); };
             rec.start();
         }
 
-        // --- 4. LE BRAS (Webhooks Make.com) ---
+        // --- C'EST ICI QUE SE FAIT LE TRI DES ROUTES ---
         async function sendToAutomation(actions) {
             if (!actions || actions.length === 0) return;
-            console.log("⚡ Envoi vers Make:", actions);
-
             const feedback = document.getElementById('action-feedback');
-            feedback.innerHTML = `⚡ Envoi vers Make...`;
-            feedback.style.opacity = 1;
+            
+            for (let action of actions) {
+                let targetUrl = "";
+                let typeNom = "";
 
-            try {
-                // Envoi des données au Webhook
-                await fetch(MAKE_WEBHOOK, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ actions: actions })
-                });
-                
-                feedback.innerHTML = `Reçu par Make ! ✅`;
-                feedback.style.color = "#03DAC6"; // Vert
-                setTimeout(() => feedback.style.opacity = 0, 4000);
+                // LE TRI AUTOMATIQUE
+                if (action.type === 'CALENDAR') {
+                    targetUrl = URL_CALENDRIER;
+                    typeNom = "Agenda";
+                } else {
+                    targetUrl = URL_TACHES; // Tout le reste va ici (Pain, Piles, etc.)
+                    typeNom = "Tâches";
+                }
 
-            } catch (error) {
-                console.error("Erreur Webhook", error);
-                // Note : Parfois le navigateur bloque le retour (CORS), mais l'envoi fonctionne quand même.
-                // On affiche quand même un succès visuel pour ne pas inquiéter l'utilisateur si Make a reçu.
-                feedback.innerHTML = `Envoyé ! 🚀`; 
+                console.log(`Envoi de "${action.detail}" vers ${typeNom}`);
+                feedback.innerHTML = `Envoi vers ${typeNom}...`;
+                feedback.style.opacity = 1;
+
+                try {
+                    if(targetUrl.includes("METTRE_LE_LIEN")) {
+                        console.error("Lien Make manquant !");
+                        continue;
+                    }
+                    
+                    await fetch(targetUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ detail: action.detail, type: action.type })
+                    });
+                } catch (e) { console.error(e); }
             }
+            
+            feedback.innerHTML = `Envoyé ! ✅`;
+            setTimeout(() => feedback.style.opacity = 0, 4000);
         }
 
-        // --- 5. LOGIQUE PRINCIPALE ---
         async function processWithAI(userInput) {
             isProcessing = true;
             statusDisplay.innerText = "Analyse...";
-            document.getElementById('ai-response').innerText = "...";
 
-            const sysPrompt = PROMPTS[currentMode];
-            const fullPrompt = `${sysPrompt}\n\nUTILISATEUR : "${userInput}"`;
+            const fullPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // VERIFICATION URL
-                if(API_BASE_URL.includes("METTRE_TON_LIEN")) {
-                    alert("⚠️ Attention : Remplace la ligne 168 par ton lien Vercel !");
-                    isProcessing = false;
-                    return;
-                }
+                if(API_BASE_URL.includes("METTRE_TON_LIEN")) { alert("Erreur: Lien Vercel manquant ligne 170"); isProcessing = false; return; }
 
-                // 1. APPEL GEMINI
+                // 1. GEMINI
                 const rep1 = await fetch(`${API_BASE_URL}/api/gemini`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ prompt: fullPrompt })
                 });
-                
                 const data1 = await rep1.json();
                 
-                // 2. NETTOYAGE JSON
                 let cleanJson = data1.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsedData;
+                try { parsedData = JSON.parse(cleanJson); } catch (e) { parsedData = { text: data1.text, actions: [] }; }
+
+                document.getElementById('ai-response').innerText = parsedData.text;
                 
-                try {
-                    parsedData = JSON.parse(cleanJson);
-                } catch (e) {
-                    // Fallback si l'IA répond mal
-                    console.log("Erreur JSON:", data1.text);
-                    parsedData = { text: data1.text, actions: [] };
-                }
+                // 2. ENVOI AUX WEBHOOKS
+                await sendToAutomation(parsedData.actions);
 
-                const aiText = parsedData.text;
-                const aiActions = parsedData.actions;
-
-                // 3. ACTIONS & AFFICHAGE
-                document.getElementById('ai-response').innerText = aiText;
-                await sendToAutomation(aiActions);
-
-                // 4. AUDIO (Azure)
+                // 3. AUDIO
                 statusDisplay.innerText = "Synthèse...";
                 const rep2 = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: aiText })
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: parsedData.text })
                 });
 
                 if (rep2.ok) {
                     const blob = await rep2.blob();
-                    const url = URL.createObjectURL(blob);
-                    const audio = new Audio(url);
+                    const audio = new Audio(URL.createObjectURL(blob));
                     statusDisplay.innerText = "Lecture...";
                     audio.play();
-                    audio.onended = () => { 
-                        isProcessing = false; 
-                        statusDisplay.innerText = "En attente";
-                        statusDisplay.style.color = "#888";
-                    };
+                    audio.onended = () => { isProcessing = false; statusDisplay.innerText = "En attente"; };
                 } else {
-                    // Fallback TTS Navigateur
-                    const utt = new SpeechSynthesisUtterance(aiText);
-                    utt.lang = 'fr-FR';
-                    window.speechSynthesis.speak(utt);
-                    isProcessing = false;
-                    statusDisplay.innerText = "En attente";
+                    const utt = new SpeechSynthesisUtterance(parsedData.text);
+                    utt.lang = 'fr-FR'; window.speechSynthesis.speak(utt);
+                    isProcessing = false; statusDisplay.innerText = "En attente";
                 }
 
-            } catch (e) {
-                console.error(e);
-                statusDisplay.innerText = "Erreur";
-                isProcessing = false;
-            }
+            } catch (e) { console.error(e); statusDisplay.innerText = "Erreur"; isProcessing = false; }
         }
     </script>
 </body>
