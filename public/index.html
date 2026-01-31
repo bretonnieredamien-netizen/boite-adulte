@@ -7,116 +7,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO-INCLUSIF --- */
-        :root { 
-            --bg-main: #121212; 
-            --bg-card: #1E1E1E; 
-            --accent: #BB86FC; 
-            --text-main: #E0E0E0;
-            --success: #03DAC6;
-            --calendar: #CF6679;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            height: 100vh; overflow: hidden; margin: 0; touch-action: none;
-            display: flex; flex-direction: column;
-        }
-
-        /* HEADER */
+        /* --- DESIGN --- */
+        :root { --bg-main: #121212; --bg-card: #1E1E1E; --accent: #BB86FC; --text-main: #E0E0E0; --calendar: #CF6679; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
         .header { padding-top: 40px; text-align: center; flex-shrink: 0; }
         
-        /* LISTE DES TÂCHES (SCROLLABLE) */
-        .task-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            margin-bottom: 10px;
-            scrollbar-width: none;
-        }
+        /* LISTE TACHES */
+        .task-container { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
         
+        /* Item Tâche (Violet) */
         .task-item {
-            background: var(--bg-card);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 12px;
+            background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 12px;
             display: flex; align-items: center; justify-content: space-between;
-            border-left: 4px solid var(--accent);
-            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid var(--accent); /* Violet par défaut */
             transition: all 0.3s;
         }
-
-        .task-item.calendar { border-left-color: var(--calendar); } /* Rouge pour Agenda */
+        
+        /* Item Calendrier (Rouge) - IMPORTANT */
+        .task-item.calendar { 
+            border-left: 4px solid #CF6679 !important; 
+            background: #2A1A1A; /* Fond légèrement rouge pour bien voir la différence */
+        }
 
         .task-text { font-size: 14px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
         .delete-btn { background: transparent; border: none; color: #666; font-size: 18px; padding: 10px; }
-        
-        /* Indicateur de synchro */
-        .sync-badge { font-size: 10px; color: var(--success); display: none; margin-left: 5px; }
-        .calendar .sync-badge { display: inline; }
+        .sync-badge { font-size: 10px; color: #03DAC6; display: none; margin-left: 5px; font-weight: bold;}
+        .task-item.calendar .sync-badge { display: inline; } /* S'affiche uniquement si calendrier */
 
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* CONTROLES DU BAS */
-        .bottom-controls {
-            background: linear-gradient(to top, #121212 90%, transparent);
-            padding-bottom: 30px;
-            display: flex; flex-direction: column; align-items: center;
-            flex-shrink: 0; z-index: 50;
-        }
-
-        /* SELECTEUR DE MODE */
-        .mode-selector {
-            display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; 
-            margin-bottom: 15px; width: 100%; justify-content: center;
-        }
-        .mode-card {
-            background: var(--bg-card);
-            padding: 10px 15px;
-            border-radius: 12px;
-            min-width: 80px;
-            text-align: center;
-            border: 1px solid transparent;
-            transition: all 0.3s;
-            opacity: 0.5; cursor: pointer;
-        }
-        .mode-card.active {
-            opacity: 1; border-color: var(--accent);
-            background: rgba(187, 134, 252, 0.1); transform: translateY(-3px);
-        }
+        /* CONTROLES */
+        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 30px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; }
+        .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
+        .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
+        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(187, 134, 252, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
-
-        /* MICRO */
-        .mic-wrapper {
-            position: relative; width: 80px; height: 80px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .mic-btn {
-            width: 70px; height: 70px;
-            border-radius: 50%; background: var(--bg-card);
-            border: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s;
-        }
+        .mic-wrapper { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
-
-        .ai-feedback {
-            height: 20px; font-size: 12px; color: var(--accent); 
-            margin-bottom: 5px; font-weight: bold; letter-spacing: 1px;
-            opacity: 0; transition: opacity 0.3s;
-        }
+        .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
-        <p class="text-[9px] text-gray-500 uppercase mt-1">Brain OS v4.0 (Sync)</p>
+        <p class="text-[9px] text-gray-500 uppercase mt-1">Version Finale</p>
     </div>
 
     <div class="task-container" id="task-list">
@@ -126,9 +63,7 @@
     </div>
 
     <div class="bottom-controls">
-        
         <div id="status-text" class="ai-feedback">Prêt.</div>
-
         <div class="mode-selector">
             <div class="mode-card active" onclick="setMode('DUMP', this)">
                 <span class="mode-icon">🧠</span><span class="mode-label">Vider</span>
@@ -140,7 +75,6 @@
                 <span class="mode-icon">🔄</span><span class="mode-label">Routine</span>
             </div>
         </div>
-
         <div class="mic-wrapper">
             <div id="btn-mic" class="mic-btn">
                 <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
@@ -150,8 +84,6 @@
 
     <script>
         // =========================================================
-        // ✅ CONFIGURATION AUTOMATIQUE
-        // =========================================================
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
         // =========================================================
@@ -159,30 +91,36 @@
         let currentMode = 'DUMP';
         let isProcessing = false;
         
+        // --- PROMPTS RENFORCÉS ---
         const PROMPTS = {
-            'DUMP': `Tu es un assistant exécutif. 
+            'DUMP': `Tu es un assistant exécutif rigoureux.
+            Analyse la demande de l'utilisateur.
             Réponds UNIQUEMENT en JSON :
             {
                 "text": "Confirmation courte.",
                 "actions": [
-                    { "type": "TODO", "detail": "Acheter pain" },
-                    { "type": "CALENDAR", "detail": "Dentiste demain 14h" }
+                    { "type": "TODO", "detail": "..." },
+                    { "type": "CALENDAR", "detail": "..." }
                 ]
             }
-            Règle : Si Date/Heure précise -> CALENDAR. Sinon -> TODO.`,
+            
+            ⚠️ REGLES CRITIQUES DE CLASSIFICATION ⚠️ :
+            1. Si la phrase contient une DATE (demain, lundi, le 12...) ou une HEURE (14h, ce soir...) => C'EST OBLIGATOIREMENT "CALENDAR".
+            2. "Dentiste demain" => CALENDAR
+            3. "Acheter du pain" => TODO
+            4. "Rdv banque à 9h" => CALENDAR
+            NE TE TROMPE PAS.`,
 
-            'FOCUS': `Coach anti-procrastination. JSON Strict. Donne 1 seule micro-étape TODO.`,
-            'ROUTINE': `Pilote de routine. JSON Strict. Pas d'actions, juste du texte.`
+            'FOCUS': `Coach anti-procrastination. JSON Strict.`,
+            'ROUTINE': `Pilote de routine. JSON Strict.`
         };
 
-        // --- GESTION UI & TÂCHES ---
         document.addEventListener('DOMContentLoaded', loadTasks);
 
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
-            
             const msgs = {'DUMP': "Vide ton sac...", 'FOCUS': "Qu'est-ce qui bloque ?", 'ROUTINE': "On attaque ?"};
             document.getElementById('status-text').innerText = msgs[mode];
             document.getElementById('status-text').style.opacity = 1;
@@ -193,15 +131,17 @@
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
 
             const div = document.createElement('div');
-            div.className = `task-item ${type === 'CALENDAR' ? 'calendar' : ''}`;
+            // Force la classe calendar si le type est CALENDAR
+            const isCal = (type === 'CALENDAR');
+            div.className = `task-item ${isCal ? 'calendar' : ''}`;
             
-            const syncIcon = type === 'CALENDAR' ? '<span class="sync-badge">☁️ Sync</span>' : '';
-            const label = type === 'CALENDAR' ? 'Agenda' : 'Tâche';
+            const syncIcon = isCal ? '<span class="sync-badge">☁️ Make</span>' : '';
+            const label = isCal ? 'AGENDA (Envoyé)' : 'Tâche';
 
             div.innerHTML = `
                 <div>
                     <div class="task-text">${text} ${syncIcon}</div>
-                    <div class="task-sub">${label}</div>
+                    <div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div>
                 </div>
                 <button class="delete-btn" onclick="this.parentElement.remove(); saveTasks();">✕</button>
             `;
@@ -210,41 +150,32 @@
             saveTasks();
         }
 
-        function saveTasks() {
-            localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML);
+        function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
+        function loadTasks() { 
+            const saved = localStorage.getItem('neuro_tasks'); 
+            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; 
         }
 
-        function loadTasks() {
-            const saved = localStorage.getItem('neuro_tasks');
-            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved;
-        }
-
-        // --- ENVOI VERS MAKE (Uniquement Agenda) ---
+        // ENVOI AGENDA
         async function sendToCalendar(detail) {
-            console.log("Envoi Agenda vers Make...");
+            console.log("Envoi Agenda -> Make...");
             try {
                 await fetch(MAKE_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ detail: detail, type: 'CALENDAR' })
                 });
-                console.log("Agenda OK");
-            } catch (e) {
-                console.error("Erreur Make", e);
-            }
+            } catch (e) { console.error("Erreur Make", e); }
         }
 
-        // --- MICRO & IA ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
-
         btnMic.addEventListener('click', () => { if(!isProcessing) startListening(); });
 
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
-            const rec = new Speech();
-            rec.lang = 'fr-FR'; rec.interimResults = false;
+            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
             rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "J'écoute..."; };
             rec.onend = () => { btnMic.classList.remove('active'); };
             rec.onresult = (e) => { processWithAI(e.results[0][0].transcript); };
@@ -258,35 +189,29 @@
             const finalPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // 1. APPEL GEMINI (Vercel)
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ prompt: finalPrompt })
                 });
 
                 const data = await rep.json();
-                
-                // 2. PARSING JSON
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed;
                 try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: data.text, actions: []}; }
 
-                // 3. TRAITEMENT DES ACTIONS
                 if(parsed.actions && parsed.actions.length > 0) {
                     parsed.actions.forEach(act => {
-                        // Affiche tout à l'écran
+                        // FORCE LA VERIF
+                        console.log(`Action reçue: ${act.type} - ${act.detail}`);
                         addTaskToUI(act.detail, act.type);
                         
-                        // Si Agenda -> Envoie AUSSI à Make
                         if(act.type === 'CALENDAR') {
-                            statusText.innerText = "Synchro Agenda...";
+                            statusText.innerText = "Envoi Agenda...";
                             sendToCalendar(act.detail);
                         }
                     });
                 }
 
-                // 4. RÉPONSE VOCALE
                 statusText.innerText = "Lecture...";
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -298,15 +223,9 @@
                     const audio = new Audio(URL.createObjectURL(blob));
                     audio.play();
                     audio.onended = () => { isProcessing = false; statusText.innerText = "Prêt."; };
-                } else {
-                    isProcessing = false;
-                }
+                } else { isProcessing = false; }
 
-            } catch (e) {
-                console.error(e);
-                statusText.innerText = "Erreur Réseau";
-                isProcessing = false;
-            }
+            } catch (e) { console.error(e); statusText.innerText = "Erreur"; isProcessing = false; }
         }
     </script>
 </body>
