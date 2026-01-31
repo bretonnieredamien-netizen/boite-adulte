@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Odyssée - Assistant Personnel</title>
+    <title>Odyssée - Assistant Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN PREMIUM ADULTE --- */
         :root { 
-            --bg-1: #0f172a; --bg-2: #1e293b; --bg-3: #334155; 
-            --accent: #d4af37; /* Or */
+            --bg-1: #0f172a; --bg-2: #1e293b; 
+            --accent: #38bdf8; /* Bleu Cyan électrique pour le côté Tech/Pro */
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
         }
         
         body { 
@@ -22,222 +20,200 @@
             height: 100vh; overflow: hidden; margin: 0; touch-action: none;
         }
 
-        /* PARTICULES D'AMBIANCE (SUBTILES) */
-        #ambient-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.4; }
-
+        /* UI GLASSPHORISM */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.4);
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-mode {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .btn-mode:active { transform: scale(0.95); background: rgba(212, 175, 55, 0.1); border-color: var(--accent); }
-        .btn-mode.active { border-color: var(--accent); background: rgba(212, 175, 55, 0.05); box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); }
-
-        /* PULSE MICRO */
-        .mic-btn {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #d4af37, #b49228);
+        /* BOUTON MICRO CENTRAL */
+        .mic-container {
+            position: relative;
+            width: 90px; height: 90px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer; z-index: 50;
         }
-        .mic-btn:active { transform: scale(0.9); }
-        .listening { animation: breathe 2s infinite ease-in-out; box-shadow: 0 0 40px rgba(212, 175, 55, 0.6); }
-        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        
+        .mic-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+            transition: all 0.2s;
+            cursor: pointer; z-index: 50; position: relative;
+        }
+        .mic-btn:active { transform: scale(0.95); }
+        
+        /* RIPPLE EFFECT */
+        .ripple { position: absolute; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; pointer-events: none; }
+        .listening .ripple { animation: rippleAnim 2s infinite; }
+        .listening .ripple:nth-child(2) { animation-delay: 0.5s; }
+        @keyframes rippleAnim { 0% { width: 70px; height: 70px; opacity: 0.8; } 100% { width: 140px; height: 140px; opacity: 0; } }
 
-        /* UI ELEMENTS */
-        .hidden { display: none !important; }
-        .fade-in { animation: fadeIn 0.8s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* TEXTE STATUS */
+        .status-text { text-transform: uppercase; letter-spacing: 2px; font-size: 10px; color: #94a3b8; margin-top: 15px; }
 
-        /* VISUALIZER */
-        #viz-canvas { width: 100%; height: 60px; margin-top: 20px; opacity: 0.6; }
-
-        /* MENU NAVIGATION */
+        /* NAV BAR */
         .nav-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            padding: 20px; display: flex; justify-content: space-around;
-            background: linear-gradient(to top, #020617, transparent);
-            z-index: 40;
+            width: 100%; padding: 15px 20px; padding-bottom: 30px;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
         }
-        .nav-item { opacity: 0.5; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-item.active { opacity: 1; color: var(--accent); }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 6px; 
+            opacity: 0.4; transition: 0.3s; background: transparent; border: none; cursor: pointer;
+        }
+        .nav-item.active { opacity: 1; transform: translateY(-5px); }
+        .nav-item.active svg { fill: var(--accent); drop-shadow(0 0 10px var(--accent)); }
+        .nav-item svg { width: 22px; height: 22px; fill: white; }
+        .nav-label { font-size: 9px; font-weight: 600; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
 
-        /* LOADER */
-        .loader-line { height: 2px; width: 0%; background: var(--accent); transition: width 0.3s; position: absolute; top:0; left:0; }
-        .processing .loader-line { width: 100%; animation: load 2s infinite; }
-        @keyframes load { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        /* MODE DISPLAY */
+        .mode-display {
+            text-align: center; margin-top: 40px;
+        }
+        .mode-icon-lg { font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.3)); }
+        .mode-title { font-size: 32px; font-weight: 200; letter-spacing: -1px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .mode-desc { font-size: 13px; color: #64748b; max-width: 250px; margin: 0 auto; line-height: 1.4; }
 
     </style>
 </head>
-<body class="flex flex-col items-center justify-center relative">
+<body class="flex flex-col justify-between">
 
-    <canvas id="ambient-canvas"></canvas>
-    <div class="loader-line"></div>
-
-    <div id="setup-screen" class="absolute inset-0 z-50 bg-[#020617] flex flex-col items-center justify-center p-8 transition-opacity duration-500">
-        <div class="mb-8 text-center">
-            <h1 class="text-4xl font-thin tracking-[0.2em] text-white mb-2">ODYSSÉE</h1>
-            <p class="text-xs text-amber-500 tracking-widest uppercase">Intelligence Amplifiée</p>
-        </div>
+    <div class="mode-display flex-1 flex flex-col justify-center">
+        <div id="mode-icon" class="mode-icon-lg">💼</div>
+        <h1 id="mode-title" class="mode-title">Rédacteur</h1>
+        <p id="mode-desc" class="mode-desc">Emails, courriers, posts LinkedIn, correction et reformulation.</p>
         
-        <div id="step-1" class="w-full max-w-sm">
-            <label class="block text-xs text-slate-400 uppercase tracking-wider mb-2">Comment dois-je vous appeler ?</label>
-            <input type="text" id="user-name" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg p-4 text-white focus:border-amber-500 focus:outline-none transition-colors text-center text-lg" placeholder="Votre prénom">
-            <button onclick="nextStep()" class="mt-8 w-full py-4 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-white uppercase tracking-widest text-xs transition-all">Continuer</button>
+        <div id="visualizer" class="h-12 flex items-center justify-center gap-1 mt-8 opacity-0 transition-opacity duration-500">
+            <div class="w-1 h-3 bg-sky-400 rounded-full animate-pulse"></div>
+            <div class="w-1 h-6 bg-sky-400 rounded-full animate-pulse delay-75"></div>
+            <div class="w-1 h-4 bg-sky-400 rounded-full animate-pulse delay-150"></div>
+            <div class="w-1 h-6 bg-sky-400 rounded-full animate-pulse delay-100"></div>
+            <div class="w-1 h-3 bg-sky-400 rounded-full animate-pulse delay-200"></div>
         </div>
     </div>
 
-    <div id="main-ui" class="w-full max-w-md h-full flex flex-col justify-between p-6 opacity-0 transition-opacity duration-1000">
+    <div class="glass-panel rounded-t-3xl">
         
-        <header class="flex justify-between items-center mt-4">
-            <div class="flex flex-col">
-                <span class="text-xs text-amber-500 tracking-widest uppercase">Mode Actif</span>
-                <h2 id="current-mode-title" class="text-2xl font-light text-white">Assistant</h2>
+        <div class="flex flex-col items-center -mt-10">
+            <div id="mic-container" class="mic-container">
+                <div class="ripple"></div><div class="ripple"></div>
+                <div id="btn-mic" class="mic-btn">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </div>
             </div>
-            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs text-slate-400 cursor-pointer" onclick="resetProfile()">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-            </div>
-        </header>
+            <p id="status" class="status-text">Appuyez pour parler</p>
+        </div>
 
-        <main class="flex-1 flex flex-col items-center justify-center relative z-10">
+        <div class="nav-bar">
+            <button class="nav-item active" onclick="switchMode('REDACTEUR', this)">
+                <svg viewBox="0 0 24 24"><path d="M2.5 19h19v2h-19zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 1.82 3.16.77 1.33 1.6-.43 5.31-1.42 4.35-1.16c.8-.21 1.28-1.05 1.07-1.85z"/></svg>
+                <span class="nav-label">Rédacteur</span>
+            </button>
             
-            <div id="text-output" class="text-center mb-10 max-w-xs min-h-[60px]">
-                <p id="status-text" class="text-lg font-light text-slate-300">En attente...</p>
-            </div>
-
-            <div id="btn-mic" class="mic-btn">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-            </div>
-
-            <canvas id="viz-canvas"></canvas>
-
-            <button id="stop-btn" class="mt-8 px-6 py-2 rounded-full border border-red-900/50 text-red-400 text-xs tracking-widest uppercase hover:bg-red-900/20 opacity-0 pointer-events-none transition-all">Arrêter</button>
-
-        </main>
-
-        <div class="glass-panel rounded-2xl p-2 mb-4 grid grid-cols-4 gap-2">
-            <button class="nav-item active" onclick="setMode('ASSISTANT', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                <span>Infos</span>
+            <button class="nav-item" onclick="switchMode('SOLVEUR', this)">
+                <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                <span class="nav-label">Solveur</span>
             </button>
-            <button class="nav-item" onclick="setMode('IMMERSION', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>
-                <span>Récits</span>
+            
+            <button class="nav-item" onclick="switchMode('STRATEGE', this)">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM6 19V5h12v14H6zm6-6h-2v2h2v-2zm0-4h-2v2h2V9z"/></svg>
+                <span class="nav-label">Stratège</span>
             </button>
-            <button class="nav-item" onclick="setMode('COACH', this)">
-                <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>
-                <span>Coach</span>
-            </button>
-            <button class="nav-item" onclick="setMode('CONFIDENT', this)">
-                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                <span>Talk</span>
+
+            <button class="nav-item" onclick="switchMode('MENTOR', this)">
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+                <span class="nav-label">Mentor</span>
             </button>
         </div>
     </div>
 
     <script>
-        // =========================================================================
-        // CONFIGURATION (METTRE VOTRE URL VERCEL ICI)
-        // =========================================================================
-        const API_BASE_URL = "https://boite-adulte.vercel.app/"; 
-        // =========================================================================
+        // ==========================================
+        // CONFIGURATION (VOTRE URL VERCEL)
+        // ==========================================
+        const API_BASE_URL = "https://boite-adulte.vercel.app/";
+        // ==========================================
 
-        let userName = localStorage.getItem('ODY_NAME');
-        let currentMode = 'ASSISTANT';
+        let currentMode = 'REDACTEUR';
         let isProcessing = false;
-        let isSpeaking = false;
-        let audioCtx, analyser, dataArray, source, currentAudio;
+        let currentAudio = null;
 
-        // --- SETUP ---
-        if (userName) {
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('main-ui').classList.remove('opacity-0');
-            welcomeUser();
-        }
-
-        function nextStep() {
-            const nameInput = document.getElementById('user-name').value;
-            if (nameInput.trim() !== "") {
-                userName = nameInput;
-                localStorage.setItem('ODY_NAME', userName);
-                document.getElementById('setup-screen').style.opacity = 0;
-                setTimeout(() => {
-                    document.getElementById('setup-screen').classList.add('hidden');
-                    document.getElementById('main-ui').classList.remove('opacity-0');
-                    welcomeUser();
-                }, 500);
+        const MODES = {
+            'REDACTEUR': {
+                title: "Rédacteur Pro",
+                desc: "Rédaction d'emails, correction, lettres officielles, posts réseaux sociaux.",
+                icon: "💼",
+                prompt: "Tu es un expert en communication et un assistant exécutif de haut niveau. Ta tâche est de rédiger, corriger ou reformuler des textes. L'utilisateur te donnera un contexte. Produis un résultat professionnel, clair et percutant. Si c'est un email, inclus l'objet. Ne sois pas bavard, donne le résultat."
+            },
+            'SOLVEUR': {
+                title: "Solveur Technique",
+                desc: "Bricolage, cuisine, calculs, bugs informatiques. Solutions pas à pas.",
+                icon: "🔧",
+                prompt: "Tu es un ingénieur polyvalent et un expert en résolution de problèmes (bricolage, cuisine, tech). L'utilisateur a un problème concret. Donne une solution structurée, étape par étape (Step 1, Step 2...). Sois précis, sécuritaire et pratique."
+            },
+            'STRATEGE': {
+                title: "Stratège",
+                desc: "Prise de décision, négociation, analyse de situation, pour et contre.",
+                icon: "♟️",
+                prompt: "Tu es un consultant en stratégie et un négociateur expert. L'utilisateur doit prendre une décision ou préparer une négociation. Analyse la situation, donne les Pour et les Contre, identifie les angles morts et propose un plan d'action rationnel."
+            },
+            'MENTOR': {
+                title: "Mentor Savoir",
+                desc: "Explications simples, traductions, résumés de concepts complexes.",
+                icon: "🎓",
+                prompt: "Tu es un professeur pédagogue et un traducteur expert. L'utilisateur veut apprendre ou comprendre quelque chose. Explique le concept simplement (vulgarisation) ou traduis le texte demandé. Utilise des analogies si nécessaire pour la clarté."
             }
-        }
+        };
 
-        function resetProfile() {
-            if(confirm("Réinitialiser le profil ?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function welcomeUser() {
-            updateStatus(`Bonjour, ${userName}.`);
-        }
-
-        // --- NAVIGATION ---
-        function setMode(mode, btn) {
-            currentMode = mode;
-            // Update UI
+        function switchMode(modeKey, btn) {
+            currentMode = modeKey;
+            
+            // UI Update
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
+
+            const info = MODES[modeKey];
+            document.getElementById('mode-title').innerText = info.title;
+            document.getElementById('mode-desc').innerText = info.desc;
+            document.getElementById('mode-icon').innerText = info.icon;
             
-            // Textes UI
-            const titles = {
-                'ASSISTANT': 'Assistant',
-                'IMMERSION': 'Immersion Sonore',
-                'COACH': 'Mentorat',
-                'CONFIDENT': 'Espace Libre'
-            };
-            document.getElementById('current-mode-title').innerText = titles[mode];
-            updateStatus("Prêt.");
+            // Animation
+            const title = document.getElementById('mode-title');
+            title.style.opacity = 0;
+            setTimeout(() => title.style.opacity = 1, 200);
+
             stopAudio();
+            updateStatus("Prêt.");
         }
 
-        // --- MICROPHONE & INTELLIGENCE ---
         const btnMic = document.getElementById('btn-mic');
-        
+        const micContainer = document.getElementById('mic-container');
+
         btnMic.addEventListener('click', () => {
-            if (isProcessing || isSpeaking) {
-                stopAudio();
-                return;
-            }
+            if (isProcessing) return;
             startListening();
         });
 
-        document.getElementById('stop-btn').addEventListener('click', stopAudio);
-
         function startListening() {
+            if(currentAudio) stopAudio();
+
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Microphone non supporté sur ce navigateur."); return; }
+            if (!Speech) { alert("Micro non supporté."); return; }
 
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.interimResults = false;
 
             rec.onstart = () => {
-                btnMic.classList.add('listening');
+                micContainer.classList.add('listening');
                 updateStatus("Je vous écoute...");
             };
 
             rec.onend = () => {
-                btnMic.classList.remove('listening');
+                micContainer.classList.remove('listening');
             };
 
             rec.onresult = (event) => {
@@ -250,170 +226,67 @@
 
         async function processRequest(text) {
             if(!text) return;
-            
             isProcessing = true;
-            document.body.classList.add('processing');
-            updateStatus("Analyse en cours...");
+            updateStatus("Analyse...");
+            document.getElementById('visualizer').style.opacity = 1;
 
-            // --- CONSTRUCTION DU PROMPT ADULTE ---
-            let sysPrompt = "";
-            
-            if (currentMode === 'ASSISTANT') {
-                sysPrompt = `Tu es une IA assistante nommée Odyssée. L'utilisateur s'appelle ${userName}. Tu es concise, précise et efficace. Tu as un ton professionnel mais chaleureux. Réponds à : "${text}"`;
-            } else if (currentMode === 'IMMERSION') {
-                sysPrompt = `Tu es un narrateur de talent. ${userName} veut une histoire sur : "${text}". 
-                Règles : Ton immersif, vocabulaire riche, ambiance cinématographique. Peut être un thriller, de la SF, ou historique selon la demande. Pas de morale enfantine. Fais court (max 4-5 phrases intenses).`;
-            } else if (currentMode === 'COACH') {
-                sysPrompt = `Tu es un coach de vie expert et philosophe stoïcien. ${userName} te pose cette question : "${text}". Donne un conseil concret, mature et inspirant. Évite les lieux communs.`;
-            } else if (currentMode === 'CONFIDENT') {
-                sysPrompt = `Tu es un psychologue empathique et une oreille attentive. ${userName} te dit : "${text}". Écoute, reformule, et pose une question ouverte pour l'aider à approfondir. Ton calme et apaisant.`;
-            }
+            const modeInfo = MODES[currentMode];
+            // Construction du Prompt Intelligent
+            const finalPrompt = `${modeInfo.prompt} \n\n DEMANDE UTILISATEUR : "${text}"`;
 
             try {
-                // 1. APPEL GEMINI (Texte)
+                // 1. APPEL GEMINI
                 const repIA = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ prompt: sysPrompt })
+                    body: JSON.stringify({ prompt: finalPrompt })
                 });
                 const dataIA = await repIA.json();
-                const responseText = dataIA.text;
-
-                // 2. APPEL AZURE (Audio)
-                updateStatus("Synthèse vocale...");
+                
+                // 2. APPEL AZURE TTS
+                updateStatus("Génération vocale...");
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: responseText })
+                    body: JSON.stringify({ text: dataIA.text })
                 });
-                
+
                 if (repAudio.ok) {
                     const blob = await repAudio.blob();
-                    playAudio(blob);
+                    const url = URL.createObjectURL(blob);
+                    currentAudio = new Audio(url);
+                    updateStatus("Lecture...");
+                    currentAudio.play();
+                    currentAudio.onended = () => {
+                        isProcessing = false;
+                        updateStatus("Prêt.");
+                        document.getElementById('visualizer').style.opacity = 0;
+                    };
                 } else {
-                    // Fallback navigateur si Azure échoue
-                    speakBrowser(responseText);
+                    // Fallback si Azure plante
+                    const utt = new SpeechSynthesisUtterance(dataIA.text);
+                    utt.lang = 'fr-FR';
+                    window.speechSynthesis.speak(utt);
+                    isProcessing = false;
                 }
 
             } catch (e) {
                 console.error(e);
-                updateStatus("Erreur de connexion.");
+                updateStatus("Erreur.");
                 isProcessing = false;
-                document.body.classList.remove('processing');
+                document.getElementById('visualizer').style.opacity = 0;
             }
-        }
-
-        function playAudio(blob) {
-            stopAudio();
-            document.body.classList.remove('processing');
-            updateStatus("Lecture...");
-            
-            const url = URL.createObjectURL(blob);
-            currentAudio = new Audio(url);
-            
-            // Visualizer Setup
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = audioCtx.createMediaElementSource(currentAudio);
-            analyser = audioCtx.createAnalyser();
-            src.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 256;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            document.getElementById('stop-btn').style.opacity = 1;
-            document.getElementById('stop-btn').style.pointerEvents = 'auto';
-            
-            isSpeaking = true;
-            drawVisualizer();
-            
-            currentAudio.onended = () => {
-                stopAudio();
-                updateStatus("En attente...");
-            };
-            
-            currentAudio.play();
-        }
-
-        // Fallback TTS Navigateur
-        function speakBrowser(txt) {
-            document.body.classList.remove('processing');
-            const utt = new SpeechSynthesisUtterance(txt);
-            utt.lang = 'fr-FR';
-            window.speechSynthesis.speak(utt);
-            utt.onend = () => { stopAudio(); };
         }
 
         function stopAudio() {
             if (currentAudio) { currentAudio.pause(); currentAudio = null; }
             window.speechSynthesis.cancel();
-            isSpeaking = false;
-            isProcessing = false;
-            document.body.classList.remove('processing');
-            document.getElementById('stop-btn').style.opacity = 0;
-            document.getElementById('stop-btn').style.pointerEvents = 'none';
+            document.getElementById('visualizer').style.opacity = 0;
         }
 
-        function updateStatus(txt) {
-            document.getElementById('status-text').innerText = txt;
+        function updateStatus(text) {
+            document.getElementById('status').innerText = text;
         }
-
-        // --- VISUALIZER ANIMATION ---
-        const canvas = document.getElementById('viz-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        function drawVisualizer() {
-            if (!isSpeaking) return;
-            requestAnimationFrame(drawVisualizer);
-            
-            analyser.getByteFrequencyData(dataArray);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            const barWidth = (canvas.width / dataArray.length) * 2.5;
-            let barHeight;
-            let x = 0;
-
-            for(let i = 0; i < dataArray.length; i++) {
-                barHeight = dataArray[i] / 2;
-                ctx.fillStyle = `rgba(212, 175, 55, ${barHeight / 100})`; // Couleur OR
-                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                x += barWidth + 1;
-            }
-        }
-        
-        // Resize canvas
-        function resize() { canvas.width = window.innerWidth; canvas.height = 60; }
-        window.addEventListener('resize', resize); resize();
-
-        // --- FOND PARTICULES ---
-        // (Version simplifiée de l'effet "Dust")
-        const ambCanvas = document.getElementById('ambient-canvas');
-        const ambCtx = ambCanvas.getContext('2d');
-        let particles = [];
-        
-        function initParticles() {
-            ambCanvas.width = window.innerWidth; ambCanvas.height = window.innerHeight;
-            for(let i=0; i<50; i++) particles.push({
-                x: Math.random() * ambCanvas.width,
-                y: Math.random() * ambCanvas.height,
-                vx: (Math.random() - 0.5) * 0.2,
-                vy: (Math.random() - 0.5) * 0.2,
-                size: Math.random() * 2
-            });
-        }
-        
-        function animParticles() {
-            ambCtx.clearRect(0, 0, ambCanvas.width, ambCanvas.height);
-            ambCtx.fillStyle = "rgba(255, 255, 255, 0.1)";
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if(p.x < 0) p.x = ambCanvas.width; if(p.x > ambCanvas.width) p.x = 0;
-                if(p.y < 0) p.y = ambCanvas.height; if(p.y > ambCanvas.height) p.y = 0;
-                ambCtx.beginPath(); ambCtx.arc(p.x, p.y, p.size, 0, Math.PI*2); ambCtx.fill();
-            });
-            requestAnimationFrame(animParticles);
-        }
-        initParticles(); animParticles();
-
     </script>
 </body>
 </html>
