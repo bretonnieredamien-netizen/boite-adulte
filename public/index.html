@@ -164,8 +164,10 @@
                  return;
             }
 
-            // Tentative Azure désactivée si tu veux économiser, sinon décommente le bloc try/catch ci-dessous
-            /*
+            // TENTATIVE AZURE (Serveur)
+            /* Décommentez ceci si vous voulez utiliser Azure en priorité.
+            Pour l'instant, c'est désactivé pour éviter les frais inutiles et utiliser le TTS gratuit.
+            
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -207,10 +209,16 @@
             const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
+            // Prompt du Brief
             const briefPrompt = `
-            Assistant TDAH. Date: ${today}. Tâches: ${tasksString}.
-            Fais un BRIEF (30s max). 1. Bonjour 2. Charge 3. Une Priorité.
-            JSON Strict: { "text": "...", "actions": [] }`;
+            Tu es un assistant personnel énergique et chaleureux.
+            Date : ${today}.
+            Tâches : ${tasksString}.
+            Fais un BRIEF (30s max). 
+            1. Bonjour + Date.
+            2. Analyse rapide de la charge.
+            3. Donne UNE priorité.
+            JSON Strict : { "text": "Le texte à lire", "actions": [] }`;
 
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
@@ -277,30 +285,36 @@
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
 
-        // --- PROMPTS INTELLIGENTS (CORRIGÉS POUR FOCUS) ---
+        // --- PROMPTS INTELLIGENTS & MOTIVANTS ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
             return {
-                'DUMP': `Assistant TDAH. DATE: ${today}.
-                JSON Strict : { "text": "Ok", "actions": [ { "type": "TODO", "detail": "..." }, { "type": "CALENDAR", "detail": "..." } ] }
-                REGLE : Convertis "demain/jeudi" en date précise "JJ/MM/AAAA HH:mm Titre".`,
+                'DUMP': `Assistant personnel bienveillant. DATE: ${today}.
+                JSON Strict : { "text": "Confirmation courte", "actions": [ { "type": "TODO", "detail": "..." }, { "type": "CALENDAR", "detail": "..." } ] }
+                REGLE AGENDA : Si date/heure ("demain", "jeudi") -> Convertis en "JJ/MM/AAAA HH:mm Titre" dans le detail.`,
                 
-                // LE PROMPT FOCUS CORRIGÉ ET COMPLET 👇
-                'FOCUS': `Tu es un Coach anti-procrastination.
-                L'utilisateur est bloqué.
-                Ta mission : Donner UNE SEULE micro-étape ridicule (la toute première action physique) pour démarrer.
+                // LE PROMPT FOCUS "DOPAMINE"
+                'FOCUS': `Tu es un Coach TDAH ultra-motivant, chaleureux et énergique (Style "Meilleur ami" ou "Coach Sportif").
+                L'utilisateur est en paralysie (blocage).
+                
+                TA MISSION EN 3 ÉTAPES :
+                1. Dédramatise ("Je sais, c'est l'enfer ce truc", "On respire").
+                2. Donne UNE action RIDICULEMENT PETITE (La "Micro-Action"). Tellement petite qu'il est impossible de dire non.
+                3. Boost la confiance ("Tu es un guerrier", "On l'éclate ensemble").
                 
                 Réponds UNIQUEMENT en JSON :
                 {
-                    "text": "Ta phrase d'encouragement + la consigne.",
+                    "text": "Ton discours oral motivant (tutoiement, points d'exclamation, emojis dans la voix).",
                     "actions": [
-                        { "type": "TODO", "detail": "LA MICRO ETAPE (ex: Ouvrir le document)" }
+                        { "type": "TODO", "detail": "LA MICRO ACTION (ex: Juste ouvrir le fichier)" }
                     ]
                 }
-                Exemple: Si l'utilisateur dit "Je n'arrive pas à faire la vaisselle", 
-                detail = "Laver juste une fourchette".`,
+                Exemple User: "J'arrive pas à faire la vaisselle"
+                Ta réponse text: "Ok stop ! On s'en fout de toute la vaisselle. Respire un grand coup. Ta seule mission de champion maintenant : Lave juste UNE fourchette. Juste une. C'est parti !"
+                Ta réponse action detail: "Laver 1 seule fourchette"`,
 
-                'ROUTINE': `Guide Routine. JSON Strict: { "text": "...", "actions": [] }`
+                'ROUTINE': `Guide Routine bienveillant. JSON Strict: { "text": "Consigne étape par étape.", "actions": [] }`
             };
         }
 
