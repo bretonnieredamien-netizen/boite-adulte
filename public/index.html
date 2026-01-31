@@ -14,6 +14,7 @@
             --accent: #BB86FC; 
             --text-main: #E0E0E0;
             --success: #03DAC6;
+            --calendar: #CF6679;
         }
         
         body { 
@@ -47,11 +48,15 @@
             transition: all 0.3s;
         }
 
-        .task-item.calendar { border-left-color: #CF6679; } /* Rouge pour Agenda */
+        .task-item.calendar { border-left-color: var(--calendar); } /* Rouge pour Agenda */
 
         .task-text { font-size: 14px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
         .delete-btn { background: transparent; border: none; color: #666; font-size: 18px; padding: 10px; }
+        
+        /* Indicateur de synchro */
+        .sync-badge { font-size: 10px; color: var(--success); display: none; margin-left: 5px; }
+        .calendar .sync-badge { display: inline; }
 
         @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -63,7 +68,7 @@
             flex-shrink: 0; z-index: 50;
         }
 
-        /* SELECTEUR DE MODE (RETOUR DES FONCTIONS) */
+        /* SELECTEUR DE MODE */
         .mode-selector {
             display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; 
             margin-bottom: 15px; width: 100%; justify-content: center;
@@ -111,7 +116,7 @@
 
     <div class="header">
         <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
-        <p class="text-[9px] text-gray-500 uppercase mt-1">Brain OS v3.0</p>
+        <p class="text-[9px] text-gray-500 uppercase mt-1">Brain OS v4.0 (Sync)</p>
     </div>
 
     <div class="task-container" id="task-list">
@@ -145,46 +150,32 @@
 
     <script>
         // =========================================================
-        // ✅ TON URL EST INTEGRÉE AUTOMATIQUEMENT
+        // ✅ CONFIGURATION AUTOMATIQUE
+        // =========================================================
         const API_BASE_URL = "https://boite-adulte.vercel.app";
+        const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
         // =========================================================
 
         let currentMode = 'DUMP';
         let isProcessing = false;
         
-        // --- 1. PROMPTS INTELLIGENTS (JSON STRICT) ---
         const PROMPTS = {
             'DUMP': `Tu es un assistant exécutif. 
-            L'utilisateur vide son sac. Extrais les tâches.
             Réponds UNIQUEMENT en JSON :
             {
-                "text": "Confirmation courte et apaisante.",
+                "text": "Confirmation courte.",
                 "actions": [
-                    { "type": "TODO", "detail": "..." },
-                    { "type": "CALENDAR", "detail": "..." }
+                    { "type": "TODO", "detail": "Acheter pain" },
+                    { "type": "CALENDAR", "detail": "Dentiste demain 14h" }
                 ]
-            }`,
+            }
+            Règle : Si Date/Heure précise -> CALENDAR. Sinon -> TODO.`,
 
-            'FOCUS': `Tu es un coach anti-procrastination.
-            L'utilisateur est bloqué. Donne LUI JUSTE la 1ère micro-étape ridicule pour démarrer.
-            Réponds UNIQUEMENT en JSON :
-            {
-                "text": "Ton conseil encourageant + la micro étape.",
-                "actions": [
-                   { "type": "TODO", "detail": "La micro étape à faire maintenant" }
-                ]
-            }`,
-
-            'ROUTINE': `Tu es un pilote de routine.
-            Guide l'utilisateur pas à pas.
-            Réponds UNIQUEMENT en JSON :
-            {
-                "text": "Consigne dynamique et motivante.",
-                "actions": [] 
-            }`
+            'FOCUS': `Coach anti-procrastination. JSON Strict. Donne 1 seule micro-étape TODO.`,
+            'ROUTINE': `Pilote de routine. JSON Strict. Pas d'actions, juste du texte.`
         };
 
-        // --- 2. GESTION UI & TÂCHES ---
+        // --- GESTION UI & TÂCHES ---
         document.addEventListener('DOMContentLoaded', loadTasks);
 
         function setMode(mode, btn) {
@@ -204,10 +195,13 @@
             const div = document.createElement('div');
             div.className = `task-item ${type === 'CALENDAR' ? 'calendar' : ''}`;
             
+            const syncIcon = type === 'CALENDAR' ? '<span class="sync-badge">☁️ Sync</span>' : '';
+            const label = type === 'CALENDAR' ? 'Agenda' : 'Tâche';
+
             div.innerHTML = `
                 <div>
-                    <div class="task-text">${text}</div>
-                    <div class="task-sub">${type === 'CALENDAR' ? 'Agenda' : 'Tâche'}</div>
+                    <div class="task-text">${text} ${syncIcon}</div>
+                    <div class="task-sub">${label}</div>
                 </div>
                 <button class="delete-btn" onclick="this.parentElement.remove(); saveTasks();">✕</button>
             `;
@@ -225,7 +219,22 @@
             if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved;
         }
 
-        // --- 3. MICRO & IA ---
+        // --- ENVOI VERS MAKE (Uniquement Agenda) ---
+        async function sendToCalendar(detail) {
+            console.log("Envoi Agenda vers Make...");
+            try {
+                await fetch(MAKE_WEBHOOK, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ detail: detail, type: 'CALENDAR' })
+                });
+                console.log("Agenda OK");
+            } catch (e) {
+                console.error("Erreur Make", e);
+            }
+        }
+
+        // --- MICRO & IA ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
 
@@ -246,11 +255,10 @@
             isProcessing = true;
             statusText.innerText = "Analyse...";
             
-            // On combine le Prompt du Mode + l'Entrée utilisateur
             const finalPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // APPEL VERCEL
+                // 1. APPEL GEMINI (Vercel)
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -259,17 +267,26 @@
 
                 const data = await rep.json();
                 
-                // PARSING
+                // 2. PARSING JSON
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed;
                 try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: data.text, actions: []}; }
 
-                // ACTIONS : Ajouter à la liste SI nécessaire
+                // 3. TRAITEMENT DES ACTIONS
                 if(parsed.actions && parsed.actions.length > 0) {
-                    parsed.actions.forEach(act => addTaskToUI(act.detail, act.type));
+                    parsed.actions.forEach(act => {
+                        // Affiche tout à l'écran
+                        addTaskToUI(act.detail, act.type);
+                        
+                        // Si Agenda -> Envoie AUSSI à Make
+                        if(act.type === 'CALENDAR') {
+                            statusText.innerText = "Synchro Agenda...";
+                            sendToCalendar(act.detail);
+                        }
+                    });
                 }
 
-                // AUDIO : Réponse vocale
+                // 4. RÉPONSE VOCALE
                 statusText.innerText = "Lecture...";
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
