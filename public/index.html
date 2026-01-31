@@ -155,65 +155,82 @@
             updateMentalLoad();
         });
 
-        // --- GESTION DU BRIEF MATINAL (NOUVEAU) ---
+        // --- NOUVELLE FONCTION AUDIO ROBUSTE ---
+        // Cette fonction essaie Azure, et si ça rate, utilise la voix du téléphone.
+        async function playVocalResponse(textToSpeak) {
+            document.getElementById('status-text').innerText = "Lecture...";
+            
+            try {
+                // TENTATIVE 1 : Serveur Azure (Haute Qualité)
+                const rep = await fetch(`${API_BASE_URL}/api/azure`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: textToSpeak })
+                });
+
+                if(rep.ok) {
+                    const blob = await rep.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                    audio.onended = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
+                    return; // Succès, on s'arrête là
+                }
+            } catch (e) {
+                console.log("Azure indisponible, passage au plan B");
+            }
+
+            // TENTATIVE 2 : Voix Native (Plan B - Marche toujours)
+            console.log("Utilisation voix native");
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 1.1; // Un peu plus rapide
+            
+            // On s'assure que la voix est française
+            const voices = window.speechSynthesis.getVoices();
+            const frenchVoice = voices.find(v => v.lang.includes('fr'));
+            if(frenchVoice) utterance.voice = frenchVoice;
+
+            utterance.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
+            
+            // Annule les lectures précédentes pour éviter le chaos
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+
+        // --- GESTION DU BRIEF MATINAL ---
         async function startMorningBrief() {
             if(isProcessing) return;
             isProcessing = true;
-            document.getElementById('status-text').innerText = "Analyse du jour...";
+            document.getElementById('status-text').innerText = "Analyse...";
             document.getElementById('status-text').style.opacity = 1;
 
-            // 1. Récupérer les tâches actuelles
             const tasksElements = document.querySelectorAll('.task-text');
             let tasksList = [];
             tasksElements.forEach(el => tasksList.push(el.innerText));
-            
-            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Aucune tâche, tu es libre.";
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien de spécial";
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-            // 2. Prompt Spécial Brief
             const briefPrompt = `
-            Tu es un assistant personnel énergique et bienveillant pour un TDAH.
-            Nous sommes : ${today}.
-            Voici la liste des tâches en attente : ${tasksString}.
-            
-            Fais un BRIEFING MATINAL court (30 secondes max à l'oral).
-            Structure :
-            1. Salutation énergique + Date.
-            2. Résumé de la charge (Légère, Moyenne ou Lourde).
-            3. Choisis UNE SEULE priorité absolue pour démarrer.
-            4. Une phrase de motivation.
-            
-            Réponds UNIQUEMENT en JSON :
-            {
-                "text": "Le texte exact que tu vas dire à l'oral",
-                "actions": []
-            }
-            `;
+            Tu es un assistant personnel énergique.
+            Date : ${today}. Tâches : ${tasksString}.
+            Fais un BRIEFING MATINAL court (30 sec max) et motivant.
+            1. Bonjour + Date.
+            2. Analyse rapide de la charge.
+            3. Donne UNE priorité.
+            JSON Strict : { "text": "...", "actions": [] }`;
 
             try {
-                // Appel Gemini
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ prompt: briefPrompt })
                 });
                 const data = await rep.json();
-                
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed = JSON.parse(cleanJson);
 
-                // Lecture Audio
-                document.getElementById('status-text').innerText = "Briefing...";
-                const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: parsed.text })
-                });
-
-                if(repAudio.ok) {
-                    const blob = await repAudio.blob();
-                    const audio = new Audio(URL.createObjectURL(blob));
-                    audio.play();
-                    audio.onended = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
-                } else { isProcessing = false; }
+                // On utilise la nouvelle fonction audio
+                playVocalResponse(parsed.text);
 
             } catch(e) {
                 console.error(e);
@@ -341,19 +358,9 @@
                         }
                     });
                 }
-
-                statusText.innerText = "Synthèse...";
-                const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: parsed.text })
-                });
-
-                if(repAudio.ok) {
-                    const blob = await repAudio.blob();
-                    const audio = new Audio(URL.createObjectURL(blob));
-                    audio.play();
-                    audio.onended = () => { isProcessing = false; statusText.innerText = "Prêt."; };
-                } else { isProcessing = false; }
+                
+                // Utilisation de la nouvelle fonction audio blindée
+                playVocalResponse(parsed.text);
 
             } catch (e) { console.error(e); statusText.innerText = "Erreur"; isProcessing = false; }
         }
