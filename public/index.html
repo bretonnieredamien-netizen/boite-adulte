@@ -155,50 +155,46 @@
             updateMentalLoad();
         });
 
-        // --- NOUVELLE FONCTION AUDIO ROBUSTE ---
-        // Cette fonction essaie Azure, et si ça rate, utilise la voix du téléphone.
+        // --- VOCAL (Plan B inclus) ---
         async function playVocalResponse(textToSpeak) {
             document.getElementById('status-text').innerText = "Lecture...";
-            
+            if(!textToSpeak || textToSpeak.trim() === "") {
+                 isProcessing = false;
+                 document.getElementById('status-text').innerText = "Prêt.";
+                 return;
+            }
+
+            // Tentative Azure désactivée si tu veux économiser, sinon décommente le bloc try/catch ci-dessous
+            /*
             try {
-                // TENTATIVE 1 : Serveur Azure (Haute Qualité)
                 const rep = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ text: textToSpeak })
                 });
-
                 if(rep.ok) {
                     const blob = await rep.blob();
                     const audio = new Audio(URL.createObjectURL(blob));
                     audio.play();
                     audio.onended = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
-                    return; // Succès, on s'arrête là
+                    return;
                 }
-            } catch (e) {
-                console.log("Azure indisponible, passage au plan B");
-            }
+            } catch (e) { console.log("Azure skip"); }
+            */
 
-            // TENTATIVE 2 : Voix Native (Plan B - Marche toujours)
-            console.log("Utilisation voix native");
+            // VOIX NATIVE (Gratuite & Rapide)
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'fr-FR';
-            utterance.rate = 1.1; // Un peu plus rapide
-            
-            // On s'assure que la voix est française
+            utterance.rate = 1.1; 
             const voices = window.speechSynthesis.getVoices();
             const frenchVoice = voices.find(v => v.lang.includes('fr'));
             if(frenchVoice) utterance.voice = frenchVoice;
 
             utterance.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
-            
-            // Annule les lectures précédentes pour éviter le chaos
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }
 
-
-        // --- GESTION DU BRIEF MATINAL ---
+        // --- BRIEF MATINAL ---
         async function startMorningBrief() {
             if(isProcessing) return;
             isProcessing = true;
@@ -208,17 +204,13 @@
             const tasksElements = document.querySelectorAll('.task-text');
             let tasksList = [];
             tasksElements.forEach(el => tasksList.push(el.innerText));
-            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien de spécial";
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
             const briefPrompt = `
-            Tu es un assistant personnel énergique.
-            Date : ${today}. Tâches : ${tasksString}.
-            Fais un BRIEFING MATINAL court (30 sec max) et motivant.
-            1. Bonjour + Date.
-            2. Analyse rapide de la charge.
-            3. Donne UNE priorité.
-            JSON Strict : { "text": "...", "actions": [] }`;
+            Assistant TDAH. Date: ${today}. Tâches: ${tasksString}.
+            Fais un BRIEF (30s max). 1. Bonjour 2. Charge 3. Une Priorité.
+            JSON Strict: { "text": "...", "actions": [] }`;
 
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
@@ -228,18 +220,11 @@
                 const data = await rep.json();
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed = JSON.parse(cleanJson);
-
-                // On utilise la nouvelle fonction audio
                 playVocalResponse(parsed.text);
-
-            } catch(e) {
-                console.error(e);
-                isProcessing = false;
-                document.getElementById('status-text').innerText = "Erreur Brief";
-            }
+            } catch(e) { console.error(e); isProcessing = false; document.getElementById('status-text').innerText = "Erreur"; }
         }
 
-        // --- GESTION CHARGE MENTALE ---
+        // --- CHARGE MENTALE ---
         function updateMentalLoad() {
             const list = document.getElementById('task-list');
             const count = list.querySelectorAll('.task-item').length;
@@ -269,7 +254,7 @@
         }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
-        // --- UI & TACHES ---
+        // --- UI ---
         function addTaskToUI(text, type) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
@@ -292,19 +277,34 @@
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
 
-        // --- PROMPTS ---
+        // --- PROMPTS INTELLIGENTS (CORRIGÉS POUR FOCUS) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             return {
                 'DUMP': `Assistant TDAH. DATE: ${today}.
                 JSON Strict : { "text": "Ok", "actions": [ { "type": "TODO", "detail": "..." }, { "type": "CALENDAR", "detail": "..." } ] }
                 REGLE : Convertis "demain/jeudi" en date précise "JJ/MM/AAAA HH:mm Titre".`,
-                'FOCUS': `Coach. JSON Strict.`,
-                'ROUTINE': `Guide. JSON Strict.`
+                
+                // LE PROMPT FOCUS CORRIGÉ ET COMPLET 👇
+                'FOCUS': `Tu es un Coach anti-procrastination.
+                L'utilisateur est bloqué.
+                Ta mission : Donner UNE SEULE micro-étape ridicule (la toute première action physique) pour démarrer.
+                
+                Réponds UNIQUEMENT en JSON :
+                {
+                    "text": "Ta phrase d'encouragement + la consigne.",
+                    "actions": [
+                        { "type": "TODO", "detail": "LA MICRO ETAPE (ex: Ouvrir le document)" }
+                    ]
+                }
+                Exemple: Si l'utilisateur dit "Je n'arrive pas à faire la vaisselle", 
+                detail = "Laver juste une fourchette".`,
+
+                'ROUTINE': `Guide Routine. JSON Strict: { "text": "...", "actions": [] }`
             };
         }
 
-        // --- UI BASE ---
+        // --- BASE ---
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
@@ -318,7 +318,6 @@
             try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {}
         }
 
-        // --- MICRO & IA ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
         btnMic.addEventListener('click', () => { if(!isProcessing) startListening(); });
@@ -359,7 +358,6 @@
                     });
                 }
                 
-                // Utilisation de la nouvelle fonction audio blindée
                 playVocalResponse(parsed.text);
 
             } catch (e) { console.error(e); statusText.innerText = "Erreur"; isProcessing = false; }
