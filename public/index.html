@@ -57,7 +57,6 @@
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
         .delete-btn { background: transparent; border: none; color: #666; font-size: 18px; padding: 10px; }
         
-        /* Badge Sync */
         .sync-badge { font-size: 10px; color: #03DAC6; display: none; margin-left: 5px; font-weight: bold;}
         .task-item.calendar .sync-badge { display: inline; }
 
@@ -117,7 +116,7 @@
 
     <div class="header">
         <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
-        <p class="text-[9px] text-gray-500 uppercase mt-1">Version Finale - Dates</p>
+        <p class="text-[9px] text-gray-500 uppercase mt-1">Version Finale - Dates Fixes</p>
     </div>
 
     <div class="task-container" id="task-list">
@@ -127,9 +126,7 @@
     </div>
 
     <div class="bottom-controls">
-        
         <div id="status-text" class="ai-feedback">Prêt.</div>
-
         <div class="mode-selector">
             <div class="mode-card active" onclick="setMode('DUMP', this)">
                 <span class="mode-icon">🧠</span><span class="mode-label">Vider</span>
@@ -141,7 +138,6 @@
                 <span class="mode-icon">🔄</span><span class="mode-label">Routine</span>
             </div>
         </div>
-
         <div class="mic-wrapper">
             <div id="btn-mic" class="mic-btn">
                 <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
@@ -151,6 +147,7 @@
 
     <script>
         // =========================================================
+        // ✅ CONFIGURATION
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
         // =========================================================
@@ -158,41 +155,47 @@
         let currentMode = 'DUMP';
         let isProcessing = false;
         
-        // --- 1. PROMPT AVEC GESTION STRICTE DES DATES ---
-        const PROMPTS = {
-            'DUMP': `Tu es un assistant exécutif. 
-            Réponds UNIQUEMENT en JSON :
-            {
-                "text": "Confirmation courte.",
-                "actions": [
-                    { "type": "TODO", "detail": "..." },
-                    { "type": "CALENDAR", "detail": "..." }
-                ]
-            }
+        // --- PROMPTS INTELLIGENTS ---
+        // On définit les prompts comme des fonctions pour injecter la date dynamique
+        function getPrompts() {
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
-            🚨 REGLES ABSOLUES POUR LES DATES 🚨 :
-            1. Si l'utilisateur donne une date (demain, jeudi, lundi prochain...) TU DOIS LA METTRE DANS LE TEXTE 'detail'.
-            2. NE COUPE PAS LA DATE. Envoie la phrase complète.
-            
-            Exemples :
-            - "Rdv dentiste demain" -> type: CALENDAR, detail: "Rdv dentiste demain" (PAS juste "Rdv dentiste")
-            - "Déjeuner avec Paul jeudi" -> type: CALENDAR, detail: "Déjeuner avec Paul jeudi"
-            - "Rappel acheter pain" -> type: TODO, detail: "Acheter pain"
-            
-            Google Calendar a besoin de lire "demain" ou "jeudi" pour comprendre.`,
+            return {
+                'DUMP': `Tu es un assistant personnel intelligent.
+                NOUS SOMMES LE : ${today}.
+                
+                L'utilisateur te dicte des tâches ou rdv.
+                Réponds UNIQUEMENT en JSON :
+                {
+                    "text": "Phrase de confirmation.",
+                    "actions": [
+                        { "type": "TODO", "detail": "..." },
+                        { "type": "CALENDAR", "detail": "..." }
+                    ]
+                }
+                
+                🚨 REGLE CRITIQUE POUR LE CALENDRIER :
+                Tu dois convertir les dates relatives ("demain", "jeudi prochain") en format précis pour Google Calendar.
+                Format attendu dans 'detail' : "JJ/MM/AAAA HH:mm Titre de l'événement".
+                
+                Exemples :
+                - Si on est le Lundi 10 et qu'il dit "Dentiste jeudi à 14h" -> detail: "13/05/2024 14:00 Dentiste"
+                - "Déjeuner maman demain midi" -> detail: "11/05/2024 12:00 Déjeuner maman"
+                
+                NE LAISSE PAS "demain" ou "jeudi", CALCULE LA DATE.`,
 
-            'FOCUS': `Coach anti-procrastination. JSON Strict.`,
-            'ROUTINE': `Pilote de routine. JSON Strict.`
-        };
+                'FOCUS': `Coach anti-procrastination. JSON Strict.`,
+                'ROUTINE': `Pilote de routine. JSON Strict.`
+            };
+        }
 
-        // --- GESTION UI & TÂCHES ---
+        // --- UI & TÂCHES ---
         document.addEventListener('DOMContentLoaded', loadTasks);
 
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
-            
             const msgs = {'DUMP': "Vide ton sac...", 'FOCUS': "Qu'est-ce qui bloque ?", 'ROUTINE': "On attaque ?"};
             document.getElementById('status-text').innerText = msgs[mode];
             document.getElementById('status-text').style.opacity = 1;
@@ -206,12 +209,16 @@
             const isCal = (type === 'CALENDAR');
             div.className = `task-item ${isCal ? 'calendar' : ''}`;
             
-            const syncIcon = isCal ? '<span class="sync-badge">☁️ Make</span>' : '';
+            // On nettoie le texte affiché (pour ne pas voir la date moche "12/05/2024...")
+            // On garde un affichage propre, mais l'envoi Make aura la date précise.
+            let displayText = text;
+            
+            const syncIcon = isCal ? '<span class="sync-badge">☁️ Agenda</span>' : '';
             const label = isCal ? 'AGENDA (Envoyé)' : 'Tâche';
 
             div.innerHTML = `
                 <div>
-                    <div class="task-text">${text} ${syncIcon}</div>
+                    <div class="task-text">${displayText} ${syncIcon}</div>
                     <div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div>
                 </div>
                 <button class="delete-btn" onclick="this.parentElement.remove(); saveTasks();">✕</button>
@@ -221,40 +228,33 @@
             saveTasks();
         }
 
-        function saveTasks() {
-            localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML);
+        function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
+        function loadTasks() { 
+            const saved = localStorage.getItem('neuro_tasks'); 
+            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; 
         }
 
-        function loadTasks() {
-            const saved = localStorage.getItem('neuro_tasks');
-            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved;
-        }
-
-        // --- ENVOI VERS MAKE (Uniquement Agenda) ---
+        // ENVOI AGENDA (Date précise)
         async function sendToCalendar(detail) {
-            console.log("Envoi Agenda vers Make: " + detail);
+            console.log("Envoi Agenda -> Make: " + detail);
             try {
                 await fetch(MAKE_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ detail: detail, type: 'CALENDAR' })
                 });
-            } catch (e) {
-                console.error("Erreur Make", e);
-            }
+            } catch (e) { console.error("Erreur Make", e); }
         }
 
-        // --- MICRO & IA ---
+        // --- IA ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
-
         btnMic.addEventListener('click', () => { if(!isProcessing) startListening(); });
 
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
-            const rec = new Speech();
-            rec.lang = 'fr-FR'; rec.interimResults = false;
+            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
             rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "J'écoute..."; };
             rec.onend = () => { btnMic.classList.remove('active'); };
             rec.onresult = (e) => { processWithAI(e.results[0][0].transcript); };
@@ -263,40 +263,33 @@
 
         async function processWithAI(userInput) {
             isProcessing = true;
-            statusText.innerText = "Analyse...";
+            statusText.innerText = "Calcul date...";
             
-            const finalPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
+            // On récupère les prompts AVEC la date du jour calculée
+            const currentPrompts = getPrompts();
+            const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // 1. APPEL GEMINI (Vercel)
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ prompt: finalPrompt })
                 });
 
                 const data = await rep.json();
-                
-                // 2. PARSING JSON
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed;
                 try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: data.text, actions: []}; }
 
-                // 3. TRAITEMENT DES ACTIONS
                 if(parsed.actions && parsed.actions.length > 0) {
                     parsed.actions.forEach(act => {
-                        // Affiche tout à l'écran
                         addTaskToUI(act.detail, act.type);
-                        
-                        // Si Agenda -> Envoie AUSSI à Make
                         if(act.type === 'CALENDAR') {
-                            statusText.innerText = "Synchro Agenda...";
+                            statusText.innerText = "Synchro...";
                             sendToCalendar(act.detail);
                         }
                     });
                 }
 
-                // 4. RÉPONSE VOCALE
                 statusText.innerText = "Lecture...";
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -308,15 +301,9 @@
                     const audio = new Audio(URL.createObjectURL(blob));
                     audio.play();
                     audio.onended = () => { isProcessing = false; statusText.innerText = "Prêt."; };
-                } else {
-                    isProcessing = false;
-                }
+                } else { isProcessing = false; }
 
-            } catch (e) {
-                console.error(e);
-                statusText.innerText = "Erreur Réseau";
-                isProcessing = false;
-            }
+            } catch (e) { console.error(e); statusText.innerText = "Erreur"; isProcessing = false; }
         }
     </script>
 </body>
