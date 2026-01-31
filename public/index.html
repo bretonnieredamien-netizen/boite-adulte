@@ -13,9 +13,9 @@
             --bg-card: #1E1E1E; 
             --accent: #BB86FC; 
             --text-main: #E0E0E0;
-            --success: #03DAC6; /* Vert Zen */
-            --warning: #FFB74D; /* Orange Charge moyenne */
-            --danger: #CF6679;  /* Rouge Surcharge */
+            --success: #03DAC6;
+            --warning: #FFB74D;
+            --danger: #CF6679;
         }
         
         body { 
@@ -26,87 +26,57 @@
             display: flex; flex-direction: column;
         }
 
-        /* HEADER MONITEUR */
-        .header { padding-top: 20px; padding-bottom: 15px; text-align: center; flex-shrink: 0; background: #121212; z-index: 10; border-bottom: 1px solid #333; }
+        /* HEADER */
+        .header { 
+            padding-top: 20px; padding-bottom: 15px; 
+            background: #121212; z-index: 10; border-bottom: 1px solid #333; 
+            position: relative;
+        }
         
-        .monitor-wrapper { width: 85%; margin: 10px auto; display: flex; flex-direction: column; align-items: center; }
-        
-        .monitor-title {
-            font-size: 10px; font-weight: 700; color: #888; 
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+        .header-content {
+            display: flex; align-items: center; justify-content: center; position: relative;
         }
 
-        /* JAUGE DE CHARGE */
-        .load-track {
-            width: 100%; height: 12px; background: #222; border-radius: 6px; overflow: hidden;
-            border: 1px solid #333; position: relative;
+        /* BOUTON BRIEF (SOLEIL) */
+        .brief-btn {
+            position: absolute; right: 20px; top: 0;
+            background: rgba(255, 183, 77, 0.1); 
+            border: 1px solid var(--warning); color: var(--warning);
+            font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px;
+            cursor: pointer; display: flex; align-items: center; gap: 5px;
+            transition: all 0.2s;
         }
-        /* Les graduations */
-        .load-track::after {
-            content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(90deg, transparent, transparent 19%, #121212 20%);
-            opacity: 0.3;
-        }
+        .brief-btn:active { background: var(--warning); color: black; transform: scale(0.95); }
 
-        .load-fill {
-            height: 100%; width: 0%; 
-            background: var(--success); /* Commence vert */
-            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 0 10px rgba(3, 218, 198, 0.3);
-        }
+        .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
+        .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
 
-        .load-status {
-            margin-top: 8px; font-size: 12px; font-weight: bold; 
-            color: var(--success); transition: color 0.3s;
-        }
+        /* JAUGE */
+        .load-track { width: 100%; height: 12px; background: #222; border-radius: 6px; overflow: hidden; border: 1px solid #333; position: relative; }
+        .load-track::after { content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(90deg, transparent, transparent 19%, #121212 20%); opacity: 0.3; }
+        .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(3, 218, 198, 0.3); }
+        .load-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--success); transition: color 0.3s; }
 
         /* LISTE */
         .task-container { flex: 1; overflow-y: auto; padding: 20px; margin-bottom: 10px; scrollbar-width: none; }
-        
-        .task-item {
-            background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-left: 4px solid var(--accent);
-            animation: slideIn 0.3s ease-out; transition: all 0.4s;
-        }
+        .task-item { background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; }
         .task-item.calendar { border-left-color: var(--danger) !important; background: #2A1A1A; }
-
         .task-text { font-size: 14px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
-        
-        .done-btn { 
-            background: transparent; border: 1px solid #444; color: #666; 
-            width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; cursor: pointer; transition: all 0.2s;
-        }
+        .done-btn { background: transparent; border: 1px solid #444; color: #666; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all 0.2s; }
         .done-btn:active { background: var(--success); color: black; border-color: var(--success); }
         .sync-badge { font-size: 10px; color: var(--success); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
-        /* ZEN POPUP */
-        .zen-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.8s;
-        }
+        /* ZEN & CONTROLES */
+        .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
         .zen-overlay.show { opacity: 1; pointer-events: all; }
-        .zen-circle {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: var(--success); box-shadow: 0 0 50px var(--success);
-            margin-bottom: 20px; animation: breathe 4s infinite ease-in-out;
-        }
+        .zen-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--success); box-shadow: 0 0 50px var(--success); margin-bottom: 20px; animation: breathe 4s infinite ease-in-out; }
         .zen-text { font-size: 24px; font-weight: 300; letter-spacing: 5px; color: white; text-transform: uppercase; }
-
         @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* CONTROLES */
-        .bottom-controls {
-            background: linear-gradient(to top, #121212 90%, transparent);
-            padding-bottom: 30px; display: flex; flex-direction: column; align-items: center;
-            flex-shrink: 0; z-index: 50;
-        }
+        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 30px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; }
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(187, 134, 252, 0.1); transform: translateY(-3px); }
@@ -128,7 +98,13 @@
     </div>
 
     <div class="header">
-        <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
+        <div class="header-content">
+            <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
+            
+            <button class="brief-btn" onclick="startMorningBrief()">
+                <span>☀️</span> BRIEF
+            </button>
+        </div>
         
         <div class="monitor-wrapper">
             <div class="monitor-title">CHARGE MENTALE</div>
@@ -174,50 +150,100 @@
         let currentMode = 'DUMP';
         let isProcessing = false;
         
-        // --- CHARGEMENT ---
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
-            updateMentalLoad(); // Calculer la charge au démarrage
+            updateMentalLoad();
         });
+
+        // --- GESTION DU BRIEF MATINAL (NOUVEAU) ---
+        async function startMorningBrief() {
+            if(isProcessing) return;
+            isProcessing = true;
+            document.getElementById('status-text').innerText = "Analyse du jour...";
+            document.getElementById('status-text').style.opacity = 1;
+
+            // 1. Récupérer les tâches actuelles
+            const tasksElements = document.querySelectorAll('.task-text');
+            let tasksList = [];
+            tasksElements.forEach(el => tasksList.push(el.innerText));
+            
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Aucune tâche, tu es libre.";
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            // 2. Prompt Spécial Brief
+            const briefPrompt = `
+            Tu es un assistant personnel énergique et bienveillant pour un TDAH.
+            Nous sommes : ${today}.
+            Voici la liste des tâches en attente : ${tasksString}.
+            
+            Fais un BRIEFING MATINAL court (30 secondes max à l'oral).
+            Structure :
+            1. Salutation énergique + Date.
+            2. Résumé de la charge (Légère, Moyenne ou Lourde).
+            3. Choisis UNE SEULE priorité absolue pour démarrer.
+            4. Une phrase de motivation.
+            
+            Réponds UNIQUEMENT en JSON :
+            {
+                "text": "Le texte exact que tu vas dire à l'oral",
+                "actions": []
+            }
+            `;
+
+            try {
+                // Appel Gemini
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ prompt: briefPrompt })
+                });
+                const data = await rep.json();
+                
+                let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
+                let parsed = JSON.parse(cleanJson);
+
+                // Lecture Audio
+                document.getElementById('status-text').innerText = "Briefing...";
+                const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: parsed.text })
+                });
+
+                if(repAudio.ok) {
+                    const blob = await repAudio.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                    audio.onended = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; };
+                } else { isProcessing = false; }
+
+            } catch(e) {
+                console.error(e);
+                isProcessing = false;
+                document.getElementById('status-text').innerText = "Erreur Brief";
+            }
+        }
 
         // --- GESTION CHARGE MENTALE ---
         function updateMentalLoad() {
             const list = document.getElementById('task-list');
-            // On compte le nombre de div "task-item"
             const count = list.querySelectorAll('.task-item').length;
-            
-            // Calcul de la charge (Disons que 10 tâches = 100% de charge)
             let percent = Math.min((count / 8) * 100, 100);
-            
             const bar = document.getElementById('load-bar');
             const status = document.getElementById('load-status');
 
-            // Animation et Couleur
             bar.style.width = percent + "%";
-            
             if (count === 0) {
-                bar.style.background = "var(--success)";
-                status.innerText = "ESPRIT LIBRE";
-                status.style.color = "var(--success)";
+                bar.style.background = "var(--success)"; status.innerText = "ESPRIT LIBRE"; status.style.color = "var(--success)";
             } else if (percent < 40) {
-                bar.style.background = "var(--success)";
-                status.innerText = "OPTIMAL";
-                status.style.color = "var(--success)";
+                bar.style.background = "var(--success)"; status.innerText = "OPTIMAL"; status.style.color = "var(--success)";
             } else if (percent < 80) {
-                bar.style.background = "var(--warning)";
-                status.innerText = "CHARGE MOYENNE";
-                status.style.color = "var(--warning)";
+                bar.style.background = "var(--warning)"; status.innerText = "CHARGE MOYENNE"; status.style.color = "var(--warning)";
             } else {
-                bar.style.background = "var(--danger)";
-                status.innerText = "SURCHARGE";
-                status.style.color = "var(--danger)";
+                bar.style.background = "var(--danger)"; status.innerText = "SURCHARGE"; status.style.color = "var(--danger)";
             }
         }
 
-        // Si on vide tout -> Mode ZEN
         function checkZenMode() {
-            const list = document.getElementById('task-list');
-            const count = list.querySelectorAll('.task-item').length;
+            const count = document.getElementById('task-list').querySelectorAll('.task-item').length;
             if(count === 0) {
                 const popup = document.getElementById('zen-popup');
                 popup.classList.add('show');
@@ -226,52 +252,30 @@
         }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
-
         // --- UI & TACHES ---
         function addTaskToUI(text, type) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
-
             const div = document.createElement('div');
             const isCal = (type === 'CALENDAR');
             div.className = `task-item ${isCal ? 'calendar' : ''}`;
-            
             const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : '';
             const label = isCal ? 'AGENDA' : 'TÂCHE';
-
-            div.innerHTML = `
-                <div>
-                    <div class="task-text">${text} ${syncIcon}</div>
-                    <div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div>
-                </div>
-                <button class="done-btn" onclick="completeTask(this)">✕</button>
-            `;
+            div.innerHTML = `<div><div class="task-text">${text} ${syncIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><button class="done-btn" onclick="completeTask(this)">✕</button>`;
             list.appendChild(div);
-            
-            saveTasks();
-            updateMentalLoad(); // Mise à jour de la jauge
+            saveTasks(); updateMentalLoad();
         }
 
         function completeTask(btn) {
             const item = btn.parentElement;
-            item.style.transform = "translateX(100%)";
-            item.style.opacity = "0";
-            
-            setTimeout(() => {
-                item.remove();
-                saveTasks();
-                updateMentalLoad(); // La jauge descend !
-                checkZenMode(); // Vérifie si on est à 0
-            }, 300);
+            item.style.transform = "translateX(100%)"; item.style.opacity = "0";
+            setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); checkZenMode(); }, 300);
         }
 
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
-        function loadTasks() { 
-            const saved = localStorage.getItem('neuro_tasks'); 
-            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; 
-        }
+        function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
 
-        // --- PROMPTS INTELLIGENTS ---
+        // --- PROMPTS ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             return {
