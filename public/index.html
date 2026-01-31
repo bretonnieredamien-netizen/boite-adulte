@@ -7,13 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO-INCLUSIF (Apaisant, Sombre, Contraste doux) --- */
+        /* --- DESIGN NEURO-INCLUSIF --- */
         :root { 
             --bg-main: #121212; 
             --bg-card: #1E1E1E; 
-            --accent: #BB86FC; /* Violet apaisant */
+            --accent: #BB86FC; 
             --accent-soft: rgba(187, 134, 252, 0.2);
             --text-main: #E0E0E0;
+            --success: #03DAC6;
         }
         
         body { 
@@ -21,13 +22,13 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             height: 100vh; overflow: hidden; margin: 0; touch-action: none;
-            display: flex; flex-col;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        /* BOUTON MICRO RESPIRANT */
+        /* --- MICROPHONE --- */
         .mic-wrapper {
             position: relative;
-            width: 100px; height: 100px;
+            width: 120px; height: 120px;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto;
         }
@@ -47,11 +48,12 @@
         .mic-btn.active { background: var(--accent); transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
         .mic-btn.active svg { fill: #121212; }
 
-        /* CIRCLES ANIMATION (BREATHING) */
+        /* CERCLES D'ANIMATION */
         .breath-circle {
             position: absolute; border-radius: 50%;
             border: 1px solid var(--accent); opacity: 0;
             top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none;
         }
         .listening .breath-circle { animation: breathe 3s infinite; }
         .listening .breath-circle:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
@@ -64,16 +66,16 @@
             100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
         }
 
-        /* MODES CARDS */
+        /* --- UI ELEMENTS --- */
         .mode-selector {
-            display: flex; gap: 10px; overflow-x: auto; padding: 20px;
+            display: flex; gap: 10px; overflow-x: auto; padding: 20px; padding-bottom: 40px;
             scrollbar-width: none; justify-content: center;
         }
         .mode-card {
             background: var(--bg-card);
             padding: 15px 20px;
-            border-radius: 20px;
-            min-width: 100px;
+            border-radius: 16px;
+            min-width: 90px;
             text-align: center;
             border: 1px solid transparent;
             transition: all 0.3s;
@@ -87,34 +89,36 @@
             transform: translateY(-5px);
         }
         .mode-icon { font-size: 24px; display: block; margin-bottom: 5px; }
-        .mode-label { font-size: 12px; font-weight: 700; uppercase; letter-spacing: 1px; }
+        .mode-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* TEXTE FEEDBACK */
         .feedback-area {
             flex: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center; padding: 20px;
+            align-items: center; justify-content: center; text-align: center; padding: 30px;
         }
-        .main-instruction { font-size: 18px; font-weight: 300; line-height: 1.6; max-width: 300px; }
+        .main-instruction { font-size: 18px; font-weight: 300; line-height: 1.6; max-width: 320px; transition: opacity 0.3s; }
         .status-pill { 
-            background: #2C2C2C; padding: 5px 15px; border-radius: 20px; 
-            font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 20px; 
+            background: #2C2C2C; padding: 6px 16px; border-radius: 20px; 
+            font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 24px; 
+            transition: all 0.3s;
         }
-
+        .action-log {
+            font-size: 10px; color: var(--success); margin-top: 10px; opacity: 0; transition: opacity 0.5s;
+        }
     </style>
 </head>
-<body class="flex flex-col justify-between">
+<body>
 
-    <div class="pt-8 text-center">
+    <div class="pt-10 text-center">
         <h1 class="text-2xl font-bold tracking-widest text-white">NEURO</h1>
-        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">External Brain System</p>
+        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">Brain OS v1.0</p>
     </div>
 
     <div class="feedback-area">
         <div id="status-display" class="status-pill">En attente</div>
         <p id="ai-response" class="main-instruction">
-            Je suis ton second cerveau.<br>
-            Choisis un mode et appuie sur le bouton.
+            Je suis prêt.<br>Choisis un mode pour commencer.
         </p>
+        <div id="action-feedback" class="action-log">Données envoyées à Make ✅</div>
     </div>
 
     <div class="mic-wrapper" id="mic-wrapper">
@@ -126,7 +130,7 @@
         </div>
     </div>
 
-    <div class="mode-selector pb-10">
+    <div class="mode-selector">
         <div class="mode-card active" onclick="setMode('DUMP', this)">
             <span class="mode-icon">🧠</span>
             <span class="mode-label">Vider</span>
@@ -142,48 +146,54 @@
     </div>
 
     <script>
-        // ==========================================
-        // URL VERCEL
-        // ==========================================
-        const API_BASE_URL = "https://boite-adulte.vercel.app/";
-        // ==========================================
+        // =========================================================================
+        // ⚠️ REMPLACEZ CECI PAR VOTRE URL VERCEL ⚠️
+        // =========================================================================
+        const API_BASE_URL = "METTRE_TON_LIEN_VERCEL_ICI"; 
+        // Exemple : "https://boite-adulte.vercel.app/" (Sans le / à la fin)
+        // =========================================================================
 
         let currentMode = 'DUMP';
         let isProcessing = false;
-        let isSpeaking = false;
 
-        // Prompts spécialisés TDAH / Charge Mentale
+        // --- 1. PROMPTS JSON ---
         const PROMPTS = {
-            'DUMP': `Tu es un assistant personnel pour quelqu'un qui a un TDAH. 
-            L'utilisateur va te donner plein d'infos en vrac. Ta mission :
-            1. Écouter et ne pas juger.
-            2. Trier mentalement les infos (Agenda, To-Do, Notes).
-            3. Répondre UNIQUEMENT en confirmant que c'est trié, sur un ton calme et rassurant.
-            Exemple : "C'est noté. J'ai mis le dentiste dans l'agenda et le lait sur la liste de courses. Autre chose ?"`,
+            'DUMP': `Tu es un assistant exécutif pour TDAH.
+            L'utilisateur te donne des infos en vrac.
+            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
+            {
+                "text": "Ta phrase de confirmation courte.",
+                "actions": [
+                    { "type": "CALENDAR", "detail": "..." },
+                    { "type": "TODO", "detail": "..." }
+                ]
+            }`,
 
-            'FOCUS': `Tu es un coach spécialisé en fonctions exécutives.
-            L'utilisateur est paralysé devant une tâche.
-            1. Demande quelle est la tâche.
-            2. Découpe-la en la toute première étape RIDICULEMENT petite et facile (la "micro-étape").
-            3. Sois encourageant. Ne donne PAS toute la liste, juste la première étape.
-            Exemple : "Ok, on respire. Pour ranger le garage, étape 1 : Va juste chercher un sac poubelle. C'est tout. Dis-moi quand c'est fait."`,
-
-            'ROUTINE': `Tu es un pilote de routine bienveillant.
-            L'utilisateur a du mal à gérer son temps le matin ou le soir.
-            Guide-le pas à pas. Sois dynamique mais pas stressant.
-            Donne une consigne simple et un délai court.
-            Exemple : "Allez champion. On attaque. 2 minutes pour brosser les dents. Go !"`,
+            'FOCUS': `Tu es un coach anti-procrastination.
+            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
+            {
+                "text": "Ta réponse encourageante qui donne LA PREMIÈRE micro-étape.",
+                "actions": []
+            }`,
+            
+            'ROUTINE': `Tu es un pilote de routine.
+            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
+            {
+                "text": "Ta consigne dynamique.",
+                "actions": []
+            }`
         };
 
+        // --- 2. GESTION DE L'INTERFACE ---
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
             
             const texts = {
-                'DUMP': "Vide ton sac. Dis-moi tout ce qui traîne dans ta tête.",
-                'FOCUS': "Quelle tâche te fait peur ou te bloque ?",
-                'ROUTINE': "On lance la routine du Matin ou du Soir ?"
+                'DUMP': "Vide ton sac. Dis-moi tout.",
+                'FOCUS': "Quelle tâche te bloque ?",
+                'ROUTINE': "Prêt pour la routine ?"
             };
             document.getElementById('ai-response').innerText = texts[mode];
             window.speechSynthesis.cancel();
@@ -198,9 +208,10 @@
             startListening();
         });
 
+        // --- 3. RECONNAISSANCE VOCALE ---
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Pas de micro détecté"); return; }
+            if (!Speech) { alert("Micro non supporté"); return; }
 
             const rec = new Speech();
             rec.lang = 'fr-FR';
@@ -226,28 +237,74 @@
             rec.start();
         }
 
+        // --- 4. LE BRAS (Webhooks Make.com) ---
+        async function sendToAutomation(actions) {
+            if (!actions || actions.length === 0) return;
+            console.log("⚡ Envoi vers Make:", actions);
+
+            const feedback = document.getElementById('action-feedback');
+            feedback.innerHTML = `⚡ Envoi vers Make.com...`;
+            feedback.style.opacity = 1;
+
+            try {
+                // VOTRE WEBHOOK MAKE EST ICI 👇
+                await fetch("https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ actions: actions })
+                });
+                
+                feedback.innerHTML = `Action reçue par Make ! ✅`;
+                setTimeout(() => feedback.style.opacity = 0, 3000);
+
+            } catch (error) {
+                console.error("Erreur Webhook", error);
+                feedback.innerHTML = `❌ Erreur Make`;
+            }
+        }
+
+        // --- 5. LOGIQUE PRINCIPALE ---
         async function processWithAI(userInput) {
             isProcessing = true;
-            statusDisplay.innerText = "Réflexion...";
+            statusDisplay.innerText = "Analyse...";
             document.getElementById('ai-response').innerText = "...";
 
-            // Construction du Prompt
             const sysPrompt = PROMPTS[currentMode];
             const fullPrompt = `${sysPrompt}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // 1. GEMINI
+                if(API_BASE_URL.includes("METTRE_TON_LIEN")) {
+                    alert("⚠️ Oups ! Tu as oublié de coller ton URL Vercel à la ligne 169 !");
+                    isProcessing = false;
+                    return;
+                }
+
                 const rep1 = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ prompt: fullPrompt })
                 });
-                const data1 = await rep1.json();
-                const aiText = data1.text;
                 
-                document.getElementById('ai-response').innerText = aiText;
+                const data1 = await rep1.json();
+                
+                // NETTOYAGE JSON
+                let cleanJson = data1.text.replace(/```json/g, '').replace(/```/g, '').trim();
+                let parsedData;
+                
+                try {
+                    parsedData = JSON.parse(cleanJson);
+                } catch (e) {
+                    parsedData = { text: data1.text, actions: [] };
+                }
 
-                // 2. AZURE TTS
+                const aiText = parsedData.text;
+                const aiActions = parsedData.actions;
+
+                // Affichage & Action
+                document.getElementById('ai-response').innerText = aiText;
+                await sendToAutomation(aiActions);
+
+                // AUDIO (Azure)
                 statusDisplay.innerText = "Synthèse...";
                 const rep2 = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST',
@@ -272,11 +329,12 @@
                     utt.lang = 'fr-FR';
                     window.speechSynthesis.speak(utt);
                     isProcessing = false;
+                    statusDisplay.innerText = "En attente";
                 }
 
             } catch (e) {
                 console.error(e);
-                statusDisplay.innerText = "Erreur réseau";
+                statusDisplay.innerText = "Erreur";
                 isProcessing = false;
             }
         }
