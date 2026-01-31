@@ -8,214 +8,279 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         /* --- DESIGN NEURO-INCLUSIF --- */
-        :root { --bg-main: #121212; --bg-card: #1E1E1E; --accent: #BB86FC; --accent-soft: rgba(187, 134, 252, 0.2); --text-main: #E0E0E0; --success: #03DAC6; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; justify-content: space-between; }
-        .mic-wrapper { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-        .mic-btn { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.3s; cursor: pointer; z-index: 10; }
-        .mic-btn svg { width: 32px; height: 32px; fill: var(--text-main); transition: fill 0.3s; }
-        .mic-btn.active { background: var(--accent); transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
-        .mic-btn.active svg { fill: #121212; }
-        .breath-circle { position: absolute; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        .listening .breath-circle { animation: breathe 3s infinite; }
-        .listening .breath-circle:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
-        .listening .breath-circle:nth-child(2) { width: 120px; height: 120px; animation-delay: 0.5s; }
-        .listening .breath-circle:nth-child(3) { width: 140px; height: 140px; animation-delay: 1s; }
-        @keyframes breathe { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
-        .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 20px; padding-bottom: 40px; scrollbar-width: none; justify-content: center; }
-        .mode-card { background: var(--bg-card); padding: 15px 20px; border-radius: 16px; min-width: 90px; text-align: center; border: 1px solid transparent; transition: all 0.3s; opacity: 0.5; cursor: pointer; }
-        .mode-card.active { opacity: 1; border-color: var(--accent); background: var(--accent-soft); transform: translateY(-5px); }
-        .mode-icon { font-size: 24px; display: block; margin-bottom: 5px; }
-        .mode-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .feedback-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; }
-        .main-instruction { font-size: 18px; font-weight: 300; line-height: 1.6; max-width: 320px; transition: opacity 0.3s; }
-        .status-pill { background: #2C2C2C; padding: 6px 16px; border-radius: 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 24px; transition: all 0.3s; }
-        .action-log { font-size: 10px; color: var(--success); margin-top: 10px; opacity: 0; transition: opacity 0.5s; }
+        :root { 
+            --bg-main: #121212; 
+            --bg-card: #1E1E1E; 
+            --accent: #BB86FC; 
+            --text-main: #E0E0E0;
+            --success: #03DAC6;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh; overflow: hidden; margin: 0; touch-action: none;
+            display: flex; flex-direction: column;
+        }
+
+        /* HEADER */
+        .header { padding-top: 40px; text-align: center; flex-shrink: 0; }
+        
+        /* LISTE DES TÂCHES (SCROLLABLE) */
+        .task-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 20px;
+            scrollbar-width: none; /* Cache la barre de scroll */
+        }
+        
+        .task-item {
+            background: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid var(--accent);
+            animation: slideIn 0.3s ease-out;
+            transition: all 0.3s;
+        }
+
+        .task-item.calendar { border-left-color: #CF6679; } /* Rouge pour Agenda */
+
+        .task-text { font-size: 14px; font-weight: 500; }
+        .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
+        
+        .delete-btn {
+            background: transparent; border: none; color: #666; font-size: 18px; padding: 10px;
+        }
+
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* MICROPHONE ET CONTROLES (FIXED BOTTOM) */
+        .bottom-controls {
+            background: linear-gradient(to top, #121212 80%, transparent);
+            padding-bottom: 30px;
+            display: flex; flex-direction: column; align-items: center;
+            flex-shrink: 0;
+        }
+
+        .mic-wrapper {
+            position: relative;
+            width: 90px; height: 90px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .mic-btn {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        .mic-btn.active { background: var(--accent); transform: scale(1.1); }
+        .mic-btn svg { width: 30px; height: 30px; fill: white; }
+
+        .ai-feedback {
+            height: 20px; font-size: 12px; color: var(--accent); 
+            margin-bottom: 10px; font-weight: bold; letter-spacing: 1px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+
+        /* Modes */
+        .mode-selector { display: flex; gap: 10px; margin-bottom: 10px; }
+        .mode-pill { 
+            padding: 5px 15px; border-radius: 20px; font-size: 10px; 
+            background: #222; color: #666; border: 1px solid #333; 
+        }
+        .mode-pill.active { background: var(--accent); color: black; border-color: var(--accent); }
+
     </style>
 </head>
 <body>
 
-    <div class="pt-10 text-center">
-        <h1 class="text-2xl font-bold tracking-widest text-white">NEURO</h1>
-        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">Brain OS v2.0</p>
+    <div class="header">
+        <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
+        <p class="text-[9px] text-gray-500 uppercase mt-1">Mémoire Externe</p>
     </div>
 
-    <div class="feedback-area">
-        <div id="status-display" class="status-pill">En attente</div>
-        <p id="ai-response" class="main-instruction">
-            Je suis prêt.<br>Choisis un mode.
-        </p>
-        <div id="action-feedback" class="action-log">Action envoyée ! ✅</div>
-    </div>
-
-    <div class="mic-wrapper" id="mic-wrapper">
-        <div class="breath-circle"></div>
-        <div class="breath-circle"></div>
-        <div class="breath-circle"></div>
-        <div id="btn-mic" class="mic-btn">
-            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+    <div class="task-container" id="task-list">
+        <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;">
+            <p>Ta mémoire est vide.</p>
+            <p>Parle pour ajouter des notes.</p>
         </div>
     </div>
 
-    <div class="mode-selector">
-        <div class="mode-card active" onclick="setMode('DUMP', this)">
-            <span class="mode-icon">🧠</span>
-            <span class="mode-label">Vider</span>
+    <div class="bottom-controls">
+        
+        <div id="status-text" class="ai-feedback">J'écoute...</div>
+
+        <div class="mode-selector">
+            <div class="mode-pill active">BRAIN DUMP</div>
         </div>
-        <div class="mode-card" onclick="setMode('FOCUS', this)">
-            <span class="mode-icon">⚡</span>
-            <span class="mode-label">Focus</span>
-        </div>
-        <div class="mode-card" onclick="setMode('ROUTINE', this)">
-            <span class="mode-icon">🔄</span>
-            <span class="mode-label">Routine</span>
+
+        <div class="mic-wrapper">
+            <div id="btn-mic" class="mic-btn">
+                <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+            </div>
         </div>
     </div>
 
     <script>
-        // =========================================================================
-        // 👇 ZONE DE CONFIGURATION (REMPLISSEZ LES 3 LIGNES) 👇
-        // =========================================================================
-        
-        // 1. TON LIEN VERCEL (OBLIGATOIRE)
-        const API_BASE_URL = "https://boite-adulte.vercel.app/"; 
+        // =========================================================
+        // 👇 COLLE TON LIEN VERCEL ICI 👇
+        const API_BASE_URL = "https://boite-adulte.vercel.app/";
+        // =========================================================
 
-        // 2. LE WEBHOOK POUR L'AGENDA (Celui que tu as déjà)
-        const URL_CALENDRIER = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
-
-        // 3. LE NOUVEAU WEBHOOK POUR LES TÂCHES (Le nouveau)
-        const URL_TACHES = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
-
-        // =========================================================================
-
-        let currentMode = 'DUMP';
         let isProcessing = false;
+        
+        // 1. CHARGEMENT DES TACHES AU DEMARRAGE
+        document.addEventListener('DOMContentLoaded', loadTasks);
 
-        const PROMPTS = {
-            'DUMP': `Tu es un assistant exécutif.
-            Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
-            {
-                "text": "Ta phrase de confirmation.",
-                "actions": [
-                    { "type": "CALENDAR", "detail": "Rdv dentiste..." },
-                    { "type": "TODO", "detail": "Acheter pain..." }
-                ]
-            }
-            REGLE : Si date/heure précise -> CALENDAR. Sinon -> TODO.`,
+        // 2. GESTION TACHES LOCALES (Pas de Make.com !)
+        function addTaskToUI(text, type) {
+            const list = document.getElementById('task-list');
             
-            'FOCUS': `Coach anti-procrastination. JSON Strict: { "text": "...", "actions": [] }`,
-            'ROUTINE': `Guide routine. JSON Strict: { "text": "...", "actions": [] }`
-        };
+            // Si c'est la première tâche, on vide le message "Vide"
+            if(list.innerText.includes("Ta mémoire est vide")) list.innerHTML = "";
 
-        function setMode(mode, btn) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('ai-response').innerText = "Prêt.";
+            const div = document.createElement('div');
+            div.className = `task-item ${type === 'CALENDAR' ? 'calendar' : ''}`;
+            
+            const icon = type === 'CALENDAR' ? '📅' : '⚡';
+            
+            div.innerHTML = `
+                <div>
+                    <div class="task-text">${text}</div>
+                    <div class="task-sub">${type === 'CALENDAR' ? 'Agenda' : 'Tâche'}</div>
+                </div>
+                <button class="delete-btn" onclick="this.parentElement.remove(); saveTasks();">✕</button>
+            `;
+            
+            list.appendChild(div);
+            // Scroll en bas
+            list.scrollTop = list.scrollHeight;
+            saveTasks();
         }
 
-        const btnMic = document.getElementById('btn-mic');
-        const micWrapper = document.getElementById('mic-wrapper');
-        const statusDisplay = document.getElementById('status-display');
+        function saveTasks() {
+            const list = document.getElementById('task-list');
+            localStorage.setItem('neuro_tasks', list.innerHTML);
+        }
 
-        btnMic.addEventListener('click', () => { if (!isProcessing) startListening(); });
+        function loadTasks() {
+            const saved = localStorage.getItem('neuro_tasks');
+            if(saved && saved.trim() !== "") {
+                document.getElementById('task-list').innerHTML = saved;
+            }
+        }
+
+        // 3. MICRO & IA
+        const btnMic = document.getElementById('btn-mic');
+        const statusText = document.getElementById('status-text');
+
+        btnMic.addEventListener('click', () => {
+            if(!isProcessing) startListening();
+        });
 
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Micro HS"); return; }
+            if (!Speech) { alert("Micro non supporté"); return; }
+
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.interimResults = false;
-            rec.onstart = () => { micWrapper.classList.add('listening'); btnMic.classList.add('active'); statusDisplay.innerText = "J'écoute..."; };
-            rec.onend = () => { micWrapper.classList.remove('listening'); btnMic.classList.remove('active'); };
-            rec.onresult = (ev) => { processWithAI(ev.results[0][0].transcript); };
+
+            rec.onstart = () => {
+                btnMic.classList.add('active');
+                statusText.style.opacity = 1;
+                statusText.innerText = "J'écoute...";
+            };
+
+            rec.onend = () => {
+                btnMic.classList.remove('active');
+            };
+
+            rec.onresult = (event) => {
+                const text = event.results[0][0].transcript;
+                processWithAI(text);
+            };
+
             rec.start();
-        }
-
-        // --- C'EST ICI QUE SE FAIT LE TRI DES ROUTES ---
-        async function sendToAutomation(actions) {
-            if (!actions || actions.length === 0) return;
-            const feedback = document.getElementById('action-feedback');
-            
-            for (let action of actions) {
-                let targetUrl = "";
-                let typeNom = "";
-
-                // LE TRI AUTOMATIQUE
-                if (action.type === 'CALENDAR') {
-                    targetUrl = URL_CALENDRIER;
-                    typeNom = "Agenda";
-                } else {
-                    targetUrl = URL_TACHES; // Tout le reste va ici (Pain, Piles, etc.)
-                    typeNom = "Tâches";
-                }
-
-                console.log(`Envoi de "${action.detail}" vers ${typeNom}`);
-                feedback.innerHTML = `Envoi vers ${typeNom}...`;
-                feedback.style.opacity = 1;
-
-                try {
-                    if(targetUrl.includes("METTRE_LE_LIEN")) {
-                        console.error("Lien Make manquant !");
-                        continue;
-                    }
-                    
-                    await fetch(targetUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ detail: action.detail, type: action.type })
-                    });
-                } catch (e) { console.error(e); }
-            }
-            
-            feedback.innerHTML = `Envoyé ! ✅`;
-            setTimeout(() => feedback.style.opacity = 0, 4000);
         }
 
         async function processWithAI(userInput) {
             isProcessing = true;
-            statusDisplay.innerText = "Analyse...";
+            statusText.innerText = "Analyse...";
 
-            const fullPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
+            // PROMPT SIMPLIFIÉ
+            const sysPrompt = `Tu es un assistant personnel.
+            L'utilisateur te donne une information.
+            Réponds UNIQUEMENT en JSON strict :
+            {
+                "text": "Confirmation courte (ex: C'est noté)",
+                "actions": [
+                    { "type": "TODO", "detail": "..." },
+                    { "type": "CALENDAR", "detail": "..." }
+                ]
+            }
+            Si c'est un RDV (date/heure) -> type CALENDAR. Sinon -> TODO.`;
 
             try {
-                if(API_BASE_URL.includes("METTRE_TON_LIEN")) { alert("Erreur: Lien Vercel manquant ligne 170"); isProcessing = false; return; }
+                if(API_BASE_URL.includes("METTRE_TON_LIEN")) { alert("Lien Vercel manquant ligne 245 !"); isProcessing = false; return; }
 
-                // 1. GEMINI
-                const rep1 = await fetch(`${API_BASE_URL}/api/gemini`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ prompt: fullPrompt })
-                });
-                const data1 = await rep1.json();
-                
-                let cleanJson = data1.text.replace(/```json/g, '').replace(/```/g, '').trim();
-                let parsedData;
-                try { parsedData = JSON.parse(cleanJson); } catch (e) { parsedData = { text: data1.text, actions: [] }; }
-
-                document.getElementById('ai-response').innerText = parsedData.text;
-                
-                // 2. ENVOI AUX WEBHOOKS
-                await sendToAutomation(parsedData.actions);
-
-                // 3. AUDIO
-                statusDisplay.innerText = "Synthèse...";
-                const rep2 = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: parsedData.text })
+                // Appel Vercel
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ prompt: `${sysPrompt}\nUser: "${userInput}"` })
                 });
 
-                if (rep2.ok) {
-                    const blob = await rep2.blob();
-                    const audio = new Audio(URL.createObjectURL(blob));
-                    statusDisplay.innerText = "Lecture...";
-                    audio.play();
-                    audio.onended = () => { isProcessing = false; statusDisplay.innerText = "En attente"; };
-                } else {
-                    const utt = new SpeechSynthesisUtterance(parsedData.text);
-                    utt.lang = 'fr-FR'; window.speechSynthesis.speak(utt);
-                    isProcessing = false; statusDisplay.innerText = "En attente";
+                const data = await rep.json();
+                
+                // Parsing
+                let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
+                let parsed;
+                try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: "Je n'ai pas compris", actions: []}; }
+
+                // AJOUT DANS L'APPLICATION (Magie !)
+                if(parsed.actions) {
+                    parsed.actions.forEach(action => {
+                        addTaskToUI(action.detail, action.type);
+                    });
                 }
 
-            } catch (e) { console.error(e); statusDisplay.innerText = "Erreur"; isProcessing = false; }
+                // Audio
+                statusText.innerText = "Lecture...";
+                const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ text: parsed.text })
+                });
+
+                if(repAudio.ok) {
+                    const blob = await repAudio.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                    audio.onended = () => { 
+                        isProcessing = false; 
+                        statusText.style.opacity = 0; 
+                    };
+                } else {
+                    isProcessing = false;
+                }
+
+            } catch (e) {
+                console.error(e);
+                statusText.innerText = "Erreur";
+                isProcessing = false;
+            }
         }
     </script>
 </body>
