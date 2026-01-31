@@ -32,8 +32,8 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            margin-bottom: 20px;
-            scrollbar-width: none; /* Cache la barre de scroll */
+            margin-bottom: 10px;
+            scrollbar-width: none;
         }
         
         .task-item {
@@ -41,9 +41,7 @@
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             border-left: 4px solid var(--accent);
             animation: slideIn 0.3s ease-out;
             transition: all 0.3s;
@@ -53,76 +51,89 @@
 
         .task-text { font-size: 14px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
-        
-        .delete-btn {
-            background: transparent; border: none; color: #666; font-size: 18px; padding: 10px;
-        }
+        .delete-btn { background: transparent; border: none; color: #666; font-size: 18px; padding: 10px; }
 
         @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* MICROPHONE ET CONTROLES (FIXED BOTTOM) */
+        /* CONTROLES DU BAS */
         .bottom-controls {
-            background: linear-gradient(to top, #121212 80%, transparent);
+            background: linear-gradient(to top, #121212 90%, transparent);
             padding-bottom: 30px;
             display: flex; flex-direction: column; align-items: center;
-            flex-shrink: 0;
+            flex-shrink: 0; z-index: 50;
         }
 
-        .mic-wrapper {
-            position: relative;
-            width: 90px; height: 90px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 20px;
+        /* SELECTEUR DE MODE (RETOUR DES FONCTIONS) */
+        .mode-selector {
+            display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; 
+            margin-bottom: 15px; width: 100%; justify-content: center;
         }
-        
+        .mode-card {
+            background: var(--bg-card);
+            padding: 10px 15px;
+            border-radius: 12px;
+            min-width: 80px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            opacity: 0.5; cursor: pointer;
+        }
+        .mode-card.active {
+            opacity: 1; border-color: var(--accent);
+            background: rgba(187, 134, 252, 0.1); transform: translateY(-3px);
+        }
+        .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+
+        /* MICRO */
+        .mic-wrapper {
+            position: relative; width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
+        }
         .mic-btn {
             width: 70px; height: 70px;
-            border-radius: 50%;
-            background: var(--bg-card);
+            border-radius: 50%; background: var(--bg-card);
             border: 2px solid var(--accent);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s;
         }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
 
         .ai-feedback {
             height: 20px; font-size: 12px; color: var(--accent); 
-            margin-bottom: 10px; font-weight: bold; letter-spacing: 1px;
+            margin-bottom: 5px; font-weight: bold; letter-spacing: 1px;
             opacity: 0; transition: opacity 0.3s;
         }
-
-        /* Modes */
-        .mode-selector { display: flex; gap: 10px; margin-bottom: 10px; }
-        .mode-pill { 
-            padding: 5px 15px; border-radius: 20px; font-size: 10px; 
-            background: #222; color: #666; border: 1px solid #333; 
-        }
-        .mode-pill.active { background: var(--accent); color: black; border-color: var(--accent); }
-
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
-        <p class="text-[9px] text-gray-500 uppercase mt-1">Mémoire Externe</p>
+        <p class="text-[9px] text-gray-500 uppercase mt-1">Brain OS v3.0</p>
     </div>
 
     <div class="task-container" id="task-list">
         <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;">
-            <p>Ta mémoire est vide.</p>
-            <p>Parle pour ajouter des notes.</p>
+            <p>Mémoire vide.</p>
         </div>
     </div>
 
     <div class="bottom-controls">
         
-        <div id="status-text" class="ai-feedback">J'écoute...</div>
+        <div id="status-text" class="ai-feedback">Prêt.</div>
 
         <div class="mode-selector">
-            <div class="mode-pill active">BRAIN DUMP</div>
+            <div class="mode-card active" onclick="setMode('DUMP', this)">
+                <span class="mode-icon">🧠</span><span class="mode-label">Vider</span>
+            </div>
+            <div class="mode-card" onclick="setMode('FOCUS', this)">
+                <span class="mode-icon">⚡</span><span class="mode-label">Focus</span>
+            </div>
+            <div class="mode-card" onclick="setMode('ROUTINE', this)">
+                <span class="mode-icon">🔄</span><span class="mode-label">Routine</span>
+            </div>
         </div>
 
         <div class="mic-wrapper">
@@ -134,26 +145,64 @@
 
     <script>
         // =========================================================
-        // 👇 COLLE TON LIEN VERCEL ICI 👇
-        const API_BASE_URL = "https://boite-adulte.vercel.app/";
+        // ✅ TON URL EST INTEGRÉE AUTOMATIQUEMENT
+        const API_BASE_URL = "https://boite-adulte.vercel.app";
         // =========================================================
 
+        let currentMode = 'DUMP';
         let isProcessing = false;
         
-        // 1. CHARGEMENT DES TACHES AU DEMARRAGE
+        // --- 1. PROMPTS INTELLIGENTS (JSON STRICT) ---
+        const PROMPTS = {
+            'DUMP': `Tu es un assistant exécutif. 
+            L'utilisateur vide son sac. Extrais les tâches.
+            Réponds UNIQUEMENT en JSON :
+            {
+                "text": "Confirmation courte et apaisante.",
+                "actions": [
+                    { "type": "TODO", "detail": "..." },
+                    { "type": "CALENDAR", "detail": "..." }
+                ]
+            }`,
+
+            'FOCUS': `Tu es un coach anti-procrastination.
+            L'utilisateur est bloqué. Donne LUI JUSTE la 1ère micro-étape ridicule pour démarrer.
+            Réponds UNIQUEMENT en JSON :
+            {
+                "text": "Ton conseil encourageant + la micro étape.",
+                "actions": [
+                   { "type": "TODO", "detail": "La micro étape à faire maintenant" }
+                ]
+            }`,
+
+            'ROUTINE': `Tu es un pilote de routine.
+            Guide l'utilisateur pas à pas.
+            Réponds UNIQUEMENT en JSON :
+            {
+                "text": "Consigne dynamique et motivante.",
+                "actions": [] 
+            }`
+        };
+
+        // --- 2. GESTION UI & TÂCHES ---
         document.addEventListener('DOMContentLoaded', loadTasks);
 
-        // 2. GESTION TACHES LOCALES (Pas de Make.com !)
+        function setMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const msgs = {'DUMP': "Vide ton sac...", 'FOCUS': "Qu'est-ce qui bloque ?", 'ROUTINE': "On attaque ?"};
+            document.getElementById('status-text').innerText = msgs[mode];
+            document.getElementById('status-text').style.opacity = 1;
+        }
+
         function addTaskToUI(text, type) {
             const list = document.getElementById('task-list');
-            
-            // Si c'est la première tâche, on vide le message "Vide"
-            if(list.innerText.includes("Ta mémoire est vide")) list.innerHTML = "";
+            if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
 
             const div = document.createElement('div');
             div.className = `task-item ${type === 'CALENDAR' ? 'calendar' : ''}`;
-            
-            const icon = type === 'CALENDAR' ? '📅' : '⚡';
             
             div.innerHTML = `
                 <div>
@@ -162,105 +211,68 @@
                 </div>
                 <button class="delete-btn" onclick="this.parentElement.remove(); saveTasks();">✕</button>
             `;
-            
             list.appendChild(div);
-            // Scroll en bas
             list.scrollTop = list.scrollHeight;
             saveTasks();
         }
 
         function saveTasks() {
-            const list = document.getElementById('task-list');
-            localStorage.setItem('neuro_tasks', list.innerHTML);
+            localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML);
         }
 
         function loadTasks() {
             const saved = localStorage.getItem('neuro_tasks');
-            if(saved && saved.trim() !== "") {
-                document.getElementById('task-list').innerHTML = saved;
-            }
+            if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved;
         }
 
-        // 3. MICRO & IA
+        // --- 3. MICRO & IA ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
 
-        btnMic.addEventListener('click', () => {
-            if(!isProcessing) startListening();
-        });
+        btnMic.addEventListener('click', () => { if(!isProcessing) startListening(); });
 
         function startListening() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
-
             const rec = new Speech();
-            rec.lang = 'fr-FR';
-            rec.interimResults = false;
-
-            rec.onstart = () => {
-                btnMic.classList.add('active');
-                statusText.style.opacity = 1;
-                statusText.innerText = "J'écoute...";
-            };
-
-            rec.onend = () => {
-                btnMic.classList.remove('active');
-            };
-
-            rec.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                processWithAI(text);
-            };
-
+            rec.lang = 'fr-FR'; rec.interimResults = false;
+            rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "J'écoute..."; };
+            rec.onend = () => { btnMic.classList.remove('active'); };
+            rec.onresult = (e) => { processWithAI(e.results[0][0].transcript); };
             rec.start();
         }
 
         async function processWithAI(userInput) {
             isProcessing = true;
             statusText.innerText = "Analyse...";
-
-            // PROMPT SIMPLIFIÉ
-            const sysPrompt = `Tu es un assistant personnel.
-            L'utilisateur te donne une information.
-            Réponds UNIQUEMENT en JSON strict :
-            {
-                "text": "Confirmation courte (ex: C'est noté)",
-                "actions": [
-                    { "type": "TODO", "detail": "..." },
-                    { "type": "CALENDAR", "detail": "..." }
-                ]
-            }
-            Si c'est un RDV (date/heure) -> type CALENDAR. Sinon -> TODO.`;
+            
+            // On combine le Prompt du Mode + l'Entrée utilisateur
+            const finalPrompt = `${PROMPTS[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                if(API_BASE_URL.includes("METTRE_TON_LIEN")) { alert("Lien Vercel manquant ligne 245 !"); isProcessing = false; return; }
-
-                // Appel Vercel
+                // APPEL VERCEL
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ prompt: `${sysPrompt}\nUser: "${userInput}"` })
+                    body: JSON.stringify({ prompt: finalPrompt })
                 });
 
                 const data = await rep.json();
                 
-                // Parsing
+                // PARSING
                 let cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsed;
-                try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: "Je n'ai pas compris", actions: []}; }
+                try { parsed = JSON.parse(cleanJson); } catch(e) { parsed = { text: data.text, actions: []}; }
 
-                // AJOUT DANS L'APPLICATION (Magie !)
-                if(parsed.actions) {
-                    parsed.actions.forEach(action => {
-                        addTaskToUI(action.detail, action.type);
-                    });
+                // ACTIONS : Ajouter à la liste SI nécessaire
+                if(parsed.actions && parsed.actions.length > 0) {
+                    parsed.actions.forEach(act => addTaskToUI(act.detail, act.type));
                 }
 
-                // Audio
+                // AUDIO : Réponse vocale
                 statusText.innerText = "Lecture...";
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ text: parsed.text })
                 });
 
@@ -268,17 +280,14 @@
                     const blob = await repAudio.blob();
                     const audio = new Audio(URL.createObjectURL(blob));
                     audio.play();
-                    audio.onended = () => { 
-                        isProcessing = false; 
-                        statusText.style.opacity = 0; 
-                    };
+                    audio.onended = () => { isProcessing = false; statusText.innerText = "Prêt."; };
                 } else {
                     isProcessing = false;
                 }
 
             } catch (e) {
                 console.error(e);
-                statusText.innerText = "Erreur";
+                statusText.innerText = "Erreur Réseau";
                 isProcessing = false;
             }
         }
