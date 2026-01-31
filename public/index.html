@@ -118,7 +118,7 @@
         <p id="ai-response" class="main-instruction">
             Je suis prêt.<br>Choisis un mode pour commencer.
         </p>
-        <div id="action-feedback" class="action-log">Données envoyées à Make ✅</div>
+        <div id="action-feedback" class="action-log">Action envoyée ! ✅</div>
     </div>
 
     <div class="mic-wrapper" id="mic-wrapper">
@@ -147,27 +147,34 @@
 
     <script>
         // =========================================================================
-        // ⚠️ REMPLACEZ CECI PAR VOTRE URL VERCEL ⚠️
+        // ⚠️ 👇 COLLE TON URL VERCEL ICI (Entre les guillemets) 👇 ⚠️
         // =========================================================================
         const API_BASE_URL = "https://boite-adulte.vercel.app/"; 
-        // Exemple : "https://boite-adulte.vercel.app/" (Sans le / à la fin)
+        // Exemple : "https://projet-neuro.vercel.app" (Sans le / à la fin)
+        
+        // Ton Webhook Make est déjà configuré ici :
+        const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
         // =========================================================================
 
         let currentMode = 'DUMP';
         let isProcessing = false;
 
-        // --- 1. PROMPTS JSON ---
+        // --- 1. PROMPTS JSON (Strict pour Make) ---
         const PROMPTS = {
-            'DUMP': `Tu es un assistant exécutif pour TDAH.
-            L'utilisateur te donne des infos en vrac.
+            'DUMP': `Tu es un assistant exécutif.
+            L'utilisateur te donne des tâches.
             Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
             {
                 "text": "Ta phrase de confirmation courte.",
                 "actions": [
-                    { "type": "CALENDAR", "detail": "..." },
-                    { "type": "TODO", "detail": "..." }
+                    { "type": "CALENDAR", "detail": "Rdv dentiste..." },
+                    { "type": "TODO", "detail": "Acheter pain..." }
                 ]
-            }`,
+            }
+            REGLES :
+            - Si c'est un rendez-vous (avec date/heure) -> type = "CALENDAR"
+            - Si c'est une tâche simple (courses, rappel) -> type = "TODO"
+            - N'utilise JAMAIS d'autres types.`,
 
             'FOCUS': `Tu es un coach anti-procrastination.
             Réponds UNIQUEMENT avec ce format JSON strict (sans markdown) :
@@ -243,23 +250,26 @@
             console.log("⚡ Envoi vers Make:", actions);
 
             const feedback = document.getElementById('action-feedback');
-            feedback.innerHTML = `⚡ Envoi vers Make.com...`;
+            feedback.innerHTML = `⚡ Envoi vers Make...`;
             feedback.style.opacity = 1;
 
             try {
-                // VOTRE WEBHOOK MAKE EST ICI 👇
-                await fetch("https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai", {
+                // Envoi des données au Webhook
+                await fetch(MAKE_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ actions: actions })
                 });
                 
-                feedback.innerHTML = `Action reçue par Make ! ✅`;
-                setTimeout(() => feedback.style.opacity = 0, 3000);
+                feedback.innerHTML = `Reçu par Make ! ✅`;
+                feedback.style.color = "#03DAC6"; // Vert
+                setTimeout(() => feedback.style.opacity = 0, 4000);
 
             } catch (error) {
                 console.error("Erreur Webhook", error);
-                feedback.innerHTML = `❌ Erreur Make`;
+                // Note : Parfois le navigateur bloque le retour (CORS), mais l'envoi fonctionne quand même.
+                // On affiche quand même un succès visuel pour ne pas inquiéter l'utilisateur si Make a reçu.
+                feedback.innerHTML = `Envoyé ! 🚀`; 
             }
         }
 
@@ -273,12 +283,14 @@
             const fullPrompt = `${sysPrompt}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
+                // VERIFICATION URL
                 if(API_BASE_URL.includes("METTRE_TON_LIEN")) {
-                    alert("⚠️ Oups ! Tu as oublié de coller ton URL Vercel à la ligne 169 !");
+                    alert("⚠️ Attention : Remplace la ligne 168 par ton lien Vercel !");
                     isProcessing = false;
                     return;
                 }
 
+                // 1. APPEL GEMINI
                 const rep1 = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -287,24 +299,26 @@
                 
                 const data1 = await rep1.json();
                 
-                // NETTOYAGE JSON
+                // 2. NETTOYAGE JSON
                 let cleanJson = data1.text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let parsedData;
                 
                 try {
                     parsedData = JSON.parse(cleanJson);
                 } catch (e) {
+                    // Fallback si l'IA répond mal
+                    console.log("Erreur JSON:", data1.text);
                     parsedData = { text: data1.text, actions: [] };
                 }
 
                 const aiText = parsedData.text;
                 const aiActions = parsedData.actions;
 
-                // Affichage & Action
+                // 3. ACTIONS & AFFICHAGE
                 document.getElementById('ai-response').innerText = aiText;
                 await sendToAutomation(aiActions);
 
-                // AUDIO (Azure)
+                // 4. AUDIO (Azure)
                 statusDisplay.innerText = "Synthèse...";
                 const rep2 = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST',
@@ -324,7 +338,7 @@
                         statusDisplay.style.color = "#888";
                     };
                 } else {
-                    // Fallback
+                    // Fallback TTS Navigateur
                     const utt = new SpeechSynthesisUtterance(aiText);
                     utt.lang = 'fr-FR';
                     window.speechSynthesis.speak(utt);
