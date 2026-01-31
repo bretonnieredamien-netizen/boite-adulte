@@ -3,194 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Odyssée - Assistant Pro</title>
+    <title>NEURO - Assistant TDAH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
+        /* --- DESIGN NEURO-INCLUSIF (Apaisant, Sombre, Contraste doux) --- */
         :root { 
-            --bg-1: #0f172a; --bg-2: #1e293b; 
-            --accent: #38bdf8; /* Bleu Cyan électrique pour le côté Tech/Pro */
-            --text-main: #f8fafc;
+            --bg-main: #121212; 
+            --bg-card: #1E1E1E; 
+            --accent: #BB86FC; /* Violet apaisant */
+            --accent-soft: rgba(187, 134, 252, 0.2);
+            --text-main: #E0E0E0;
         }
         
         body { 
-            font-family: 'Outfit', sans-serif; 
-            background: radial-gradient(circle at top, #1e293b, #020617);
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main);
             color: var(--text-main);
             height: 100vh; overflow: hidden; margin: 0; touch-action: none;
+            display: flex; flex-col;
         }
 
-        /* UI GLASSPHORISM */
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        /* BOUTON MICRO CENTRAL */
-        .mic-container {
+        /* BOUTON MICRO RESPIRANT */
+        .mic-wrapper {
             position: relative;
-            width: 90px; height: 90px;
+            width: 100px; height: 100px;
             display: flex; align-items: center; justify-content: center;
+            margin: 0 auto;
         }
         
         .mic-btn {
-            width: 70px; height: 70px;
+            width: 80px; height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0ea5e9, #2563eb);
+            background: var(--bg-card);
+            border: 2px solid var(--accent);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
-            transition: all 0.2s;
-            cursor: pointer; z-index: 50; position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer; z-index: 10;
         }
-        .mic-btn:active { transform: scale(0.95); }
         
-        /* RIPPLE EFFECT */
-        .ripple { position: absolute; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; pointer-events: none; }
-        .listening .ripple { animation: rippleAnim 2s infinite; }
-        .listening .ripple:nth-child(2) { animation-delay: 0.5s; }
-        @keyframes rippleAnim { 0% { width: 70px; height: 70px; opacity: 0.8; } 100% { width: 140px; height: 140px; opacity: 0; } }
+        .mic-btn svg { width: 32px; height: 32px; fill: var(--text-main); transition: fill 0.3s; }
+        .mic-btn.active { background: var(--accent); transform: scale(1.1); box-shadow: 0 0 30px var(--accent); }
+        .mic-btn.active svg { fill: #121212; }
 
-        /* TEXTE STATUS */
-        .status-text { text-transform: uppercase; letter-spacing: 2px; font-size: 10px; color: #94a3b8; margin-top: 15px; }
+        /* CIRCLES ANIMATION (BREATHING) */
+        .breath-circle {
+            position: absolute; border-radius: 50%;
+            border: 1px solid var(--accent); opacity: 0;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .listening .breath-circle { animation: breathe 3s infinite; }
+        .listening .breath-circle:nth-child(1) { width: 100px; height: 100px; animation-delay: 0s; }
+        .listening .breath-circle:nth-child(2) { width: 120px; height: 120px; animation-delay: 0.5s; }
+        .listening .breath-circle:nth-child(3) { width: 140px; height: 140px; animation-delay: 1s; }
 
-        /* NAV BAR */
-        .nav-bar {
-            width: 100%; padding: 15px 20px; padding-bottom: 30px;
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+        @keyframes breathe {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
         }
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; gap: 6px; 
-            opacity: 0.4; transition: 0.3s; background: transparent; border: none; cursor: pointer;
-        }
-        .nav-item.active { opacity: 1; transform: translateY(-5px); }
-        .nav-item.active svg { fill: var(--accent); drop-shadow(0 0 10px var(--accent)); }
-        .nav-item svg { width: 22px; height: 22px; fill: white; }
-        .nav-label { font-size: 9px; font-weight: 600; text-transform: uppercase; color: white; letter-spacing: 0.5px; }
 
-        /* MODE DISPLAY */
-        .mode-display {
-            text-align: center; margin-top: 40px;
+        /* MODES CARDS */
+        .mode-selector {
+            display: flex; gap: 10px; overflow-x: auto; padding: 20px;
+            scrollbar-width: none; justify-content: center;
         }
-        .mode-icon-lg { font-size: 40px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.3)); }
-        .mode-title { font-size: 32px; font-weight: 200; letter-spacing: -1px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .mode-desc { font-size: 13px; color: #64748b; max-width: 250px; margin: 0 auto; line-height: 1.4; }
+        .mode-card {
+            background: var(--bg-card);
+            padding: 15px 20px;
+            border-radius: 20px;
+            min-width: 100px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            opacity: 0.5;
+            cursor: pointer;
+        }
+        .mode-card.active {
+            opacity: 1;
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            transform: translateY(-5px);
+        }
+        .mode-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+        .mode-label { font-size: 12px; font-weight: 700; uppercase; letter-spacing: 1px; }
+
+        /* TEXTE FEEDBACK */
+        .feedback-area {
+            flex: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center; padding: 20px;
+        }
+        .main-instruction { font-size: 18px; font-weight: 300; line-height: 1.6; max-width: 300px; }
+        .status-pill { 
+            background: #2C2C2C; padding: 5px 15px; border-radius: 20px; 
+            font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 20px; 
+        }
 
     </style>
 </head>
 <body class="flex flex-col justify-between">
 
-    <div class="mode-display flex-1 flex flex-col justify-center">
-        <div id="mode-icon" class="mode-icon-lg">💼</div>
-        <h1 id="mode-title" class="mode-title">Rédacteur</h1>
-        <p id="mode-desc" class="mode-desc">Emails, courriers, posts LinkedIn, correction et reformulation.</p>
-        
-        <div id="visualizer" class="h-12 flex items-center justify-center gap-1 mt-8 opacity-0 transition-opacity duration-500">
-            <div class="w-1 h-3 bg-sky-400 rounded-full animate-pulse"></div>
-            <div class="w-1 h-6 bg-sky-400 rounded-full animate-pulse delay-75"></div>
-            <div class="w-1 h-4 bg-sky-400 rounded-full animate-pulse delay-150"></div>
-            <div class="w-1 h-6 bg-sky-400 rounded-full animate-pulse delay-100"></div>
-            <div class="w-1 h-3 bg-sky-400 rounded-full animate-pulse delay-200"></div>
+    <div class="pt-8 text-center">
+        <h1 class="text-2xl font-bold tracking-widest text-white">NEURO</h1>
+        <p class="text-[10px] text-gray-500 uppercase tracking-[0.3em] mt-1">External Brain System</p>
+    </div>
+
+    <div class="feedback-area">
+        <div id="status-display" class="status-pill">En attente</div>
+        <p id="ai-response" class="main-instruction">
+            Je suis ton second cerveau.<br>
+            Choisis un mode et appuie sur le bouton.
+        </p>
+    </div>
+
+    <div class="mic-wrapper" id="mic-wrapper">
+        <div class="breath-circle"></div>
+        <div class="breath-circle"></div>
+        <div class="breath-circle"></div>
+        <div id="btn-mic" class="mic-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
         </div>
     </div>
 
-    <div class="glass-panel rounded-t-3xl">
-        
-        <div class="flex flex-col items-center -mt-10">
-            <div id="mic-container" class="mic-container">
-                <div class="ripple"></div><div class="ripple"></div>
-                <div id="btn-mic" class="mic-btn">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </div>
-            </div>
-            <p id="status" class="status-text">Appuyez pour parler</p>
+    <div class="mode-selector pb-10">
+        <div class="mode-card active" onclick="setMode('DUMP', this)">
+            <span class="mode-icon">🧠</span>
+            <span class="mode-label">Vider</span>
         </div>
-
-        <div class="nav-bar">
-            <button class="nav-item active" onclick="switchMode('REDACTEUR', this)">
-                <svg viewBox="0 0 24 24"><path d="M2.5 19h19v2h-19zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 1.82 3.16.77 1.33 1.6-.43 5.31-1.42 4.35-1.16c.8-.21 1.28-1.05 1.07-1.85z"/></svg>
-                <span class="nav-label">Rédacteur</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchMode('SOLVEUR', this)">
-                <svg viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
-                <span class="nav-label">Solveur</span>
-            </button>
-            
-            <button class="nav-item" onclick="switchMode('STRATEGE', this)">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM6 19V5h12v14H6zm6-6h-2v2h2v-2zm0-4h-2v2h2V9z"/></svg>
-                <span class="nav-label">Stratège</span>
-            </button>
-
-            <button class="nav-item" onclick="switchMode('MENTOR', this)">
-                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
-                <span class="nav-label">Mentor</span>
-            </button>
+        <div class="mode-card" onclick="setMode('FOCUS', this)">
+            <span class="mode-icon">⚡</span>
+            <span class="mode-label">Focus</span>
+        </div>
+        <div class="mode-card" onclick="setMode('ROUTINE', this)">
+            <span class="mode-icon">🔄</span>
+            <span class="mode-label">Routine</span>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // CONFIGURATION (VOTRE URL VERCEL)
+        // URL VERCEL
         // ==========================================
-        const API_BASE_URL = "https://boite-adulte.vercel.app/";
+        const API_BASE_URL = "https://VOTRE-PROJET-VERCEL.vercel.app";
         // ==========================================
 
-        let currentMode = 'REDACTEUR';
+        let currentMode = 'DUMP';
         let isProcessing = false;
-        let currentAudio = null;
+        let isSpeaking = false;
 
-        const MODES = {
-            'REDACTEUR': {
-                title: "Rédacteur Pro",
-                desc: "Rédaction d'emails, correction, lettres officielles, posts réseaux sociaux.",
-                icon: "💼",
-                prompt: "Tu es un expert en communication et un assistant exécutif de haut niveau. Ta tâche est de rédiger, corriger ou reformuler des textes. L'utilisateur te donnera un contexte. Produis un résultat professionnel, clair et percutant. Si c'est un email, inclus l'objet. Ne sois pas bavard, donne le résultat."
-            },
-            'SOLVEUR': {
-                title: "Solveur Technique",
-                desc: "Bricolage, cuisine, calculs, bugs informatiques. Solutions pas à pas.",
-                icon: "🔧",
-                prompt: "Tu es un ingénieur polyvalent et un expert en résolution de problèmes (bricolage, cuisine, tech). L'utilisateur a un problème concret. Donne une solution structurée, étape par étape (Step 1, Step 2...). Sois précis, sécuritaire et pratique."
-            },
-            'STRATEGE': {
-                title: "Stratège",
-                desc: "Prise de décision, négociation, analyse de situation, pour et contre.",
-                icon: "♟️",
-                prompt: "Tu es un consultant en stratégie et un négociateur expert. L'utilisateur doit prendre une décision ou préparer une négociation. Analyse la situation, donne les Pour et les Contre, identifie les angles morts et propose un plan d'action rationnel."
-            },
-            'MENTOR': {
-                title: "Mentor Savoir",
-                desc: "Explications simples, traductions, résumés de concepts complexes.",
-                icon: "🎓",
-                prompt: "Tu es un professeur pédagogue et un traducteur expert. L'utilisateur veut apprendre ou comprendre quelque chose. Explique le concept simplement (vulgarisation) ou traduis le texte demandé. Utilise des analogies si nécessaire pour la clarté."
-            }
+        // Prompts spécialisés TDAH / Charge Mentale
+        const PROMPTS = {
+            'DUMP': `Tu es un assistant personnel pour quelqu'un qui a un TDAH. 
+            L'utilisateur va te donner plein d'infos en vrac. Ta mission :
+            1. Écouter et ne pas juger.
+            2. Trier mentalement les infos (Agenda, To-Do, Notes).
+            3. Répondre UNIQUEMENT en confirmant que c'est trié, sur un ton calme et rassurant.
+            Exemple : "C'est noté. J'ai mis le dentiste dans l'agenda et le lait sur la liste de courses. Autre chose ?"`,
+
+            'FOCUS': `Tu es un coach spécialisé en fonctions exécutives.
+            L'utilisateur est paralysé devant une tâche.
+            1. Demande quelle est la tâche.
+            2. Découpe-la en la toute première étape RIDICULEMENT petite et facile (la "micro-étape").
+            3. Sois encourageant. Ne donne PAS toute la liste, juste la première étape.
+            Exemple : "Ok, on respire. Pour ranger le garage, étape 1 : Va juste chercher un sac poubelle. C'est tout. Dis-moi quand c'est fait."`,
+
+            'ROUTINE': `Tu es un pilote de routine bienveillant.
+            L'utilisateur a du mal à gérer son temps le matin ou le soir.
+            Guide-le pas à pas. Sois dynamique mais pas stressant.
+            Donne une consigne simple et un délai court.
+            Exemple : "Allez champion. On attaque. 2 minutes pour brosser les dents. Go !"`,
         };
 
-        function switchMode(modeKey, btn) {
-            currentMode = modeKey;
-            
-            // UI Update
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        function setMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
-
-            const info = MODES[modeKey];
-            document.getElementById('mode-title').innerText = info.title;
-            document.getElementById('mode-desc').innerText = info.desc;
-            document.getElementById('mode-icon').innerText = info.icon;
             
-            // Animation
-            const title = document.getElementById('mode-title');
-            title.style.opacity = 0;
-            setTimeout(() => title.style.opacity = 1, 200);
-
-            stopAudio();
-            updateStatus("Prêt.");
+            const texts = {
+                'DUMP': "Vide ton sac. Dis-moi tout ce qui traîne dans ta tête.",
+                'FOCUS': "Quelle tâche te fait peur ou te bloque ?",
+                'ROUTINE': "On lance la routine du Matin ou du Soir ?"
+            };
+            document.getElementById('ai-response').innerText = texts[mode];
+            window.speechSynthesis.cancel();
         }
 
         const btnMic = document.getElementById('btn-mic');
-        const micContainer = document.getElementById('mic-container');
+        const micWrapper = document.getElementById('mic-wrapper');
+        const statusDisplay = document.getElementById('status-display');
 
         btnMic.addEventListener('click', () => {
             if (isProcessing) return;
@@ -198,73 +199,76 @@
         });
 
         function startListening() {
-            if(currentAudio) stopAudio();
-
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Micro non supporté."); return; }
+            if (!Speech) { alert("Pas de micro détecté"); return; }
 
             const rec = new Speech();
             rec.lang = 'fr-FR';
             rec.interimResults = false;
 
             rec.onstart = () => {
-                micContainer.classList.add('listening');
-                updateStatus("Je vous écoute...");
+                micWrapper.classList.add('listening');
+                btnMic.classList.add('active');
+                statusDisplay.innerText = "J'écoute...";
+                statusDisplay.style.color = "#BB86FC";
             };
 
             rec.onend = () => {
-                micContainer.classList.remove('listening');
+                micWrapper.classList.remove('listening');
+                btnMic.classList.remove('active');
             };
 
             rec.onresult = (event) => {
                 const text = event.results[0][0].transcript;
-                processRequest(text);
+                processWithAI(text);
             };
 
             rec.start();
         }
 
-        async function processRequest(text) {
-            if(!text) return;
+        async function processWithAI(userInput) {
             isProcessing = true;
-            updateStatus("Analyse...");
-            document.getElementById('visualizer').style.opacity = 1;
+            statusDisplay.innerText = "Réflexion...";
+            document.getElementById('ai-response').innerText = "...";
 
-            const modeInfo = MODES[currentMode];
-            // Construction du Prompt Intelligent
-            const finalPrompt = `${modeInfo.prompt} \n\n DEMANDE UTILISATEUR : "${text}"`;
+            // Construction du Prompt
+            const sysPrompt = PROMPTS[currentMode];
+            const fullPrompt = `${sysPrompt}\n\nUTILISATEUR : "${userInput}"`;
 
             try {
-                // 1. APPEL GEMINI
-                const repIA = await fetch(`${API_BASE_URL}/api/gemini`, {
+                // 1. GEMINI
+                const rep1 = await fetch(`${API_BASE_URL}/api/gemini`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ prompt: finalPrompt })
+                    body: JSON.stringify({ prompt: fullPrompt })
                 });
-                const dataIA = await repIA.json();
+                const data1 = await rep1.json();
+                const aiText = data1.text;
                 
-                // 2. APPEL AZURE TTS
-                updateStatus("Génération vocale...");
-                const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
+                document.getElementById('ai-response').innerText = aiText;
+
+                // 2. AZURE TTS
+                statusDisplay.innerText = "Synthèse...";
+                const rep2 = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ text: dataIA.text })
+                    body: JSON.stringify({ text: aiText })
                 });
 
-                if (repAudio.ok) {
-                    const blob = await repAudio.blob();
+                if (rep2.ok) {
+                    const blob = await rep2.blob();
                     const url = URL.createObjectURL(blob);
-                    currentAudio = new Audio(url);
-                    updateStatus("Lecture...");
-                    currentAudio.play();
-                    currentAudio.onended = () => {
-                        isProcessing = false;
-                        updateStatus("Prêt.");
-                        document.getElementById('visualizer').style.opacity = 0;
+                    const audio = new Audio(url);
+                    statusDisplay.innerText = "Lecture...";
+                    audio.play();
+                    audio.onended = () => { 
+                        isProcessing = false; 
+                        statusDisplay.innerText = "En attente";
+                        statusDisplay.style.color = "#888";
                     };
                 } else {
-                    // Fallback si Azure plante
-                    const utt = new SpeechSynthesisUtterance(dataIA.text);
+                    // Fallback
+                    const utt = new SpeechSynthesisUtterance(aiText);
                     utt.lang = 'fr-FR';
                     window.speechSynthesis.speak(utt);
                     isProcessing = false;
@@ -272,20 +276,9 @@
 
             } catch (e) {
                 console.error(e);
-                updateStatus("Erreur.");
+                statusDisplay.innerText = "Erreur réseau";
                 isProcessing = false;
-                document.getElementById('visualizer').style.opacity = 0;
             }
-        }
-
-        function stopAudio() {
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            window.speechSynthesis.cancel();
-            document.getElementById('visualizer').style.opacity = 0;
-        }
-
-        function updateStatus(text) {
-            document.getElementById('status').innerText = text;
         }
     </script>
 </body>
