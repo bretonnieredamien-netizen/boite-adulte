@@ -7,15 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO-INCLUSIF --- */
+        /* --- DESIGN ZEN & ALERT --- */
         :root { 
             --bg-main: #121212; 
             --bg-card: #1E1E1E; 
             --accent: #BB86FC; 
             --text-main: #E0E0E0;
-            --success: #03DAC6;
-            --calendar: #CF6679;
-            --xp-gradient: linear-gradient(90deg, #BB86FC, #03DAC6);
+            --success: #03DAC6; /* Vert Zen */
+            --warning: #FFB74D; /* Orange Charge moyenne */
+            --danger: #CF6679;  /* Rouge Surcharge */
         }
         
         body { 
@@ -26,64 +26,80 @@
             display: flex; flex-direction: column;
         }
 
-        /* HEADER GAMIFIÉ */
-        .header { padding-top: 20px; padding-bottom: 10px; text-align: center; flex-shrink: 0; background: #121212; z-index: 10; }
+        /* HEADER MONITEUR */
+        .header { padding-top: 20px; padding-bottom: 15px; text-align: center; flex-shrink: 0; background: #121212; z-index: 10; border-bottom: 1px solid #333; }
         
-        /* BARRE D'XP */
-        .xp-wrapper {
-            width: 80%; margin: 10px auto;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .level-badge {
-            font-size: 12px; font-weight: 900; color: #03DAC6; 
-            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(3, 218, 198, 0.5);
-        }
-        .xp-track {
-            width: 100%; height: 6px; background: #333; border-radius: 10px; overflow: hidden;
-        }
-        .xp-fill {
-            height: 100%; width: 0%; 
-            background: var(--xp-gradient);
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+        .monitor-wrapper { width: 85%; margin: 10px auto; display: flex; flex-direction: column; align-items: center; }
+        
+        .monitor-title {
+            font-size: 10px; font-weight: 700; color: #888; 
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
         }
 
-        /* LISTE DES TÂCHES */
-        .task-container {
-            flex: 1; overflow-y: auto; padding: 20px;
-            margin-bottom: 10px; scrollbar-width: none;
+        /* JAUGE DE CHARGE */
+        .load-track {
+            width: 100%; height: 12px; background: #222; border-radius: 6px; overflow: hidden;
+            border: 1px solid #333; position: relative;
         }
+        /* Les graduations */
+        .load-track::after {
+            content: " "; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(90deg, transparent, transparent 19%, #121212 20%);
+            opacity: 0.3;
+        }
+
+        .load-fill {
+            height: 100%; width: 0%; 
+            background: var(--success); /* Commence vert */
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 0 10px rgba(3, 218, 198, 0.3);
+        }
+
+        .load-status {
+            margin-top: 8px; font-size: 12px; font-weight: bold; 
+            color: var(--success); transition: color 0.3s;
+        }
+
+        /* LISTE */
+        .task-container { flex: 1; overflow-y: auto; padding: 20px; margin-bottom: 10px; scrollbar-width: none; }
         
         .task-item {
-            background: var(--bg-card);
-            padding: 15px; margin-bottom: 10px; border-radius: 12px;
+            background: var(--bg-card); padding: 15px; margin-bottom: 10px; border-radius: 12px;
             display: flex; align-items: center; justify-content: space-between;
             border-left: 4px solid var(--accent);
-            animation: slideIn 0.3s ease-out;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: hidden;
+            animation: slideIn 0.3s ease-out; transition: all 0.4s;
         }
-
-        .task-item.calendar { border-left-color: var(--calendar) !important; background: #2A1A1A; }
+        .task-item.calendar { border-left-color: var(--danger) !important; background: #2A1A1A; }
 
         .task-text { font-size: 14px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; }
         
-        /* BOUTON CHECK (DONE) */
         .done-btn { 
-            background: rgba(3, 218, 198, 0.1); border: 1px solid var(--success); 
-            color: var(--success); width: 30px; height: 30px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; cursor: pointer; transition: all 0.2s;
+            background: transparent; border: 1px solid #444; color: #666; 
+            width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; cursor: pointer; transition: all 0.2s;
         }
-        .done-btn:active { transform: scale(0.9); background: var(--success); color: black; }
-        
-        .sync-badge { font-size: 10px; color: #03DAC6; display: none; margin-left: 5px; font-weight: bold;}
+        .done-btn:active { background: var(--success); color: black; border-color: var(--success); }
+        .sync-badge { font-size: 10px; color: var(--success); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        @keyframes fadeOutRight { to { transform: translateX(100%); opacity: 0; } }
+        /* ZEN POPUP */
+        .zen-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.8s;
+        }
+        .zen-overlay.show { opacity: 1; pointer-events: all; }
+        .zen-circle {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: var(--success); box-shadow: 0 0 50px var(--success);
+            margin-bottom: 20px; animation: breathe 4s infinite ease-in-out;
+        }
+        .zen-text { font-size: 24px; font-weight: 300; letter-spacing: 5px; color: white; text-transform: uppercase; }
+
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* CONTROLES */
         .bottom-controls {
@@ -91,55 +107,41 @@
             padding-bottom: 30px; display: flex; flex-direction: column; align-items: center;
             flex-shrink: 0; z-index: 50;
         }
-
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(187, 134, 252, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
-
         .mic-wrapper { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
         .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
-
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
-        
-        /* LEVEL UP POPUP */
-        .levelup-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s;
-        }
-        .levelup-overlay.show { opacity: 1; pointer-events: all; }
-        .levelup-text { font-size: 40px; font-weight: 900; color: var(--success); text-transform: uppercase; margin-bottom: 10px; transform: scale(0.5); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .levelup-overlay.show .levelup-text { transform: scale(1); }
-        
+
     </style>
 </head>
 <body>
 
-    <div id="levelup-popup" class="levelup-overlay" onclick="closeLevelUp()">
-        <div class="levelup-text">Niveau Supérieur !</div>
-        <p class="text-white text-sm tracking-widest">CONTINUE COMME ÇA</p>
+    <div id="zen-popup" class="zen-overlay" onclick="closeZen()">
+        <div class="zen-circle"></div>
+        <div class="zen-text">ESPRIT LIBRE</div>
     </div>
 
     <div class="header">
         <h1 class="text-xl font-bold tracking-[0.2em] text-white">NEURO</h1>
         
-        <div class="xp-wrapper">
-            <div class="level-badge">NIVEAU <span id="lvl-num">1</span></div>
-            <div class="xp-track">
-                <div id="xp-bar" class="xp-fill"></div>
+        <div class="monitor-wrapper">
+            <div class="monitor-title">CHARGE MENTALE</div>
+            <div class="load-track">
+                <div id="load-bar" class="load-fill"></div>
             </div>
-            <div class="text-[9px] text-gray-500 mt-1"><span id="xp-val">0</span> / 100 XP</div>
+            <div id="load-status" class="load-status">OPTIMAL</div>
         </div>
     </div>
 
     <div class="task-container" id="task-list">
         <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;">
-            <p>Ta liste est vide.</p>
+            <p>Aucune charge détectée.</p>
         </div>
     </div>
 
@@ -172,104 +174,63 @@
         let currentMode = 'DUMP';
         let isProcessing = false;
         
-        // VARIABLES GAMIFICATION
-        let userXP = 0;
-        let userLevel = 1;
-        const XP_PER_LEVEL = 100;
-        const XP_TASK = 20;
-
         // --- CHARGEMENT ---
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
-            loadGamification();
+            updateMentalLoad(); // Calculer la charge au démarrage
         });
 
-        // --- GAMIFICATION LOGIC ---
-        function loadGamification() {
-            userXP = parseInt(localStorage.getItem('neuro_xp') || '0');
-            userLevel = parseInt(localStorage.getItem('neuro_lvl') || '1');
-            updateUI();
-        }
+        // --- GESTION CHARGE MENTALE ---
+        function updateMentalLoad() {
+            const list = document.getElementById('task-list');
+            // On compte le nombre de div "task-item"
+            const count = list.querySelectorAll('.task-item').length;
+            
+            // Calcul de la charge (Disons que 10 tâches = 100% de charge)
+            let percent = Math.min((count / 8) * 100, 100);
+            
+            const bar = document.getElementById('load-bar');
+            const status = document.getElementById('load-status');
 
-        function updateUI() {
-            document.getElementById('lvl-num').innerText = userLevel;
-            document.getElementById('xp-val').innerText = userXP;
-            // Calcul pourcentage
-            let pct = (userXP / XP_PER_LEVEL) * 100;
-            document.getElementById('xp-bar').style.width = pct + "%";
-        }
-
-        function gainXP(amount) {
-            userXP += amount;
-            if(userXP >= XP_PER_LEVEL) {
-                userXP = 0; // Reset ou surplus
-                userLevel++;
-                showLevelUp();
+            // Animation et Couleur
+            bar.style.width = percent + "%";
+            
+            if (count === 0) {
+                bar.style.background = "var(--success)";
+                status.innerText = "ESPRIT LIBRE";
+                status.style.color = "var(--success)";
+            } else if (percent < 40) {
+                bar.style.background = "var(--success)";
+                status.innerText = "OPTIMAL";
+                status.style.color = "var(--success)";
+            } else if (percent < 80) {
+                bar.style.background = "var(--warning)";
+                status.innerText = "CHARGE MOYENNE";
+                status.style.color = "var(--warning)";
+            } else {
+                bar.style.background = "var(--danger)";
+                status.innerText = "SURCHARGE";
+                status.style.color = "var(--danger)";
             }
-            localStorage.setItem('neuro_xp', userXP);
-            localStorage.setItem('neuro_lvl', userLevel);
-            updateUI();
         }
 
-        function completeTask(btn) {
-            const item = btn.parentElement;
-            // Animation de suppression (Swipe droite)
-            item.style.transform = "translateX(100%)";
-            item.style.opacity = "0";
-            
-            // Gain d'XP
-            gainXP(XP_TASK);
-
-            setTimeout(() => {
-                item.remove();
-                saveTasks();
-            }, 300);
+        // Si on vide tout -> Mode ZEN
+        function checkZenMode() {
+            const list = document.getElementById('task-list');
+            const count = list.querySelectorAll('.task-item').length;
+            if(count === 0) {
+                const popup = document.getElementById('zen-popup');
+                popup.classList.add('show');
+                setTimeout(() => popup.classList.remove('show'), 3000);
+            }
         }
+        function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
-        function showLevelUp() {
-            const popup = document.getElementById('levelup-popup');
-            popup.classList.add('show');
-            // Son de victoire (optionnel)
-            // const audio = new Audio('victory.mp3'); audio.play();
-            setTimeout(() => popup.classList.remove('show'), 2000);
-        }
 
-        function closeLevelUp() {
-            document.getElementById('levelup-popup').classList.remove('show');
-        }
-
-        // --- PROMPTS INTELLIGENTS ---
-        function getPrompts() {
-            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            return {
-                'DUMP': `Tu es un assistant personnel. DATE: ${today}.
-                Réponds UNIQUEMENT en JSON :
-                {
-                    "text": "Confirmation",
-                    "actions": [
-                        { "type": "TODO", "detail": "..." },
-                        { "type": "CALENDAR", "detail": "..." }
-                    ]
-                }
-                REGLE CALENDRIER : Convertis les "demain/jeudi" en date précise "JJ/MM/AAAA HH:mm Titre".`,
-                'FOCUS': `Coach anti-procrastination. JSON Strict.`,
-                'ROUTINE': `Pilote de routine. JSON Strict.`
-            };
-        }
-
-        function setMode(mode, btn) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            const msgs = {'DUMP': "Vide ton sac...", 'FOCUS': "On débloque ?", 'ROUTINE': "On attaque ?"};
-            document.getElementById('status-text').innerText = msgs[mode];
-            document.getElementById('status-text').style.opacity = 1;
-        }
-
+        // --- UI & TACHES ---
         function addTaskToUI(text, type) {
             const list = document.getElementById('task-list');
-            if(list.innerText.includes("Ta liste est vide")) list.innerHTML = "";
+            if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
 
             const div = document.createElement('div');
             const isCal = (type === 'CALENDAR');
@@ -278,17 +239,30 @@
             const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : '';
             const label = isCal ? 'AGENDA' : 'TÂCHE';
 
-            // Bouton de Validation (Check)
             div.innerHTML = `
                 <div>
                     <div class="task-text">${text} ${syncIcon}</div>
                     <div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div>
                 </div>
-                <button class="done-btn" onclick="completeTask(this)">✓</button>
+                <button class="done-btn" onclick="completeTask(this)">✕</button>
             `;
             list.appendChild(div);
-            list.scrollTop = list.scrollHeight;
+            
             saveTasks();
+            updateMentalLoad(); // Mise à jour de la jauge
+        }
+
+        function completeTask(btn) {
+            const item = btn.parentElement;
+            item.style.transform = "translateX(100%)";
+            item.style.opacity = "0";
+            
+            setTimeout(() => {
+                item.remove();
+                saveTasks();
+                updateMentalLoad(); // La jauge descend !
+                checkZenMode(); // Vérifie si on est à 0
+            }, 300);
         }
 
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
@@ -297,14 +271,30 @@
             if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; 
         }
 
+        // --- PROMPTS INTELLIGENTS ---
+        function getPrompts() {
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            return {
+                'DUMP': `Assistant TDAH. DATE: ${today}.
+                JSON Strict : { "text": "Ok", "actions": [ { "type": "TODO", "detail": "..." }, { "type": "CALENDAR", "detail": "..." } ] }
+                REGLE : Convertis "demain/jeudi" en date précise "JJ/MM/AAAA HH:mm Titre".`,
+                'FOCUS': `Coach. JSON Strict.`,
+                'ROUTINE': `Guide. JSON Strict.`
+            };
+        }
+
+        // --- UI BASE ---
+        function setMode(mode, btn) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            const msgs = {'DUMP': "Je note tout...", 'FOCUS': "On débloque...", 'ROUTINE': "Go routine..."};
+            document.getElementById('status-text').innerText = msgs[mode];
+            document.getElementById('status-text').style.opacity = 1;
+        }
+
         async function sendToCalendar(detail) {
-            try {
-                await fetch(MAKE_WEBHOOK, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ detail: detail, type: 'CALENDAR' })
-                });
-            } catch (e) { console.error("Erreur Make", e); }
+            try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {}
         }
 
         // --- MICRO & IA ---
@@ -316,7 +306,7 @@
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
             const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
-            rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "J'écoute..."; };
+            rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "Écoute..."; };
             rec.onend = () => { btnMic.classList.remove('active'); };
             rec.onresult = (e) => { processWithAI(e.results[0][0].transcript); };
             rec.start();
@@ -342,13 +332,13 @@
                     parsed.actions.forEach(act => {
                         addTaskToUI(act.detail, act.type);
                         if(act.type === 'CALENDAR') {
-                            statusText.innerText = "Synchro...";
+                            statusText.innerText = "Agenda...";
                             sendToCalendar(act.detail);
                         }
                     });
                 }
 
-                statusText.innerText = "Lecture...";
+                statusText.innerText = "Synthèse...";
                 const repAudio = await fetch(`${API_BASE_URL}/api/azure`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ text: parsed.text })
