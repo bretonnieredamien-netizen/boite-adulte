@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V21 (LOGO) --- */
+        /* --- DESIGN NEURO V22 (NOUVEAU LOGO) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -22,9 +22,10 @@
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
         
-        /* LOGO STYLES (NOUVEAU) */
+        /* LOGO STYLES (V22) */
         .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .app-logo { width: 40px; height: 40px; fill: var(--accent); filter: drop-shadow(0 0 5px rgba(41, 121, 255, 0.5)); margin-bottom: 2px; }
+        /* Le nouveau logo est plein et utilise la couleur d'accentuation vive */
+        .app-logo { width: 42px; height: 42px; fill: var(--accent); filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.6)); margin-bottom: 4px; }
 
         .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
@@ -152,13 +153,7 @@
 
             <div class="app-logo-container">
                 <svg class="app-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor" opacity="0.2"/>
-                    <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="currentColor"/>
-                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                    <circle cx="8.5" cy="8.5" r="1" fill="currentColor"/>
-                    <circle cx="15.5" cy="8.5" r="1" fill="currentColor"/>
-                    <circle cx="8.5" cy="15.5" r="1" fill="currentColor"/>
-                    <circle cx="15.5" cy="15.5" r="1" fill="currentColor"/>
+                    <path d="M15.5,11.5 C15.5,10.12 14.38,9 13,9 C11.62,9 10.5,10.12 10.5,11.5 C10.5,12.88 11.62,14 13,14 C14.38,14 15.5,12.88 15.5,11.5 Z M7,11.5 C7,10.12 5.88,9 4.5,9 C3.12,9 2,10.12 2,11.5 C2,12.88 3.12,14 4.5,14 C5.88,14 7,12.88 7,11.5 Z M20,11.5 C20,10.12 18.88,9 17.5,9 C16.12,9 15,10.12 15,11.5 C15,12.88 16.12,14 17.5,14 C18.88,14 20,12.88 20,11.5 Z M13,17 C11.62,17 10.5,18.12 10.5,19.5 C10.5,20.88 11.62,22 13,22 C14.38,22 15.5,20.88 15.5,19.5 C15.5,18.12 14.38,17 13,17 Z M13,5 C14.38,5 15.5,3.88 15.5,2.5 C15.5,1.12 14.38,0 13,0 C11.62,0 10.5,1.12 10.5,2.5 C10.5,3.88 11.62,5 13,5 Z M7,6 C7,4.62 5.88,3.5 4.5,3.5 C3.12,3.5 2,4.62 2,6 C2,7.38 3.12,8.5 4.5,8.5 C5.88,8.5 7,7.38 7,6 Z M22,6 C22,4.62 20.88,3.5 19.5,3.5 C18.12,3.5 17,4.62 17,6 C17,7.38 18.12,8.5 19.5,8.5 C20.88,8.5 22,7.38 22,6 Z M18.85,16.15 C17.55,14.85 15.45,14.85 14.15,16.15 C12.85,17.45 12.85,19.55 14.15,20.85 C15.45,22.15 17.55,22.15 18.85,20.85 C20.15,19.55 20.15,17.45 18.85,16.15 Z M5.15,16.15 C3.85,17.45 3.85,19.55 5.15,20.85 C6.45,22.15 8.55,22.15 9.85,20.85 C11.15,19.55 11.15,17.45 9.85,16.15 C8.55,14.85 6.45,14.85 5.15,16.15 Z M12,7 C8.69,7 6,9.69 6,13 C6,16.31 8.69,19 12,19 C15.31,19 18,16.31 18,13 C18,9.69 15.31,7 12,7 Z" fill="currentColor"/>
                 </svg>
                 <div id="user-display" class="user-greeting">ASSISTANT</div>
             </div>
