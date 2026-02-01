@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V18 --- */
+        /* --- DESIGN NEURO V19 (FINAL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -224,6 +224,15 @@
         // DATA
         const POSITIVE_PHRASES = ["Tu as tout ce qu'il faut.", "Respire, tu gères.", "Une étape à la fois.", "Bravo d'être là.", "Ton cerveau est unique.", "Pas de pression.", "Tu es un champion.", "Chaque petite croix compte.", "Concentration et calme.", "Tu avances, c'est l'essentiel.", "Fais-toi confiance.", "Ta différence est une force.", "Belle journée en vue.", "Rien ne t'arrête.", "Sois fier de toi.", "L'important c'est de commencer.", "Tu es capable.", "Garde le sourire.", "On y va cool.", "Tu es aux commandes."];
         const TRANSITION_PHRASES = ["Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :", "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :", "On déroule le tapis rouge :", "Tes missions du moment :", "Allons-y gaiement :", "Suis le mouvement :", "Cap sur l'objectif :", "Voici ta checklist :", "On enchaîne fluidement :", "Ton parcours fléché :", "Rien que pour toi :", "Allez, focus sur ça :", "Ta feuille de route :", "On s'y met ensemble :", "Voici le déroulé :", "Prêt ? C'est par ici :"];
+        
+        // CONTEXTUAL CLOSING PHRASES (NEW)
+        const CLOSING_PHRASES = {
+            'MATIN': ["Passe une superbe journée !", "Brille aujourd'hui !", "Bonne journée à toi.", "Profite bien !"],
+            'SOIR': ["Fais de beaux rêves.", "Repose-toi bien.", "Bonne nuit.", "À demain matin."],
+            'SPORT': ["Bonne séance !", "Donne tout !", "Tu vas te sentir bien après !", "Force à toi !"],
+            'TRAVAIL': ["Bon courage !", "Sois productif !", "Tu vas gérer.", "Fonce !"],
+            'DEFAULT': ["C'est parti !", "À toi de jouer.", "Courage !", "Go !"]
+        };
 
         // VARS
         let currentMode = 'DUMP';
@@ -294,7 +303,31 @@
         function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
         function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
         function getRandomTransition() { return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)]; }
-        function readActiveRoutine() { const list = document.getElementById('routine-steps-list'); let text = `Bonjour ${username} ! ` + getRandomIntro() + " " + getRandomTransition() + " "; list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". "); playVocalResponse(text); }
+        
+        // CONTEXTUAL CLOSING
+        function getClosingPhrase(routineName) {
+            const n = routineName.toLowerCase();
+            let cat = 'DEFAULT';
+            if (n.includes('matin') || n.includes('reveil')) cat = 'MATIN';
+            else if (n.includes('soir') || n.includes('nuit')) cat = 'SOIR';
+            else if (n.includes('sport') || n.includes('gym')) cat = 'SPORT';
+            else if (n.includes('travail') || n.includes('boulot')) cat = 'TRAVAIL';
+            const list = CLOSING_PHRASES[cat] || CLOSING_PHRASES['DEFAULT'];
+            return list[Math.floor(Math.random() * list.length)];
+        }
+
+        function readActiveRoutine() { 
+            const list = document.getElementById('routine-steps-list'); 
+            const routineName = document.getElementById('active-routine-name').innerText;
+            let text = `Bonjour ${username} ! ` + getRandomIntro() + " " + getRandomTransition() + " "; 
+            list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". "); 
+            
+            // Ajout de la phrase de fin contextuelle
+            text += " " + getClosingPhrase(routineName);
+            
+            playVocalResponse(text); 
+        }
+        
         function checkRoutineFinish() { if (document.getElementById('routine-steps-list').children.length === 0) { playVocalResponse(`Routine terminée. Bien joué ${username} !`); triggerConfetti(); setTimeout(exitRoutine, 2000); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display = 'grid'; document.getElementById('active-routine-view').style.display = 'none'; }
 
@@ -320,13 +353,13 @@
             checkZenMode(); 
         }
         function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); triggerConfetti(); setTimeout(() => p.classList.remove('show'), 3000); } }
+        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         
         function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
         
         function completeTask(btn) { 
-            const item = btn.closest('.task-item'); // TARGET PARENT TASK ITEM
+            const item = btn.closest('.task-item'); 
             if(item) {
                 item.style.transform = "translateX(100%)"; item.style.opacity = "0"; 
                 setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); }, 300); 
@@ -343,7 +376,7 @@
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
 
             return {
-                'DUMP': `Assistant TDAH. DATE: ${today}. Action: Ajout de tâche. JSON Strict. Champ "text": Choisis un seul mot aléatoire parmi: ["Ok", "Noté", "C'est fait", "Reçu", "Ça marche", "Enregistré"]. Actions: [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
+                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}. JSON Strict: { "text": "Ok ${username}", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
