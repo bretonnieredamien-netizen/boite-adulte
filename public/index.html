@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V8 --- */
+        /* --- DESIGN NEURO V9 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -39,7 +39,6 @@
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
         
-        /* ACTIONS */
         .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
@@ -54,6 +53,8 @@
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
         .routine-card-item:active { transform: scale(0.95); background: #222; }
         .routine-delete-btn { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; background: rgba(255,23,68,0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .routine-icon { font-size: 28px; }
+        
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
@@ -98,17 +99,14 @@
 
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
-        
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
-
         .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform 0.2s; }
         .send-btn:active { transform: scale(0.9); }
         .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: -2px; }
-
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
@@ -199,28 +197,26 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
-        // PHRASES POSITIVES
+        // --- PHRASES (DOPAMINE) ---
         const POSITIVE_PHRASES = [
-            "Tu as tout ce qu'il faut pour réussir.",
-            "Respire un grand coup, tu gères.",
-            "Une étape à la fois, c'est le secret.",
-            "Bravo d'être là pour toi aujourd'hui.",
-            "Ton cerveau est unique, utilise-le à ton avantage.",
-            "Pas de pression, juste de l'action.",
-            "Tu es un champion du quotidien.",
-            "Chaque petite croix est une victoire.",
-            "Concentration et calme.",
-            "Tu avances, et c'est ce qui compte.",
-            "Fais-toi confiance.",
-            "Ta neuroatypie est une force.",
-            "Aujourd'hui est une bonne journée.",
-            "Rien ne t'arrête.",
-            "Sois fier de chaque effort.",
-            "L'important c'est de commencer.",
-            "Tu es capable de grandes choses.",
-            "Garde le sourire, tu es génial.",
-            "On y va, tranquillement mais sûrement.",
-            "Tu es aux commandes."
+            "Tu as tout ce qu'il faut pour réussir.", "Respire un grand coup, tu gères.", "Une étape à la fois, c'est le secret.",
+            "Bravo d'être là pour toi aujourd'hui.", "Ton cerveau est unique, utilise-le à ton avantage.", "Pas de pression, juste de l'action.",
+            "Tu es un champion du quotidien.", "Chaque petite croix est une victoire.", "Concentration et calme.",
+            "Tu avances, et c'est ce qui compte.", "Fais-toi confiance.", "Ta neuroatypie est une force.",
+            "Aujourd'hui est une bonne journée.", "Rien ne t'arrête.", "Sois fier de chaque effort.",
+            "L'important c'est de commencer.", "Tu es capable de grandes choses.", "Garde le sourire, tu es génial.",
+            "On y va, tranquillement mais sûrement.", "Tu es aux commandes."
+        ];
+
+        // --- PHRASES DE TRANSITION (Au lieu de "Voici les étapes") ---
+        const TRANSITION_PHRASES = [
+            "Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :",
+            "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :",
+            "On déroule le tapis rouge :", "Tes missions du moment :", "Allons-y gaiement :",
+            "Suis le mouvement :", "Cap sur l'objectif :", "Voici ta checklist :",
+            "On enchaîne fluidement :", "Ton parcours fléché :", "Rien que pour toi :",
+            "Allez, focus sur ça :", "Ta feuille de route :", "On s'y met ensemble :",
+            "Voici le déroulé :", "Prêt ? C'est par ici :"
         ];
 
         let currentMode = 'DUMP';
@@ -382,6 +378,17 @@
             }
         }
 
+        // --- ICONES DYNAMIQUES ---
+        function getRoutineIcon(name) {
+            const n = name.toLowerCase();
+            if (n.includes('matin') || n.includes('reveil') || n.includes('jour')) return '☀️';
+            if (n.includes('soir') || n.includes('nuit') || n.includes('dodo')) return '🌙';
+            if (n.includes('sport') || n.includes('gym') || n.includes('yoga')) return '💪';
+            if (n.includes('travail') || n.includes('boulot') || n.includes('focus')) return '💼';
+            if (n.includes('maison') || n.includes('menage') || n.includes('course')) return '🏠';
+            return '🔄';
+        }
+
         function renderRoutines() {
             const grid = document.getElementById('routines-grid');
             const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
@@ -394,7 +401,10 @@
                 delBtn.className = "routine-delete-btn";
                 delBtn.innerHTML = "✕";
                 delBtn.onclick = (e) => deleteRoutine(name, e);
-                btn.innerHTML = `<span style="font-size:24px">🔄</span><span class="routine-name">${name}</span>`;
+                
+                // Icone Dynamique
+                const icon = getRoutineIcon(name);
+                btn.innerHTML = `<span class="routine-icon">${icon}</span><span class="routine-name">${name}</span>`;
                 btn.appendChild(delBtn);
                 btn.onclick = () => launchRoutine(name);
                 grid.appendChild(btn);
@@ -429,9 +439,12 @@
         function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
         
         function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
+        function getRandomTransition() { return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)]; }
+
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
-            let text = "Bonjour ! " + getRandomIntro() + " Voici les étapes : ";
+            // Construction de la phrase : Bonjour + Positif + Transition + Liste
+            let text = "Bonjour ! " + getRandomIntro() + " " + getRandomTransition() + " ";
             list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". ");
             playVocalResponse(text);
         }
