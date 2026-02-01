@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V11 --- */
+        /* --- DESIGN NEURO V12 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -231,6 +231,13 @@
             loadTasks(); updateMentalLoad(); renderRoutines();
             initSpeech();
         });
+
+        // --- FONCTION NETTOYAGE TEXTE AUDIO ---
+        function cleanTextForSpeech(text) {
+            if(!text) return "";
+            // Enlève markdown bold (** ou *), les #, les tirets de liste au début
+            return text.replace(/[*#]/g, '').replace(/^- /g, '');
+        }
 
         // --- GESTION MICRO ---
         function initSpeech() {
@@ -497,8 +504,10 @@
 
         async function playVocalResponse(textToSpeak) {
             document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation();
-            if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
-            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            const cleanText = cleanTextForSpeech(textToSpeak);
+            if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'fr-FR'; utterance.rate = 0.9; 
             const voices = window.speechSynthesis.getVoices();
             const frenchVoice = voices.find(v => v.lang.includes('fr'));
@@ -512,7 +521,6 @@
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         function finishTimer() { clearInterval(timerInterval); isTimerRunning = false; playVocalResponse("Session terminée ! Bravo."); const bar = document.getElementById('load-bar'); bar.style.width = "0%"; setTimeout(() => updateMentalLoad(), 2000); }
-        // NEW CHARGE MENTALE CALC (V11)
         function updateMentalLoad() { 
             const list = document.getElementById('task-list'); 
             const items = list.querySelectorAll('.task-item');
