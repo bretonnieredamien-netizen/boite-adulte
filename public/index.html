@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V6 (Complet) --- */
+        /* --- DESIGN NEURO V7 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -28,16 +28,26 @@
 
         /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
+        
+        /* TASKS */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
-        .task-text { font-size: 15px; font-weight: 500; outline: none; }
+        .task-text { font-size: 15px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
+        
+        /* BOUTONS ACTIONS */
+        .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        
+        /* BOUTON SUPPRIMER ETAPE (ROUTINE) */
+        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
@@ -79,29 +89,23 @@
         /* INPUT AREA */
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
-        
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
         .mic-wrapper.is-recording svg { fill: var(--danger); }
-        
         .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
         .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
         .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
         .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
-
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
-        
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
-
         .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform 0.2s; }
         .send-btn:active { transform: scale(0.9); }
         .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: -2px; }
-
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
@@ -174,7 +178,6 @@
             <div class="keyboard-toggle" onclick="toggleInputMode(this)">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
             </div>
-            
             <div id="mic-wrapper" class="mic-wrapper">
                 <div class="thinking-wave"></div><div class="thinking-wave"></div><div class="thinking-wave"></div>
                 <div id="btn-mic" class="mic-btn" onclick="toggleRecording()">
@@ -182,7 +185,6 @@
                     <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
                 </div>
             </div>
-
             <div id="text-input-ui" class="text-input-container">
                 <input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)">
                 <button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
@@ -193,6 +195,30 @@
     <script>
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
+
+        // PHRASES POSITIVES (ALEATOIRES)
+        const POSITIVE_PHRASES = [
+            "C'est une belle journée qui commence !",
+            "Tu vas tout déchirer aujourd'hui.",
+            "Prends ton temps, tu es le meilleur.",
+            "Chaque petite victoire compte.",
+            "Respire, tu gères.",
+            "Tu es capable de grandes choses.",
+            "On y va, étape par étape.",
+            "Fais-toi confiance.",
+            "Ta neuroatypie est ta force.",
+            "Pas de pression, juste de l'action.",
+            "Tu es un champion.",
+            "Rien ne t'arrête aujourd'hui.",
+            "Focus et sérénité.",
+            "Bravo d'être là pour toi.",
+            "Tu avances, et c'est ce qui compte.",
+            "Garde le sourire, tu es génial.",
+            "Une chose à la fois, tout va bien.",
+            "Ta créativité est un don.",
+            "Sois fier de toi.",
+            "Allez, on attaque en douceur !"
+        ];
 
         let currentMode = 'DUMP';
         let isProcessing = false;
@@ -276,7 +302,7 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                // ROUTINES LOGIQUE AMÉLIORÉE
+                // ROUTINE LOGIC
                 if (currentMode === 'ROUTINE') {
                     if (parsed.command === 'SAVE_ROUTINE') {
                         saveRoutine(parsed.name, parsed.steps);
@@ -290,9 +316,32 @@
                             routines[key].push(parsed.add_step);
                             localStorage.setItem('neuro_routines', JSON.stringify(routines));
                             renderRoutines();
+                            // Si la routine est affichée, on met à jour la vue
+                            if(document.getElementById('active-routine-view').style.display === 'flex') {
+                                launchRoutine(key);
+                            }
                             playVocalResponse(`Ajouté "${parsed.add_step}" à ${parsed.name}.`);
                         } else {
                             playVocalResponse(`Je ne trouve pas la routine ${parsed.name}.`);
+                        }
+                        stopThinkingAnimation(); isProcessing = false; return;
+                    }
+                    else if (parsed.command === 'REMOVE_STEP') {
+                        const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+                        const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase());
+                        if (key && routines[key]) {
+                            // Filtre intelligent (contient le mot clé)
+                            const initialLen = routines[key].length;
+                            routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase()));
+                            
+                            if (routines[key].length < initialLen) {
+                                localStorage.setItem('neuro_routines', JSON.stringify(routines));
+                                renderRoutines();
+                                if(document.getElementById('active-routine-view').style.display === 'flex') { launchRoutine(key); }
+                                playVocalResponse(`J'ai enlevé l'étape de la routine ${parsed.name}.`);
+                            } else {
+                                playVocalResponse(`Je n'ai pas trouvé l'étape ${parsed.step_keyword}.`);
+                            }
                         }
                         stopThinkingAnimation(); isProcessing = false; return;
                     }
@@ -330,6 +379,16 @@
                 renderRoutines();
             }
         }
+        function deleteStepFromRoutine(name, index) {
+            let routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+            const key = Object.keys(routines).find(k => k === name.toLowerCase());
+            if (key && routines[key]) {
+                routines[key].splice(index, 1); // Supprime l'élément à l'index
+                localStorage.setItem('neuro_routines', JSON.stringify(routines));
+                launchRoutine(name); // Rafraîchir l'affichage
+            }
+        }
+
         function renderRoutines() {
             const grid = document.getElementById('routines-grid');
             const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
@@ -357,17 +416,33 @@
             document.getElementById('active-routine-name').innerText = name.toUpperCase();
             const list = document.getElementById('routine-steps-list');
             list.innerHTML = "";
-            steps.forEach(step => {
+            
+            steps.forEach((step, index) => {
                 const div = document.createElement('div');
                 div.className = "task-item"; div.style.borderLeftColor = "#00E676";
-                div.innerHTML = `<div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div><button class="done-btn" onclick="this.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>`;
+                div.innerHTML = `
+                    <div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div>
+                    <div class="actions-group">
+                        <button class="delete-step-btn" onclick="deleteStepFromRoutine('${name}', ${index})">
+                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </button>
+                        <button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish();">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </button>
+                    </div>
+                `;
                 list.appendChild(div);
             });
         }
         function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder pour update complexe */ }
+        
+        function getRandomIntro() {
+            return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)];
+        }
+
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
-            let text = "C'est parti. ";
+            let text = "Bonjour ! " + getRandomIntro() + " Voici les étapes : ";
             list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". ");
             playVocalResponse(text);
         }
@@ -420,6 +495,7 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
+        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -433,7 +509,7 @@
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
 
-        // --- PROMPTS INTELLIGENTS ---
+        // --- PROMPTS ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
@@ -442,14 +518,16 @@
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 
                 // INTELLIGENCE ROUTINES RENFORCÉE
-                'ROUTINE': `Tu es un Expert en Routines.
+                'ROUTINE': `Expert Organisation.
                 Routines existantes : [${existingRoutines}].
                 Analyse l'intention :
                 1. CRÉATION (ex: "Crée routine matin : lit, café") ->
                    JSON : { "text": "Routine créée.", "command": "SAVE_ROUTINE", "name": "matin", "steps": ["Faire lit", "Café"] }
                 2. AJOUT (ex: "Ajoute 'Doudou' à la routine matin") ->
                    JSON : { "text": "J'ajoute Doudou au matin.", "command": "UPDATE_ROUTINE", "name": "matin", "add_step": "Prendre Doudou" }
-                3. EXECUTION (ex: "Lance matin") ->
+                3. SUPPRESSION (ex: "Enlève 'café' de la routine matin") ->
+                   JSON : { "text": "Ok.", "command": "REMOVE_STEP", "name": "matin", "step_keyword": "café" }
+                4. EXECUTION (ex: "Lance matin") ->
                    JSON : { "text": "C'est parti.", "command": "GET_ROUTINE", "name": "matin" }`,
                 
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
