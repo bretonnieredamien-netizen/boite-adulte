@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V28 (FOCUS TACHES + FIX UI) --- */
+        /* --- DESIGN NEURO V29 (FIX UI + VALIDATION FOCUS) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -20,54 +20,52 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        /* Ajout de padding-bottom pour espacer le bouton Brief de la barre de charge */
-        .header { padding-top: 15px; padding-bottom: 25px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; }
-        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .header { padding-top: 15px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 24px; /* Alignement avec la barre affinée */ }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; height: 120px; /* Hauteur fixe pour éviter les chevauchements */ }
         
         /* LOGO */
-        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 5px; }
-        .app-logo-svg { width: 140px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; }
+        .app-logo-svg { width: 130px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
         /* BOUTONS HEADER */
-        .header-btn { position: absolute; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
+        .header-btn { position: absolute; top: 0; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; z-index: 10; }
         
-        .mood-btn { left: 0px; }
+        .mood-btn { left: 0; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
 
-        .sound-btn { right: 0px; }
+        .sound-btn { right: 0; }
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
 
-        /* FIX: BRIEF BUTTON REMONTÉ */
+        /* FIX: BRIEF BUTTON DÉPLACÉ EN BAS À DROITE DU HEADER CONTENT */
         .brief-btn { 
             position: absolute; 
-            top: 50px; /* Remonté pour être sous le logo mais au-dessus de la barre */
-            right: 50%; 
-            transform: translateX(50%);
-            bottom: auto; /* On annule le bottom negatif */
+            bottom: 0; 
+            right: 0; 
             background: rgba(255, 171, 0, 0.1); 
             border: 1px solid var(--warning); 
             color: var(--warning); 
             font-size: 9px; font-weight: bold; 
-            padding: 2px 8px; border-radius: 10px; 
+            padding: 4px 10px; border-radius: 10px; 
             cursor: pointer; display: flex; align-items: center; gap: 3px; z-index: 20; 
         }
 
-        /* FIX: BARRE VERTICALE RÉDUITE */
+        /* FIX: BARRE VERTICALE PLUS FINE ET PLUS SERRÉE */
         .capacity-sidebar {
             position: fixed; left: 0; top: 0; 
-            bottom: 160px; /* Augmenté pour ne pas toucher les icones du bas */
-            width: 30px;
+            bottom: 160px; /* Ne touche pas les contrôles du bas */
+            width: 24px; /* Plus fin (était 30px) */
             background: #0f0f0f; border-right: 1px solid #222;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 20px; z-index: 40;
         }
         .capacity-track {
-            width: 6px; height: 70%; background: #222; border-radius: 3px; 
+            width: 4px; /* Plus fin */
+            height: 70%; background: #222; border-radius: 2px; 
             position: relative; overflow: hidden; margin-bottom: 10px;
         }
         .capacity-fill {
@@ -78,7 +76,7 @@
         }
         .capacity-label {
             writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
-            font-size: 8px; color: #666; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px;
+            font-size: 8px; color: #555; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px;
         }
         .capacity-value {
             font-size: 9px; font-weight: bold; color: var(--capacity); 
@@ -86,14 +84,14 @@
         }
 
         /* BARRE HORIZONTALE HAUT (CHARGE MENTALE) */
-        .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
+        .monitor-wrapper { width: 90%; margin: 5px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; width: 100%; display: flex; justify-content: space-between; }
         .load-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: width 0.6s; }
 
-        /* CONTENT */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; }
-        .task-container { padding: 20px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
+        /* CONTENT - Padding réduit pour rapprocher les tâches de la barre */
+        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 28px; /* Ajusté pour coller à la barre de 24px */ }
+        .task-container { padding: 15px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 3px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
@@ -118,10 +116,9 @@
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
-        /* NEW FOCUS UI */
+        /* FOCUS UI */
         .focus-ui-container { display: none; flex-direction: column; padding: 20px 10px; height: 100%; }
         .focus-header-text { font-size: 14px; color: #888; margin-bottom: 20px; text-align: center; }
-        /* Grid dynamique pour les tâches */
         .focus-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         .focus-task-target { 
             background: var(--bg-card); border: 1px solid #333; padding: 15px; border-radius: 12px; 
@@ -132,13 +129,25 @@
         .focus-target-icon { color: var(--accent); font-size: 18px; }
         .focus-target-text { font-size: 13px; font-weight: 600; color: white; flex:1; }
         
+        /* MICRO STEP CARD & VALIDATION BTN */
         .micro-step-card { 
             background: linear-gradient(135deg, rgba(41, 121, 255, 0.15), var(--bg-card)); 
-            border: 1px solid var(--accent); padding: 20px; border-radius: 16px; 
+            border: 1px solid var(--accent); padding: 30px 20px; border-radius: 20px; 
             animation: slideIn 0.4s ease-out; margin-top: 10px; text-align: center;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
         }
-        .micro-step-title { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; }
-        .micro-step-text { font-size: 18px; font-weight: bold; color: white; line-height: 1.4; }
+        .micro-step-title { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
+        .micro-step-text { font-size: 20px; font-weight: bold; color: white; line-height: 1.4; }
+        
+        .focus-check-btn {
+            background: var(--success); color: black;
+            font-weight: 900; font-size: 14px; letter-spacing: 1px;
+            padding: 15px 30px; border-radius: 30px; border: none;
+            cursor: pointer; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+            transition: transform 0.2s; margin-top: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .focus-check-btn:active { transform: scale(0.95); }
 
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px 10px; gap: 15px; }
@@ -182,7 +191,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* CONTROLS */
-        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:30px; /* Decalage barre gauche */ }
+        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:24px; /* Decalage barre gauche */ }
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
@@ -346,7 +355,7 @@
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
         let username = "Champion";
         let audioCtx, brownNoiseNode, gainNode, isNoisePlaying = false;
-        let currentFocusTask = ""; // Store chosen task
+        let currentFocusTask = ""; 
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding();
@@ -431,19 +440,20 @@
                 }
                 
                 if(parsed.actions) { 
-                    // Special Handling for Focus Mode Breakdown
                     if (currentMode === 'FOCUS') {
                         const focusArea = document.getElementById('focus-micro-step-area');
-                        focusArea.innerHTML = ""; // Clear previous
+                        focusArea.innerHTML = ""; 
                         parsed.actions.forEach(act => {
                             const div = document.createElement('div'); div.className = "micro-step-card";
-                            div.innerHTML = `<div class="micro-step-title">LA MICRO-ACTION</div><div class="micro-step-text">${act.detail}</div>`;
+                            div.innerHTML = `
+                                <div class="micro-step-title">LA MICRO-ACTION</div>
+                                <div class="micro-step-text">${act.detail}</div>
+                                <button class="focus-check-btn" onclick="validateFocusStep()"><span>✓</span> C'EST FAIT !</button>
+                            `;
                             focusArea.appendChild(div);
                         });
-                        // Hide grid to focus on the step
                         document.getElementById('focus-tasks-grid').style.display = 'none';
                     } else {
-                        // Standard Mode
                         parsed.actions.forEach(act => { 
                             addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration); 
                             if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
@@ -452,6 +462,17 @@
                 }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
+        }
+
+        // --- VALIDATION FOCUS ---
+        function validateFocusStep() {
+            triggerConfetti();
+            playVocalResponse("Bravo ! Une bonne chose de faite. On continue ?");
+            document.getElementById('focus-micro-step-area').innerHTML = '<div style="color:var(--success); font-weight:bold; margin-top:20px; font-size:24px; text-align:center;">BRAVO ! 🚀</div>';
+            setTimeout(() => { 
+                document.getElementById('focus-micro-step-area').innerHTML = "";
+                renderFocusTasks(); 
+            }, 2500); 
         }
 
         // --- CALCUL CHARGE MENTALE (HAUT) ---
@@ -558,7 +579,7 @@
         
         function setMode(mode, btn) { 
             currentMode = mode; 
-            currentFocusTask = ""; // Reset task selection
+            currentFocusTask = ""; 
             
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); 
             btn.classList.add('active'); 
@@ -573,7 +594,7 @@
             if (mode === 'DUMP') t.style.display='flex';
             else if (mode === 'FOCUS') {
                  f.style.display='flex'; 
-                 renderFocusTasks(); // NEW: Load tasks
+                 renderFocusTasks(); 
             }
             else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } 
             else if (mode === 'POMO') p.style.display='flex'; 
@@ -581,16 +602,15 @@
             document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "Choisis une tâche...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; 
         }
 
-        // NEW: Render available tasks in Focus Mode
+        // RENDER TASKS IN FOCUS MODE
         function renderFocusTasks() {
             const grid = document.getElementById('focus-tasks-grid');
             const microArea = document.getElementById('focus-micro-step-area');
             
             grid.innerHTML = "";
             microArea.innerHTML = "";
-            grid.style.display = 'flex'; // Reset display if it was hidden
+            grid.style.display = 'flex'; 
 
-            // Scrape tasks from DUMP list
             const taskElements = document.querySelectorAll('#task-list .task-text');
             
             if (taskElements.length === 0) {
@@ -599,7 +619,7 @@
             }
 
             taskElements.forEach(el => {
-                const text = el.innerText.replace(/📅|🔔|🔥/g, '').trim(); // Clean icons
+                const text = el.innerText.replace(/📅|🔔|🔥/g, '').trim(); 
                 if(text) {
                     const btn = document.createElement('div');
                     btn.className = "focus-task-target";
@@ -610,7 +630,6 @@
             });
         }
 
-        // NEW: Handle Task Selection
         function selectFocusTask(taskText) {
             currentFocusTask = taskText;
             processWithAI(`Je veux me lancer sur cette tâche : "${taskText}". Donne-moi juste la toute première micro-étape.`);
@@ -626,7 +645,6 @@
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
 
-            // PROMPT FOCUS DYNAMIQUE (TACHE -> MICRO-ACTION)
             let focusPrompt = "";
             if (targetTask) {
                 focusPrompt = `Coach Productivité TDAH. La tâche cible est : "${targetTask}".
