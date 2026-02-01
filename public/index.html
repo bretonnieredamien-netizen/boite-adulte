@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V22 (NOUVEAU LOGO) --- */
+        /* --- DESIGN NEURO V23 (LOGO CERVEAU TECH) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -22,10 +22,9 @@
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
         
-        /* LOGO STYLES (V22) */
+        /* LOGO STYLES (V23) */
         .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        /* Le nouveau logo est plein et utilise la couleur d'accentuation vive */
-        .app-logo { width: 42px; height: 42px; fill: var(--accent); filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.6)); margin-bottom: 4px; }
+        .app-logo { width: 48px; height: 48px; fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.6)); margin-bottom: 4px; }
 
         .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
@@ -152,8 +151,13 @@
             </button>
 
             <div class="app-logo-container">
-                <svg class="app-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15.5,11.5 C15.5,10.12 14.38,9 13,9 C11.62,9 10.5,10.12 10.5,11.5 C10.5,12.88 11.62,14 13,14 C14.38,14 15.5,12.88 15.5,11.5 Z M7,11.5 C7,10.12 5.88,9 4.5,9 C3.12,9 2,10.12 2,11.5 C2,12.88 3.12,14 4.5,14 C5.88,14 7,12.88 7,11.5 Z M20,11.5 C20,10.12 18.88,9 17.5,9 C16.12,9 15,10.12 15,11.5 C15,12.88 16.12,14 17.5,14 C18.88,14 20,12.88 20,11.5 Z M13,17 C11.62,17 10.5,18.12 10.5,19.5 C10.5,20.88 11.62,22 13,22 C14.38,22 15.5,20.88 15.5,19.5 C15.5,18.12 14.38,17 13,17 Z M13,5 C14.38,5 15.5,3.88 15.5,2.5 C15.5,1.12 14.38,0 13,0 C11.62,0 10.5,1.12 10.5,2.5 C10.5,3.88 11.62,5 13,5 Z M7,6 C7,4.62 5.88,3.5 4.5,3.5 C3.12,3.5 2,4.62 2,6 C2,7.38 3.12,8.5 4.5,8.5 C5.88,8.5 7,7.38 7,6 Z M22,6 C22,4.62 20.88,3.5 19.5,3.5 C18.12,3.5 17,4.62 17,6 C17,7.38 18.12,8.5 19.5,8.5 C20.88,8.5 22,7.38 22,6 Z M18.85,16.15 C17.55,14.85 15.45,14.85 14.15,16.15 C12.85,17.45 12.85,19.55 14.15,20.85 C15.45,22.15 17.55,22.15 18.85,20.85 C20.15,19.55 20.15,17.45 18.85,16.15 Z M5.15,16.15 C3.85,17.45 3.85,19.55 5.15,20.85 C6.45,22.15 8.55,22.15 9.85,20.85 C11.15,19.55 11.15,17.45 9.85,16.15 C8.55,14.85 6.45,14.85 5.15,16.15 Z M12,7 C8.69,7 6,9.69 6,13 C6,16.31 8.69,19 12,19 C15.31,19 18,16.31 18,13 C18,9.69 15.31,7 12,7 Z" fill="currentColor"/>
+                <svg class="app-logo" viewBox="0 0 24 24">
+                    <path d="M18.6,6.62c-1.44,0-2.8.56-3.77,1.53L12,10.66 9.17,7.83c-0.97-0.97-2.33-1.53-3.77-1.53C2.42,6.3 0,8.72 0,11.72c0,1.38.56,2.68 1.57,3.69l3.35,3.35c0.57,0.57 1.32,0.88 2.12,0.88s1.55-0.31 2.12-0.88L12,16.03l2.83,2.83c0.57,0.57 1.32,0.88 2.12,0.88s1.55-0.31 2.12-0.88l3.35-3.35C23.44,14.4 24,13.1 24,11.72C24,8.72 21.58,6.3 18.6,6.62zM5.4,14.63c-0.37,0.37-0.87,0.57-1.39,0.57s-1.02-0.2-1.39-0.57l-1.3-1.3c-0.37-0.37-0.57-0.87-0.57-1.39s0.2-1.02 0.57-1.39C2.43,9.44 4.09,9.44 5.2,10.55l2.12,2.12L5.4,14.63zM10.59,16.03l-1.41-1.41L12,11.79l2.83,2.83l-1.41,1.41L12,14.62L10.59,16.03zM18.6,14.63l-1.92-1.92 2.12-2.12c1.11-1.11 2.77-1.11 3.89,0c0.37,0.37 0.57,0.87 0.57,1.39s-0.2,1.02-0.57,1.39l-1.3,1.3c-0.37,0.37-0.87,0.57-1.39,0.57S18.97,15 18.6,14.63z" fill="currentColor" fill-opacity="0.3"/>
+                    <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+                    <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <div id="user-display" class="user-greeting">ASSISTANT</div>
             </div>
