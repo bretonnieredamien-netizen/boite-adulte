@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEURO - Assistant TDAH</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V14 (ULTIMATE) --- */
+        /* --- DESIGN NEURO V15 (ULTIMATE + TUTORIAL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -16,7 +17,7 @@
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
 
-        /* ONBOARDING (POPUP PRENOM) */
+        /* ONBOARDING */
         .onboarding-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.95); z-index: 200; 
@@ -30,17 +31,13 @@
             padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%;
         }
         .name-input:focus { border-color: var(--accent); }
-        .save-name-btn { 
-            background: var(--accent); color: white; padding: 15px 40px; 
-            border-radius: 30px; font-weight: bold; border: none; font-size: 16px;
-        }
+        .save-name-btn { background: var(--accent); color: white; padding: 15px 40px; border-radius: 30px; font-weight: bold; border: none; font-size: 16px; }
 
         /* HEADER */
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
         .app-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white; }
         .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-top: 2px; }
-        
         .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
@@ -58,7 +55,6 @@
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
-        
         .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
@@ -70,7 +66,7 @@
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .routine-card-item { background: var(--bg-card); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .routine-card-item:active { transform: scale(0.95); background: #222; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: background 0.2s; }
         .routine-delete-btn:active { background: var(--danger); }
@@ -89,7 +85,7 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* ZEN */
+        /* UI ELEMENTS */
         .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
         .zen-overlay.show { opacity: 1; pointer-events: all; }
         .zen-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--success); box-shadow: 0 0 50px var(--success); margin-bottom: 20px; animation: breathe 4s infinite ease-in-out; }
@@ -236,15 +232,15 @@
         let isRecording = false;
         let finalTranscript = '';
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
-        let username = "Champion"; // Défaut
+        let username = "Champion";
 
         document.addEventListener('DOMContentLoaded', () => { 
-            checkOnboarding(); // VERIFIE PRENOM
+            checkOnboarding();
             loadTasks(); updateMentalLoad(); renderRoutines();
             initSpeech();
         });
 
-        // --- ONBOARDING & PRENOM ---
+        // --- ONBOARDING & EXPLICATION IA ---
         function checkOnboarding() {
             const savedName = localStorage.getItem('neuro_username');
             if (savedName) {
@@ -262,11 +258,42 @@
                 localStorage.setItem('neuro_username', username);
                 document.getElementById('user-display').innerText = username;
                 document.getElementById('onboarding-modal').classList.remove('show');
-                playVocalResponse(`Enchanté ${username}. Je suis prêt.`);
+                
+                // Lancement de l'explication par l'IA
+                startOnboardingSequence(username);
             }
         }
 
-        // --- AUDIO CLEAN ---
+        async function startOnboardingSequence(name) {
+            isProcessing = true;
+            document.getElementById('status-text').innerText = "Initialisation...";
+            startThinkingAnimation();
+
+            const prompt = `
+            Tu es NEURO, un assistant pour TDAH. C'est la première fois que ${name} t'utilise.
+            Fais une présentation courte (max 40 secondes) et très chaleureuse de tes fonctions :
+            1. Onglet VIDER : C'est le cerveau externe. Je classe automatiquement les tâches urgentes (en rouge) et les normales.
+            2. Onglet FOCUS : Si tu bloques, je te donne une seule micro-étape ridicule pour démarrer.
+            3. Onglet POMO : Un timer visuel pour travailler par cycles sans t'épuiser.
+            4. Onglet ROUTINE : Pour gérer tes habitudes (matin/soir) sans rien oublier.
+            Termine par une phrase motivante pour ${name}.
+            Réponds uniquement le texte à lire à l'oral. Pas de markdown.
+            `;
+
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) });
+                const data = await rep.json();
+                // Nettoyage texte brut (pas de JSON ici car prompt texte simple)
+                let text = data.text.replace(/\*/g, '');
+                playVocalResponse(text);
+            } catch(e) {
+                console.error(e);
+                stopThinkingAnimation();
+                isProcessing = false;
+                playVocalResponse(`Bienvenue ${name}. Je suis prêt à t'aider.`);
+            }
+        }
+
         function cleanTextForSpeech(text) {
             if(!text) return "";
             return text.replace(/[*#]/g, '').replace(/^- /g, '');
@@ -349,14 +376,16 @@
             const list = document.getElementById('routine-steps-list'); list.innerHTML = "";
             steps.forEach((step, index) => {
                 const div = document.createElement('div'); div.className = "task-item"; div.style.borderLeftColor = style.color;
-                div.innerHTML = `<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${name}', ${index})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
+                div.innerHTML = `<div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${name}', ${index})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
                 list.appendChild(div);
             });
         }
+        function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
+        
         function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
         function getRandomTransition() { return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)]; }
         function readActiveRoutine() { const list = document.getElementById('routine-steps-list'); let text = `Bonjour ${username} ! ` + getRandomIntro() + " " + getRandomTransition() + " "; list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". "); playVocalResponse(text); }
-        function checkRoutineFinish() { if (document.getElementById('routine-steps-list').children.length === 0) { playVocalResponse(`Routine terminée. Bien joué ${username} !`); setTimeout(exitRoutine, 2000); } }
+        function checkRoutineFinish() { if (document.getElementById('routine-steps-list').children.length === 0) { playVocalResponse(`Routine terminée. Bien joué ${username} !`); triggerConfetti(); setTimeout(exitRoutine, 2000); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display = 'grid'; document.getElementById('active-routine-view').style.display = 'none'; }
 
         // --- UTILS ---
@@ -366,7 +395,7 @@
         function setMode(mode, btn) { currentMode = mode; document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); btn.classList.add('active'); const t = document.getElementById('task-list'); const r = document.getElementById('routine-ui'); const p = document.getElementById('pomo-ui'); t.style.display='none'; r.style.display='none'; p.style.display='none'; if (mode === 'DUMP' || mode === 'FOCUS') t.style.display='flex'; else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } else if (mode === 'POMO') p.style.display='flex'; document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; }
         async function playVocalResponse(textToSpeak) { document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation(); const cleanText = cleanTextForSpeech(textToSpeak); if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; } const u = new SpeechSynthesisUtterance(cleanText); u.lang = 'fr-FR'; u.rate = 0.9; const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('fr')); if(v) u.voice = v; u.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
-        function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
+        function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         
         function updateMentalLoad() { 
@@ -374,14 +403,14 @@
             items.forEach(item => { if (item.classList.contains('priority-high')) totalLoad += 3; else if (item.classList.contains('calendar')) totalLoad += 2; else totalLoad += 1; });
             const percent = Math.min((totalLoad / 12) * 100, 100); const bar = document.getElementById('load-bar'); const st = document.getElementById('load-status');
             bar.style.width = percent + "%"; 
-            if (totalLoad === 0) { bar.style.background = "var(--success)"; st.innerText = "ESPRIT LIBRE"; st.style.color = "var(--success)"; triggerConfetti(); } 
+            if (totalLoad === 0) { bar.style.background = "var(--success)"; st.innerText = "ESPRIT LIBRE"; st.style.color = "var(--success)"; } 
             else if (percent < 45) { bar.style.background = "var(--success)"; st.innerText = "OPTIMAL"; st.style.color = "var(--success)"; } 
             else if (percent < 80) { bar.style.background = "var(--warning)"; st.innerText = "CHARGE MOYENNE"; st.style.color = "var(--warning)"; } 
             else { bar.style.background = "var(--danger)"; st.innerText = "SURCHARGE"; st.style.color = "var(--danger)"; } 
             checkZenMode(); 
         }
         function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000); } }
+        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); triggerConfetti(); setTimeout(() => p.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
         function completeTask(btn) { const item = btn.parentElement.parentElement; item.style.transform = "translateX(100%)"; item.style.opacity = "0"; setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); }, 300); }
