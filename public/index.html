@@ -8,19 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V27 (JAUGES DISSOCIÉES) --- */
+        /* --- DESIGN NEURO V28 (FOCUS TACHES + FIX UI) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
             --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
             --reminder: #D500F9;
-            --capacity: #00E5FF; /* CYAN POUR LE TEMPS */
+            --capacity: #00E5FF;
         }
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; /* Espace pour barre gauche */ }
+        /* Ajout de padding-bottom pour espacer le bouton Brief de la barre de charge */
+        .header { padding-top: 15px; padding-bottom: 25px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
         
         /* LOGO */
@@ -41,11 +42,26 @@
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
 
-        .brief-btn { position: absolute; right: 0; bottom: -35px; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 3px; z-index: 20; }
+        /* FIX: BRIEF BUTTON REMONTÉ */
+        .brief-btn { 
+            position: absolute; 
+            top: 50px; /* Remonté pour être sous le logo mais au-dessus de la barre */
+            right: 50%; 
+            transform: translateX(50%);
+            bottom: auto; /* On annule le bottom negatif */
+            background: rgba(255, 171, 0, 0.1); 
+            border: 1px solid var(--warning); 
+            color: var(--warning); 
+            font-size: 9px; font-weight: bold; 
+            padding: 2px 8px; border-radius: 10px; 
+            cursor: pointer; display: flex; align-items: center; gap: 3px; z-index: 20; 
+        }
 
-        /* BARRE VERTICALE GAUCHE (CAPACITÉ TEMPS) */
+        /* FIX: BARRE VERTICALE RÉDUITE */
         .capacity-sidebar {
-            position: fixed; left: 0; top: 0; bottom: 90px; width: 30px;
+            position: fixed; left: 0; top: 0; 
+            bottom: 160px; /* Augmenté pour ne pas toucher les icones du bas */
+            width: 30px;
             background: #0f0f0f; border-right: 1px solid #222;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: 20px; z-index: 40;
@@ -70,13 +86,13 @@
         }
 
         /* BARRE HORIZONTALE HAUT (CHARGE MENTALE) */
-        .monitor-wrapper { width: 85%; margin: 10px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
+        .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; width: 100%; display: flex; justify-content: space-between; }
         .load-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: width 0.6s; }
 
         /* CONTENT */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; /* DECALE POUR LA BARRE */ }
+        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; }
         .task-container { padding: 20px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -102,17 +118,27 @@
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
-        /* FOCUS MODE UI */
+        /* NEW FOCUS UI */
         .focus-ui-container { display: none; flex-direction: column; padding: 20px 10px; height: 100%; }
         .focus-header-text { font-size: 14px; color: #888; margin-bottom: 20px; text-align: center; }
-        .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .focus-card { background: var(--bg-card); border: 1px solid #333; padding: 15px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; position: relative; height: 100px; }
-        .focus-card:active { transform: scale(0.95); background: #252525; }
-        .focus-card.active { border-color: var(--accent); background: rgba(41, 121, 255, 0.1); }
-        .focus-icon { font-size: 28px; margin-bottom: 5px; }
-        .focus-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; }
-        .focus-desc { font-size: 9px; color: #888; line-height: 1.2; }
-        .focus-response-area { flex: 1; border-top: 1px dashed #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        /* Grid dynamique pour les tâches */
+        .focus-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .focus-task-target { 
+            background: var(--bg-card); border: 1px solid #333; padding: 15px; border-radius: 12px; 
+            text-align: left; cursor: pointer; transition: all 0.2s; 
+            display: flex; align-items: center; gap: 10px;
+        }
+        .focus-task-target:active { transform: scale(0.98); background: #252525; border-color: var(--accent); }
+        .focus-target-icon { color: var(--accent); font-size: 18px; }
+        .focus-target-text { font-size: 13px; font-weight: 600; color: white; flex:1; }
+        
+        .micro-step-card { 
+            background: linear-gradient(135deg, rgba(41, 121, 255, 0.15), var(--bg-card)); 
+            border: 1px solid var(--accent); padding: 20px; border-radius: 16px; 
+            animation: slideIn 0.4s ease-out; margin-top: 10px; text-align: center;
+        }
+        .micro-step-title { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 10px; }
+        .micro-step-text { font-size: 18px; font-weight: bold; color: white; line-height: 1.4; }
 
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px 10px; gap: 15px; }
@@ -252,30 +278,11 @@
         </div>
 
         <div id="focus-ui" class="focus-ui-container">
-            <div class="focus-header-text">Quel est le blocage ?</div>
-            <div class="focus-grid">
-                <div class="focus-card" onclick="setFocusTarget('CUT', this)">
-                    <span class="focus-icon">🔪</span>
-                    <span class="focus-label">DÉCOUPER</span>
-                    <span class="focus-desc">C'est trop gros</span>
+            <div class="focus-header-text">Sur quelle tâche on se lance ?</div>
+            <div id="focus-tasks-grid" class="focus-grid">
                 </div>
-                <div class="focus-card" onclick="setFocusTarget('START', this)">
-                    <span class="focus-icon">🚀</span>
-                    <span class="focus-label">IMPULSION</span>
-                    <span class="focus-desc">J'arrive pas à m'y mettre</span>
+            <div id="focus-micro-step-area" class="focus-response-area">
                 </div>
-                <div class="focus-card" onclick="setFocusTarget('GAME', this)">
-                    <span class="focus-icon">🎲</span>
-                    <span class="focus-label">JEU</span>
-                    <span class="focus-desc">C'est ennuyeux</span>
-                </div>
-                <div class="focus-card" onclick="setFocusTarget('PANIC', this)">
-                    <span class="focus-icon">🆘</span>
-                    <span class="focus-label">SOS</span>
-                    <span class="focus-desc">Je suis submergé</span>
-                </div>
-            </div>
-            <div id="focus-response-list" class="task-container" style="padding:0; flex:1;"></div>
         </div>
 
         <div id="routine-ui" class="routine-container">
@@ -331,7 +338,6 @@
 
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
-        let focusTarget = null; // NEW: Focus state logic
         let isProcessing = false;
         let isTextMode = false;
         let recognition = null;
@@ -340,6 +346,7 @@
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
         let username = "Champion";
         let audioCtx, brownNoiseNode, gainNode, isNoisePlaying = false;
+        let currentFocusTask = ""; // Store chosen task
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding();
@@ -409,7 +416,7 @@
 
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation();
-            const currentPrompts = getPrompts(focusTarget); // Pass target to prompts
+            const currentPrompts = getPrompts(currentFocusTask); 
             const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
@@ -425,14 +432,16 @@
                 
                 if(parsed.actions) { 
                     // Special Handling for Focus Mode Breakdown
-                    if (currentMode === 'FOCUS' && focusTarget) {
-                        const focusList = document.getElementById('focus-response-list');
-                        focusList.innerHTML = ""; // Clear previous
+                    if (currentMode === 'FOCUS') {
+                        const focusArea = document.getElementById('focus-micro-step-area');
+                        focusArea.innerHTML = ""; // Clear previous
                         parsed.actions.forEach(act => {
-                            const div = document.createElement('div'); div.className = "task-item";
-                            div.innerHTML = `<div class="task-content"><div class="task-text">${act.detail}</div><div class="task-sub"><span class="time-badge">${act.duration}m</span></div></div><div class="actions-group"><button class="done-btn" onclick="this.closest('.task-item').remove()"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
-                            focusList.appendChild(div);
+                            const div = document.createElement('div'); div.className = "micro-step-card";
+                            div.innerHTML = `<div class="micro-step-title">LA MICRO-ACTION</div><div class="micro-step-text">${act.detail}</div>`;
+                            focusArea.appendChild(div);
                         });
+                        // Hide grid to focus on the step
+                        document.getElementById('focus-tasks-grid').style.display = 'none';
                     } else {
                         // Standard Mode
                         parsed.actions.forEach(act => { 
@@ -549,13 +558,13 @@
         
         function setMode(mode, btn) { 
             currentMode = mode; 
-            focusTarget = null; // Reset selection
+            currentFocusTask = ""; // Reset task selection
             
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); 
             btn.classList.add('active'); 
             
             const t = document.getElementById('task-list'); 
-            const f = document.getElementById('focus-ui'); // NEW
+            const f = document.getElementById('focus-ui'); 
             const r = document.getElementById('routine-ui'); 
             const p = document.getElementById('pomo-ui'); 
             
@@ -564,27 +573,47 @@
             if (mode === 'DUMP') t.style.display='flex';
             else if (mode === 'FOCUS') {
                  f.style.display='flex'; 
-                 document.getElementById('focus-response-list').innerHTML = ""; // Clear results
+                 renderFocusTasks(); // NEW: Load tasks
             }
             else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } 
             else if (mode === 'POMO') p.style.display='flex'; 
             
-            document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "Choisis la cible...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; 
+            document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "Choisis une tâche...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; 
         }
 
-        // NEW: Focus Target Logic
-        function setFocusTarget(target, btn) {
-            focusTarget = target;
-            document.querySelectorAll('.focus-card').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
+        // NEW: Render available tasks in Focus Mode
+        function renderFocusTasks() {
+            const grid = document.getElementById('focus-tasks-grid');
+            const microArea = document.getElementById('focus-micro-step-area');
             
-            const prompts = {
-                'CUT': "Quelle tâche te semble énorme ?",
-                'START': "Qu'est-ce que tu repousses ?",
-                'GAME': "Qu'est-ce qui t'ennuie ?",
-                'PANIC': "Qu'est-ce qui stresse ?"
-            };
-            playVocalResponse(prompts[target]);
+            grid.innerHTML = "";
+            microArea.innerHTML = "";
+            grid.style.display = 'flex'; // Reset display if it was hidden
+
+            // Scrape tasks from DUMP list
+            const taskElements = document.querySelectorAll('#task-list .task-text');
+            
+            if (taskElements.length === 0) {
+                grid.innerHTML = `<div style="text-align:center; opacity:0.5; font-size:12px; margin-top:20px;">Aucune tâche. Vide ton esprit d'abord.</div>`;
+                return;
+            }
+
+            taskElements.forEach(el => {
+                const text = el.innerText.replace(/📅|🔔|🔥/g, '').trim(); // Clean icons
+                if(text) {
+                    const btn = document.createElement('div');
+                    btn.className = "focus-task-target";
+                    btn.onclick = () => selectFocusTask(text);
+                    btn.innerHTML = `<span class="focus-target-icon">🎯</span><span class="focus-target-text">${text}</span>`;
+                    grid.appendChild(btn);
+                }
+            });
+        }
+
+        // NEW: Handle Task Selection
+        function selectFocusTask(taskText) {
+            currentFocusTask = taskText;
+            processWithAI(`Je veux me lancer sur cette tâche : "${taskText}". Donne-moi juste la toute première micro-étape.`);
         }
 
         async function playVocalResponse(textToSpeak) { document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation(); const cleanText = cleanTextForSpeech(textToSpeak); if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; } const u = new SpeechSynthesisUtterance(cleanText); u.lang = 'fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('fr')); if(v) u.voice = v; u.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
@@ -592,23 +621,21 @@
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         
-        function getPrompts(target = null) {
+        function getPrompts(targetTask = null) {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
 
-            // NEW: DYNAMIC PROMPT FOR FOCUS
+            // PROMPT FOCUS DYNAMIQUE (TACHE -> MICRO-ACTION)
             let focusPrompt = "";
-            if (!target) {
-                focusPrompt = `Coach TDAH. ${tone}. Demande à l'utilisateur de cliquer sur une cible ou de décrire le problème.`;
-            } else if (target === 'CUT') {
-                focusPrompt = `Expert "Découpage". Tâche trop grosse. Action: Découpe en 3-5 micro-étapes ridicules. JSON Strict: { "text": "Plan d'attaque.", "actions": [ { "type": "TODO", "detail": "Etape 1...", "duration": 5 } ] }`;
-            } else if (target === 'START') {
-                focusPrompt = `Expert "Démarrage". Blocage exécutif. Action: Donne UNIQUEMENT la 1ère action physique (règle des 5 secondes). JSON Strict: { "text": "Juste ça. Go.", "actions": [ { "type": "TODO", "detail": "Juste la 1ere action...", "duration": 2 } ] }`;
-            } else if (target === 'GAME') {
-                focusPrompt = `Expert "Gamification". Ennui. Action: Transforme en jeu/défi/mission secrète. JSON Strict: { "text": "Mission Agent ${username}.", "actions": [ { "type": "TODO", "detail": "Titre épique...", "duration": 15 } ] }`;
-            } else if (target === 'PANIC') {
-                focusPrompt = `Expert "Urgence". Panique. Action: Identifie LA seule priorité absolue. Ignore le reste. JSON Strict: { "text": "Respire. Ta seule priorité c'est ça.", "actions": [ { "type": "TODO", "detail": "LA PRIORITÉ", "priority": "HIGH", "duration": 20 } ] }`;
+            if (targetTask) {
+                focusPrompt = `Coach Productivité TDAH. La tâche cible est : "${targetTask}".
+                Le blocage est le démarrage.
+                Objectif : Donner UNIQUEMENT la toute première micro-étape physique (moins de 2 min) pour lancer la machine.
+                Exemple: Pour "Faire le ménage", répondre "Prends juste le spray." (Pas de liste).
+                JSON Strict : { "text": "Allez, on commence juste par ça.", "actions": [ { "type": "TODO", "detail": "La micro-action précise ici...", "duration": 2 } ] }`;
+            } else {
+                focusPrompt = `Coach TDAH. Demande à l'utilisateur de cliquer sur une tâche pour la débloquer.`;
             }
 
             return {
@@ -617,7 +644,7 @@
                 Actions: [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15 } ].
                 ESTIME LA DURÉE (en min) de chaque tâche dans 'duration'.`,
                 
-                'FOCUS': focusPrompt, // NOW DYNAMIC
+                'FOCUS': focusPrompt,
 
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
