@@ -8,14 +8,15 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V19 (FINAL) --- */
+        /* --- DESIGN NEURO V20 (NOTIFICATIONS) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
             --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
+            --reminder: #D500F9; /* VIOLET POUR LES RAPPELS */
         }
         
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
@@ -41,17 +42,24 @@
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
+        
+        /* NOUVEAU STYLE RAPPEL */
+        .task-item.reminder { border-left: 4px solid var(--reminder) !important; background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
+
         .task-text { font-size: 15px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
+        .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
+        .task-item.calendar .sync-badge { display: inline; }
+        .reminder-badge { font-size: 12px; display: none; margin-left: 5px; }
+        .task-item.reminder .reminder-badge { display: inline; }
+
         .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
         .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
-        .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
-        .task-item.calendar .sync-badge { display: inline; }
 
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
@@ -224,15 +232,7 @@
         // DATA
         const POSITIVE_PHRASES = ["Tu as tout ce qu'il faut.", "Respire, tu gères.", "Une étape à la fois.", "Bravo d'être là.", "Ton cerveau est unique.", "Pas de pression.", "Tu es un champion.", "Chaque petite croix compte.", "Concentration et calme.", "Tu avances, c'est l'essentiel.", "Fais-toi confiance.", "Ta différence est une force.", "Belle journée en vue.", "Rien ne t'arrête.", "Sois fier de toi.", "L'important c'est de commencer.", "Tu es capable.", "Garde le sourire.", "On y va cool.", "Tu es aux commandes."];
         const TRANSITION_PHRASES = ["Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :", "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :", "On déroule le tapis rouge :", "Tes missions du moment :", "Allons-y gaiement :", "Suis le mouvement :", "Cap sur l'objectif :", "Voici ta checklist :", "On enchaîne fluidement :", "Ton parcours fléché :", "Rien que pour toi :", "Allez, focus sur ça :", "Ta feuille de route :", "On s'y met ensemble :", "Voici le déroulé :", "Prêt ? C'est par ici :"];
-        
-        // CONTEXTUAL CLOSING PHRASES (NEW)
-        const CLOSING_PHRASES = {
-            'MATIN': ["Passe une superbe journée !", "Brille aujourd'hui !", "Bonne journée à toi.", "Profite bien !"],
-            'SOIR': ["Fais de beaux rêves.", "Repose-toi bien.", "Bonne nuit.", "À demain matin."],
-            'SPORT': ["Bonne séance !", "Donne tout !", "Tu vas te sentir bien après !", "Force à toi !"],
-            'TRAVAIL': ["Bon courage !", "Sois productif !", "Tu vas gérer.", "Fonce !"],
-            'DEFAULT': ["C'est parti !", "À toi de jouer.", "Courage !", "Go !"]
-        };
+        const CLOSING_PHRASES = { 'MATIN': ["Passe une superbe journée !", "Brille aujourd'hui !", "Bonne journée à toi.", "Profite bien !"], 'SOIR': ["Fais de beaux rêves.", "Repose-toi bien.", "Bonne nuit.", "À demain matin."], 'SPORT': ["Bonne séance !", "Donne tout !", "Tu vas te sentir bien après !", "Force à toi !"], 'TRAVAIL': ["Bon courage !", "Sois productif !", "Tu vas gérer.", "Fonce !"], 'DEFAULT': ["C'est parti !", "À toi de jouer.", "Courage !", "Go !"] };
 
         // VARS
         let currentMode = 'DUMP';
@@ -250,6 +250,8 @@
             loadTasks(); updateMentalLoad(); renderRoutines();
             initSpeech();
             loadMood();
+            // Demande permission notif
+            if ("Notification" in window) Notification.requestPermission();
         });
 
         // --- MOOD MANAGEMENT ---
@@ -288,7 +290,13 @@
                     else if (parsed.command === 'REMOVE_STEP') { const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase()); if (key && routines[key]) { routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase())); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est retiré.`); } stopThinkingAnimation(); isProcessing = false; return; }
                     else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Je ne connais pas ça.`); } stopThinkingAnimation(); isProcessing = false; return; }
                 }
-                if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL'); if(act.type === 'CALENDAR') sendToCalendar(act.detail); }); }
+                
+                if(parsed.actions) { 
+                    parsed.actions.forEach(act => { 
+                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL'); 
+                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
+                    }); 
+                }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
         }
@@ -303,31 +311,8 @@
         function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
         function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
         function getRandomTransition() { return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)]; }
-        
-        // CONTEXTUAL CLOSING
-        function getClosingPhrase(routineName) {
-            const n = routineName.toLowerCase();
-            let cat = 'DEFAULT';
-            if (n.includes('matin') || n.includes('reveil')) cat = 'MATIN';
-            else if (n.includes('soir') || n.includes('nuit')) cat = 'SOIR';
-            else if (n.includes('sport') || n.includes('gym')) cat = 'SPORT';
-            else if (n.includes('travail') || n.includes('boulot')) cat = 'TRAVAIL';
-            const list = CLOSING_PHRASES[cat] || CLOSING_PHRASES['DEFAULT'];
-            return list[Math.floor(Math.random() * list.length)];
-        }
-
-        function readActiveRoutine() { 
-            const list = document.getElementById('routine-steps-list'); 
-            const routineName = document.getElementById('active-routine-name').innerText;
-            let text = `Bonjour ${username} ! ` + getRandomIntro() + " " + getRandomTransition() + " "; 
-            list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". "); 
-            
-            // Ajout de la phrase de fin contextuelle
-            text += " " + getClosingPhrase(routineName);
-            
-            playVocalResponse(text); 
-        }
-        
+        function getClosingPhrase(routineName) { const n = routineName.toLowerCase(); let cat = 'DEFAULT'; if (n.includes('matin') || n.includes('reveil')) cat = 'MATIN'; else if (n.includes('soir') || n.includes('nuit')) cat = 'SOIR'; else if (n.includes('sport') || n.includes('gym')) cat = 'SPORT'; else if (n.includes('travail') || n.includes('boulot')) cat = 'TRAVAIL'; const list = CLOSING_PHRASES[cat] || CLOSING_PHRASES['DEFAULT']; return list[Math.floor(Math.random() * list.length)]; }
+        function readActiveRoutine() { const list = document.getElementById('routine-steps-list'); const routineName = document.getElementById('active-routine-name').innerText; let text = `Bonjour ${username} ! ` + getRandomIntro() + " " + getRandomTransition() + " "; list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". "); text += " " + getClosingPhrase(routineName); playVocalResponse(text); }
         function checkRoutineFinish() { if (document.getElementById('routine-steps-list').children.length === 0) { playVocalResponse(`Routine terminée. Bien joué ${username} !`); triggerConfetti(); setTimeout(exitRoutine, 2000); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display = 'grid'; document.getElementById('active-routine-view').style.display = 'none'; }
 
@@ -356,7 +341,41 @@
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         
-        function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
+        function addTaskToUI(text, type, priority = 'NORMAL') { 
+            const list = document.getElementById('task-list'); 
+            if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; 
+            const div = document.createElement('div'); 
+            
+            const isCal = (type === 'CALENDAR');
+            const isRem = (type === 'REMINDER');
+            const isHigh = (priority === 'HIGH');
+            
+            // Classes CSS
+            div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
+            
+            // Icones badges
+            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : '';
+            const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : '';
+            const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
+            
+            let label = 'TÂCHE';
+            if (isCal) label = 'AGENDA';
+            if (isRem) label = 'RAPPEL';
+            if (isHigh) label = 'URGENT';
+
+            div.innerHTML = `
+                <div>
+                    <div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div>
+                    <div class="task-sub" style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${label}</div>
+                </div>
+                <div class="actions-group">
+                    <button class="done-btn" onclick="completeTask(this)">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </button>
+                </div>
+            `;
+            list.appendChild(div); saveTasks(); updateMentalLoad(); 
+        }
         
         function completeTask(btn) { 
             const item = btn.closest('.task-item'); 
@@ -376,7 +395,18 @@
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
 
             return {
-                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}. JSON Strict: { "text": "Ok ${username}", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
+                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}.
+                JSON Strict.
+                
+                Pour le champ "text" (réponse orale) : Choisis UN SEUL mot très court (ex: "Noté", "Ok", "Reçu", "C'est fait"). NE FAIS PAS DE PHRASE.
+                
+                Pour les actions :
+                - Si c'est une tâche simple : type="TODO"
+                - Si c'est un RDV précis (date/heure) : type="CALENDAR"
+                - Si c'est un RAPPEL PÉRIODIQUE ou FUTUR (ex: "dans 20min", "tous les jours") : type="REMINDER"
+                
+                Format JSON : { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH" } ] }`,
+                
                 'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
