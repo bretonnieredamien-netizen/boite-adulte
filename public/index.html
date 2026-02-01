@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V10 --- */
+        /* --- DESIGN NEURO V11 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -47,27 +47,13 @@
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
-        /* ROUTINES (NOUVEAU DESIGN) */
+        /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        .routine-card-item { 
-            /* Fond par défaut, sera écrasé par JS */
-            background: var(--bg-card); 
-            padding: 20px; 
-            border-radius: 16px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            /* Bordure gauche épaisse gérée par JS */
-        }
-        .routine-card-item:active { transform: scale(0.95); }
-        
+        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .routine-card-item:active { transform: scale(0.95); background: #222; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: background 0.2s; }
         .routine-delete-btn:active { background: var(--danger); }
-        
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
         .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         
@@ -221,7 +207,7 @@
             "On y va, tranquillement mais sûrement.", "Tu es aux commandes."
         ];
 
-        // TRANSITIONS NATURELLES (IA AUDIO)
+        // TRANSITIONS
         const TRANSITION_PHRASES = [
             "Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :",
             "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :",
@@ -391,25 +377,19 @@
             }
         }
 
-        // --- INTELLIGENCE VISUELLE (ICONES & COULEURS) ---
+        // --- INTELLIGENCE VISUELLE ---
         function getRoutineStyle(name) {
             const n = name.toLowerCase();
-            // Matin : Or
             if (n.includes('matin') || n.includes('reveil') || n.includes('jour')) 
                 return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' };
-            // Soir : Bleu Nuit
             if (n.includes('soir') || n.includes('nuit') || n.includes('dodo')) 
                 return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' };
-            // Sport : Rose/Rouge
             if (n.includes('sport') || n.includes('gym') || n.includes('yoga') || n.includes('forme')) 
                 return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' };
-            // Travail : Cyan
             if (n.includes('travail') || n.includes('boulot') || n.includes('focus') || n.includes('bureau')) 
                 return { icon: '💼', color: '#00E5FF', bg: 'rgba(0, 229, 255, 0.1)' };
-            // Maison : Vert
             if (n.includes('maison') || n.includes('menage') || n.includes('course') || n.includes('rangement')) 
                 return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' };
-            // Défaut : Violet
             return { icon: '🔄', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' };
         }
 
@@ -426,7 +406,6 @@
                 delBtn.innerHTML = "✕";
                 delBtn.onclick = (e) => deleteRoutine(name, e);
                 
-                // Style dynamique
                 const style = getRoutineStyle(name);
                 btn.style.borderLeft = `4px solid ${style.color}`;
                 btn.style.background = `linear-gradient(135deg, ${style.bg}, var(--bg-card))`;
@@ -445,7 +424,6 @@
             document.getElementById('active-routine-view').style.display = 'flex';
             document.getElementById('active-routine-name').innerText = name.toUpperCase();
             
-            // Appliquer la couleur du titre
             const style = getRoutineStyle(name);
             document.getElementById('active-routine-name').style.color = style.color;
 
@@ -454,7 +432,7 @@
             steps.forEach((step, index) => {
                 const div = document.createElement('div');
                 div.className = "task-item"; 
-                div.style.borderLeftColor = style.color; // Couleur assortie
+                div.style.borderLeftColor = style.color;
                 div.innerHTML = `
                     <div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div>
                     <div class="actions-group">
@@ -529,11 +507,34 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
+        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         function finishTimer() { clearInterval(timerInterval); isTimerRunning = false; playVocalResponse("Session terminée ! Bravo."); const bar = document.getElementById('load-bar'); bar.style.width = "0%"; setTimeout(() => updateMentalLoad(), 2000); }
-        function updateMentalLoad() { const list = document.getElementById('task-list'); const count = list.querySelectorAll('.task-item').length; let percent = Math.min((count / 8) * 100, 100); const bar = document.getElementById('load-bar'); bar.style.width = percent + "%"; if (count === 0) { bar.style.background = "var(--success)"; document.getElementById('load-status').innerText = "ESPRIT LIBRE"; document.getElementById('load-status').style.color = "var(--success)"; } else if (percent < 80) { bar.style.background = "var(--warning)"; document.getElementById('load-status').innerText = "CHARGE MOYENNE"; document.getElementById('load-status').style.color = "var(--warning)"; } else { bar.style.background = "var(--danger)"; document.getElementById('load-status').innerText = "SURCHARGE"; document.getElementById('load-status').style.color = "var(--danger)"; } checkZenMode(); }
+        // NEW CHARGE MENTALE CALC (V11)
+        function updateMentalLoad() { 
+            const list = document.getElementById('task-list'); 
+            const items = list.querySelectorAll('.task-item');
+            let totalLoad = 0;
+            items.forEach(item => {
+                if (item.classList.contains('priority-high')) totalLoad += 3;
+                else if (item.classList.contains('calendar')) totalLoad += 2;
+                else totalLoad += 1;
+            });
+            const maxCapacity = 12;
+            let percent = Math.min((totalLoad / maxCapacity) * 100, 100);
+            
+            const bar = document.getElementById('load-bar'); 
+            const status = document.getElementById('load-status');
+            bar.style.width = percent + "%"; 
+            
+            if (totalLoad === 0) { bar.style.background = "var(--success)"; status.innerText = "ESPRIT LIBRE"; status.style.color = "var(--success)"; } 
+            else if (percent < 45) { bar.style.background = "var(--success)"; status.innerText = "OPTIMAL"; status.style.color = "var(--success)"; } 
+            else if (percent < 80) { bar.style.background = "var(--warning)"; status.innerText = "CHARGE MOYENNE"; status.style.color = "var(--warning)"; } 
+            else { bar.style.background = "var(--danger)"; status.innerText = "SURCHARGE"; status.style.color = "var(--danger)"; } 
+            checkZenMode(); 
+        }
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
