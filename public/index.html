@@ -80,10 +80,6 @@
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
         
-        /* MICROPHONE STYLES */
-        .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
-        .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
-        
         /* ETAT ENREGISTREMENT (CARRÉ ROUGE) */
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
         .mic-wrapper.is-recording svg { fill: var(--danger); }
@@ -95,6 +91,9 @@
         .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
 
+        .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
+        .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
+        
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
 
@@ -217,7 +216,7 @@
             if (!Speech) { alert("Micro non supporté"); return; }
             recognition = new Speech();
             recognition.lang = 'fr-FR';
-            recognition.continuous = true; // IMPORTANT : Ne s'arrête pas tout seul
+            recognition.continuous = true; 
             recognition.interimResults = true;
 
             recognition.onresult = (event) => {
@@ -229,13 +228,10 @@
                         interim += event.results[i][0].transcript;
                     }
                 }
-                // On pourrait afficher interim ici pour voir ce qu'on dit en direct
             };
             
             recognition.onerror = (e) => { 
-                console.error(e); 
-                // En cas d'erreur ou coupure, on force l'arrêt propre
-                stopRecordingState();
+                console.error(e); stopRecordingState();
             };
         }
 
@@ -252,7 +248,6 @@
                     document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)";
                 } catch(e) {
                     console.error("Erreur start", e);
-                    // Si erreur (déjà démarré), on essaye de restart
                     recognition.stop();
                 }
             } else {
@@ -261,7 +256,6 @@
                 isRecording = false;
                 updateMicVisuals(false);
                 
-                // Petit délai pour être sûr d'avoir le dernier mot
                 document.getElementById('status-text').innerText = "Attente fin...";
                 setTimeout(() => {
                     if(finalTranscript.trim().length > 0) {
@@ -410,9 +404,7 @@
 
         // Mise à jour si on modifie le texte
         function updateRoutineStep(routineName, oldStep, newStep) {
-            // (Simplification: Pour l'instant on modifie juste l'affichage, 
-            // pour une vraie modif persistente il faudrait re-sauvegarder tout le tableau)
-            // On laisse l'utilisateur supprimer/refaire pour l'instant pour la simplicité du code
+            // (Simplification: Pour l'instant on modifie juste l'affichage)
         }
 
         function readActiveRoutine() {
@@ -477,7 +469,7 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // --- FONCTIONS SECONDAIRES (POMO, BRIEF, ETC) ---
+        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -499,9 +491,16 @@
             return {
                 'DUMP': `Assistant TDAH. DATE: ${today}. JSON Strict: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
-                'ROUTINE': `Expert Organisation. Routines connues: [${existingRoutines}]. 
-                Si création: { "text": "Sauvegardé", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
-                Si demande routine: { "text": "Je lance...", "command": "GET_ROUTINE", "name": "nom" }.`,
+                
+                // PROMPT RENFORCÉ POUR ROUTINES
+                'ROUTINE': `Tu es un Expert en Routines.
+                Analyse l'intention :
+                1. CRÉATION (ex: "Configure routine matin : café, douche") ->
+                   JSON : { "text": "...", "command": "SAVE_ROUTINE", "name": "matin", "steps": ["Boire café", "Prendre douche"] }
+                2. EXECUTION (ex: "Lance matin") ->
+                   JSON : { "text": "...", "command": "GET_ROUTINE", "name": "matin" }
+                3. AMELIORATION (ex: "Ajoute sport à routine matin") -> gère intelligemment.`,
+                
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
             };
         }
