@@ -8,25 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V17 (MOOD SWITCH) --- */
+        /* --- DESIGN NEURO V18 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
             --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
         }
         
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
 
         /* HEADER */
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
         .app-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white; }
         .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-top: 2px; }
-        
-        /* BOUTON BRIEF (Droite) */
         .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
-        
-        /* BOUTON MOOD (Gauche - NOUVEAU) */
         .mood-btn { position: absolute; left: 20px; top: 0; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
@@ -39,6 +35,8 @@
 
         /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
+        
+        /* TASKS */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
@@ -102,7 +100,6 @@
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         
-        /* INPUT AREA */
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
@@ -230,7 +227,7 @@
 
         // VARS
         let currentMode = 'DUMP';
-        let currentMood = 'ZEN'; // ZEN ou BOOST
+        let currentMood = 'ZEN';
         let isProcessing = false;
         let isTextMode = false;
         let recognition = null;
@@ -247,79 +244,19 @@
         });
 
         // --- MOOD MANAGEMENT ---
-        function loadMood() {
-            const saved = localStorage.getItem('neuro_mood');
-            if(saved) {
-                currentMood = saved;
-                updateMoodUI();
-            }
-        }
-
-        function toggleMood() {
-            currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN';
-            localStorage.setItem('neuro_mood', currentMood);
-            updateMoodUI();
-            playVocalResponse(currentMood === 'ZEN' ? "Mode Zen activé." : "Mode Boost activé !");
-        }
-
-        function updateMoodUI() {
-            const btn = document.getElementById('mood-btn');
-            if(currentMood === 'ZEN') {
-                btn.className = "mood-btn zen";
-                btn.innerHTML = "<span>🛡️</span> ZEN";
-            } else {
-                btn.className = "mood-btn boost";
-                btn.innerHTML = "<span>🚀</span> BOOST";
-            }
-        }
+        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
+        function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen activé." : "Mode Boost activé !"); }
+        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
 
         // --- ONBOARDING ---
-        function checkOnboarding() {
-            const savedName = localStorage.getItem('neuro_username');
-            if (savedName) {
-                username = savedName;
-                document.getElementById('user-display').innerText = username;
-            } else {
-                document.getElementById('onboarding-modal').classList.add('show');
-            }
-        }
-
-        function saveUsername() {
-            const input = document.getElementById('username-input');
-            if (input.value.trim() !== "") {
-                username = input.value.trim();
-                localStorage.setItem('neuro_username', username);
-                document.getElementById('user-display').innerText = username;
-                document.getElementById('onboarding-modal').classList.remove('show');
-                startOnboardingSequence(username);
-            }
-        }
-
-        async function startOnboardingSequence(name) {
-            isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation();
-            const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe, tri auto urgences). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE (Habitudes). Finis par motivation. Texte simple pour oral.`;
-            try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) });
-                const data = await rep.json();
-                playVocalResponse(data.text.replace(/\*/g, ''));
-            } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); }
-        }
-
+        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; document.getElementById('user-display').innerText = username; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
+        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('user-display').innerText = username; document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
+        async function startOnboardingSequence(name) { isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation(); const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe, tri auto urgences). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE (Habitudes). Finis par motivation. Texte simple pour oral.`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); playVocalResponse(data.text.replace(/\*/g, '')); } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
 
         // --- MICRO ---
-        function initSpeech() {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Speech) { alert("Micro non supporté"); return; }
-            recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true;
-            recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } };
-            recognition.onerror = (e) => { stopRecordingState(); };
-        }
-        function toggleRecording() {
-            if(isProcessing) return;
-            if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)"; } catch(e) { recognition.stop(); } } 
-            else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); }
-        }
+        function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) { alert("Micro non supporté"); return; } recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { stopRecordingState(); }; }
+        function toggleRecording() { if(isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)"; } catch(e) { recognition.stop(); } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); } }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
         function updateMicVisuals(rec) { const w = document.getElementById('mic-wrapper'); const m = document.getElementById('icon-mic'); const s = document.getElementById('icon-stop'); if(rec) { w.classList.add('is-recording'); m.style.display='none'; s.style.display='block'; } else { w.classList.remove('is-recording'); m.style.display='block'; s.style.display='none'; } }
 
@@ -331,7 +268,6 @@
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation();
             const currentPrompts = getPrompts();
             const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
-
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
                 const data = await rep.json();
@@ -339,24 +275,9 @@
                 
                 if (currentMode === 'ROUTINE') {
                     if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée ${username}.`); stopThinkingAnimation(); isProcessing = false; return; }
-                    else if (parsed.command === 'UPDATE_ROUTINE') { 
-                        const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
-                        const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase());
-                        if (key) { routines[key].push(parsed.add_step); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est fait.`); }
-                        else { playVocalResponse(`Routine introuvable.`); }
-                        stopThinkingAnimation(); isProcessing = false; return;
-                    }
-                    else if (parsed.command === 'REMOVE_STEP') {
-                        const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
-                        const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase());
-                        if (key && routines[key]) { routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase())); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est retiré.`); }
-                        stopThinkingAnimation(); isProcessing = false; return;
-                    }
-                    else if (parsed.command === 'GET_ROUTINE') {
-                        const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()];
-                        if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Je ne connais pas ça.`); }
-                        stopThinkingAnimation(); isProcessing = false; return;
-                    }
+                    else if (parsed.command === 'UPDATE_ROUTINE') { const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase()); if (key) { routines[key].push(parsed.add_step); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est fait.`); } else { playVocalResponse(`Routine introuvable.`); } stopThinkingAnimation(); isProcessing = false; return; }
+                    else if (parsed.command === 'REMOVE_STEP') { const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase()); if (key && routines[key]) { routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase())); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est retiré.`); } stopThinkingAnimation(); isProcessing = false; return; }
+                    else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Je ne connais pas ça.`); } stopThinkingAnimation(); isProcessing = false; return; }
                 }
                 if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL'); if(act.type === 'CALENDAR') sendToCalendar(act.detail); }); }
                 playVocalResponse(parsed.text);
@@ -368,24 +289,8 @@
         function deleteRoutine(name, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[name]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
         function deleteStepFromRoutine(name, index) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const key = Object.keys(r).find(k => k === name.toLowerCase()); if (key) { r[key].splice(index, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(name); } }
         function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin') || n.includes('reveil')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir') || n.includes('nuit')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport') || n.includes('gym')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('travail') || n.includes('boulot')) return { icon: '💼', color: '#00E5FF', bg: 'rgba(0, 229, 255, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '🔄', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
-        function renderRoutines() {
-            const grid = document.getElementById('routines-grid'); const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); grid.innerHTML = "";
-            if (Object.keys(routines).length === 0) { grid.innerHTML = `<div style="grid-column:span 2; opacity:0.5; font-size:12px; text-align:center;">Aucune routine.<br>Dis "Crée routine..."</div>`; return; }
-            for (let name in routines) {
-                const btn = document.createElement('div'); btn.className = "routine-card-item"; const delBtn = document.createElement('div'); delBtn.className = "routine-delete-btn"; delBtn.innerHTML = "✕"; delBtn.onclick = (e) => deleteRoutine(name, e); const style = getRoutineStyle(name); btn.style.borderLeft = `4px solid ${style.color}`; btn.style.background = `linear-gradient(135deg, ${style.bg}, var(--bg-card))`; btn.innerHTML = `<span class="routine-icon">${style.icon}</span><span class="routine-name">${name}</span>`; btn.appendChild(delBtn); btn.onclick = () => launchRoutine(name); grid.appendChild(btn);
-            }
-        }
-        function launchRoutine(name) {
-            const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const steps = routines[name.toLowerCase()]; if(!steps) return;
-            document.getElementById('routines-grid').style.display = 'none'; document.getElementById('active-routine-view').style.display = 'flex'; document.getElementById('active-routine-name').innerText = name.toUpperCase();
-            const style = getRoutineStyle(name); document.getElementById('active-routine-name').style.color = style.color;
-            const list = document.getElementById('routine-steps-list'); list.innerHTML = "";
-            steps.forEach((step, index) => {
-                const div = document.createElement('div'); div.className = "task-item"; div.style.borderLeftColor = style.color;
-                div.innerHTML = `<div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${name}', ${index})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
-                list.appendChild(div);
-            });
-        }
+        function renderRoutines() { const grid = document.getElementById('routines-grid'); const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); grid.innerHTML = ""; if (Object.keys(routines).length === 0) { grid.innerHTML = `<div style="grid-column:span 2; opacity:0.5; font-size:12px; text-align:center;">Aucune routine.<br>Dis "Crée routine..."</div>`; return; } for (let name in routines) { const btn = document.createElement('div'); btn.className = "routine-card-item"; const delBtn = document.createElement('div'); delBtn.className = "routine-delete-btn"; delBtn.innerHTML = "✕"; delBtn.onclick = (e) => deleteRoutine(name, e); const style = getRoutineStyle(name); btn.style.borderLeft = `4px solid ${style.color}`; btn.style.background = `linear-gradient(135deg, ${style.bg}, var(--bg-card))`; btn.innerHTML = `<span class="routine-icon">${style.icon}</span><span class="routine-name">${name}</span>`; btn.appendChild(delBtn); btn.onclick = () => launchRoutine(name); grid.appendChild(btn); } }
+        function launchRoutine(name) { const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const steps = routines[name.toLowerCase()]; if(!steps) return; document.getElementById('routines-grid').style.display = 'none'; document.getElementById('active-routine-view').style.display = 'flex'; document.getElementById('active-routine-name').innerText = name.toUpperCase(); const style = getRoutineStyle(name); document.getElementById('active-routine-name').style.color = style.color; const list = document.getElementById('routine-steps-list'); list.innerHTML = ""; steps.forEach((step, index) => { const div = document.createElement('div'); div.className = "task-item"; div.style.borderLeftColor = style.color; div.innerHTML = `<div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${name}', ${index})"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); }); }
         function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
         function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
         function getRandomTransition() { return TRANSITION_PHRASES[Math.floor(Math.random() * TRANSITION_PHRASES.length)]; }
@@ -398,14 +303,7 @@
         function handleEnter(e) { if(e.key === 'Enter') sendText(); }
         function sendText() { const input = document.getElementById('user-input'); if(input.value.trim()){ processWithAI(input.value); input.value=""; } }
         function setMode(mode, btn) { currentMode = mode; document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); btn.classList.add('active'); const t = document.getElementById('task-list'); const r = document.getElementById('routine-ui'); const p = document.getElementById('pomo-ui'); t.style.display='none'; r.style.display='none'; p.style.display='none'; if (mode === 'DUMP' || mode === 'FOCUS') t.style.display='flex'; else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } else if (mode === 'POMO') p.style.display='flex'; document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; }
-        async function playVocalResponse(textToSpeak) { 
-            document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation(); const cleanText = cleanTextForSpeech(textToSpeak); if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; } 
-            const u = new SpeechSynthesisUtterance(cleanText); 
-            u.lang = 'fr-FR'; 
-            // VITESSE ADAPTATIVE SELON L'HUMEUR
-            u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; 
-            const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('fr')); if(v) u.voice = v; u.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); 
-        }
+        async function playVocalResponse(textToSpeak) { document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation(); const cleanText = cleanTextForSpeech(textToSpeak); if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; } const u = new SpeechSynthesisUtterance(cleanText); u.lang = 'fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('fr')); if(v) u.voice = v; u.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -422,13 +320,13 @@
             checkZenMode(); 
         }
         function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000); } }
+        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); triggerConfetti(); setTimeout(() => p.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         
         function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
         
         function completeTask(btn) { 
-            const item = btn.closest('.task-item'); 
+            const item = btn.closest('.task-item'); // TARGET PARENT TASK ITEM
             if(item) {
                 item.style.transform = "translateX(100%)"; item.style.opacity = "0"; 
                 setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); }, 300); 
@@ -442,14 +340,10 @@
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
-            
-            // ADAPTATION DU TON SELON L'HUMEUR
-            let tone = "";
-            if (currentMood === 'ZEN') tone = "Ton: Doux, lent, rassurant, bienveillant. Comme un ami calme.";
-            else tone = "Ton: Dynamique, militaire, rapide, énergique. Comme un coach sportif.";
+            let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
 
             return {
-                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}. JSON Strict: { "text": "Ok ${username}", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
+                'DUMP': `Assistant TDAH. DATE: ${today}. Action: Ajout de tâche. JSON Strict. Champ "text": Choisis un seul mot aléatoire parmi: ["Ok", "Noté", "C'est fait", "Reçu", "Ça marche", "Enregistré"]. Actions: [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
