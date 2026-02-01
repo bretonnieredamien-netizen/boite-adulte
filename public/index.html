@@ -7,15 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN GLOBAL --- */
+        /* --- DESIGN NEURO V2 (Bleu & Positif) --- */
         :root { 
             --bg-main: #121212; 
             --bg-card: #1E1E1E; 
-            --accent: #BB86FC; 
+            --accent: #2979FF; /* BLEU ÉLECTRIQUE (Remplacement du Violet) */
             --text-main: #E0E0E0;
-            --success: #03DAC6;
-            --warning: #FFB74D;
-            --danger: #CF6679;
+            --success: #00E676; /* Vert vif pour la validation */
+            --warning: #FFAB00;
+            --danger: #FF1744;
         }
         
         body { 
@@ -37,68 +37,79 @@
             display: flex; align-items: center; justify-content: center; position: relative;
         }
 
-        /* BOUTON BRIEF (SOLEIL) */
+        /* BOUTON BRIEF */
         .brief-btn {
             position: absolute; right: 20px; top: 0;
-            background: rgba(255, 183, 77, 0.1); 
+            background: rgba(255, 171, 0, 0.1); 
             border: 1px solid var(--warning); color: var(--warning);
             font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px;
             cursor: pointer; display: flex; align-items: center; gap: 5px;
             transition: all 0.2s;
         }
-        .brief-btn:active { background: var(--warning); color: black; transform: scale(0.95); }
+        .brief-btn:active { transform: scale(0.95); }
 
         .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
 
         /* JAUGE */
-        .load-track { width: 100%; height: 12px; background: #222; border-radius: 6px; overflow: hidden; border: 1px solid #333; position: relative; }
-        .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(3, 218, 198, 0.3); }
+        .load-track { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
+        .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.3); }
         .load-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--success); transition: color 0.3s; }
 
-        /* ZONE CENTRALE (Tâches ou Timer) */
+        /* ZONE CENTRALE */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
         
         /* LISTE DES TÂCHES */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
         
         .task-item { 
-            background: var(--bg-card); padding: 15px; border-radius: 12px; 
+            background: var(--bg-card); padding: 15px; border-radius: 16px; 
             display: flex; align-items: center; justify-content: space-between; 
             border-left: 4px solid var(--accent); 
-            animation: slideIn 0.3s ease-out; transition: all 0.4s; 
+            animation: slideIn 0.3s ease-out; transition: all 0.4s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         /* --- STYLES EISENHOWER --- */
         .task-item.priority-high { 
-            border-left: 4px solid #FF3D00; /* Rouge vif */
-            background: linear-gradient(90deg, rgba(255, 61, 0, 0.1), var(--bg-card));
+            border-left: 4px solid var(--danger);
+            background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card));
             order: -2; 
         }
         .task-item.calendar { 
-            border-left: 4px solid var(--danger) !important; 
-            background: #2A1A1A; 
+            border-left: 4px solid #FF4081 !important; 
+            background: #1F1518; 
             order: -1; 
         }
 
-        .task-text { font-size: 14px; font-weight: 500; }
-        .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; display: flex; gap: 5px; align-items: center; }
+        .task-text { font-size: 15px; font-weight: 500; }
+        .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         
-        .priority-badge { font-weight: 900; color: #FF3D00; display: none; }
+        .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
 
-        .done-btn { background: transparent; border: 1px solid #444; color: #666; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-        .done-btn:active { background: var(--success); color: black; border-color: var(--success); }
-        .sync-badge { font-size: 10px; color: var(--success); display: none; margin-left: 5px; }
+        /* BOUTON VALIDATION POSITIF (VERT) */
+        .done-btn { 
+            background: rgba(0, 230, 118, 0.1); 
+            border: 1px solid var(--success); 
+            color: var(--success); 
+            width: 32px; height: 32px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s;
+        }
+        .done-btn:active { background: var(--success); color: black; transform: scale(0.9); }
+        .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
         /* TIMER POMODORO */
         .pomo-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
-        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; text-shadow: 0 0 20px rgba(187, 134, 252, 0.3); margin: 20px 0; }
+        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); margin: 20px 0; }
         .pomo-status { font-size: 14px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); margin-bottom: 20px; }
         .pomo-controls { display: flex; gap: 20px; }
         .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; font-size: 18px; }
-        .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(3, 218, 198, 0.4); }
+        .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
         .pomo-btn:active { transform: scale(0.95); }
 
@@ -115,48 +126,74 @@
         
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
-        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(187, 134, 252, 0.1); transform: translateY(-3px); }
+        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         
-        /* ZONE INPUT CORRIGÉE (FLEXBOX) */
+        /* ZONE INPUT & ANIMATION CERVEAU */
         .input-area { 
-            position: relative; width: 100%; height: 80px; 
+            position: relative; width: 100%; height: 100px; 
             display: flex; align-items: center; justify-content: center;
         }
         
-        /* MICRO CENTRÉ */
+        /* MICRO CENTRÉ + ANIMATION */
         .mic-wrapper { 
             width: 80px; height: 80px; 
             display: flex; align-items: center; justify-content: center; 
-            transition: opacity 0.3s; 
+            transition: all 0.3s; 
+            position: relative;
         }
-        .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
+        
+        /* Animation "Ondes Cérébrales" quand IA réfléchit */
+        .thinking-wave {
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid var(--accent);
+            opacity: 0; pointer-events: none;
+        }
+        .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
+        .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
+        .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.8; border-width: 4px; }
+            100% { transform: scale(2.5); opacity: 0; border-width: 0px; }
+        }
+
+        .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
         
-        /* BOUTON CLAVIER À GAUCHE (NOUVEAU) */
+        /* BOUTON CLAVIER */
         .keyboard-toggle { 
-            position: absolute; left: 20px; bottom: 25px; /* Déplacé à gauche */
+            position: absolute; left: 20px; bottom: 35px;
             width: 40px; height: 40px; border-radius: 50%; 
             background: #222; border: 1px solid #444; color: #888; 
             display: flex; align-items: center; justify-content: center; 
             cursor: pointer; transition: all 0.2s; z-index: 20;
         }
-        .keyboard-toggle.active { background: var(--accent); color: black; border-color: var(--accent); }
+        .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         /* ZONE TEXTE AU CENTRE */
         .text-input-container { 
             position: absolute; 
-            left: 70px; right: 20px; bottom: 20px; /* Prend toute la largeur moins le bouton gauche */
+            left: 70px; right: 20px; bottom: 30px;
             background: var(--bg-card); border: 1px solid var(--accent); 
-            border-radius: 30px; padding: 5px; 
+            border-radius: 30px; padding: 5px 5px 5px 20px; 
             display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); 
         }
         .text-input-container.show { display: flex; }
         
-        .text-input { flex: 1; background: transparent; border: none; color: white; padding: 10px 15px; font-size: 16px; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: black; font-weight: bold; flex-shrink: 0; }
+        .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
+        
+        /* NOUVEAU BOUTON ENVOYER (AVION PAPIER) */
+        .send-btn { 
+            background: var(--accent); border: none; width: 40px; height: 40px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; color: white;
+            transition: transform 0.2s;
+        }
+        .send-btn:active { transform: scale(0.9); }
+        .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: -2px; }
 
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
 
@@ -215,20 +252,26 @@
         </div>
 
         <div class="input-area">
-            
-            <div class="keyboard-toggle" onclick="toggleInputMode(this)">⌨️</div>
+            <div class="keyboard-toggle" onclick="toggleInputMode(this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+            </div>
 
             <div id="mic-wrapper" class="mic-wrapper">
+                <div class="thinking-wave"></div>
+                <div class="thinking-wave"></div>
+                <div class="thinking-wave"></div>
+                
                 <div id="btn-mic" class="mic-btn">
                     <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                 </div>
             </div>
 
             <div id="text-input-ui" class="text-input-container">
-                <input type="text" id="user-input" class="text-input" placeholder="Écris ici..." onkeypress="handleEnter(event)">
-                <button class="send-btn" onclick="sendText()">→</button>
+                <input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)">
+                <button class="send-btn" onclick="sendText()">
+                    <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
             </div>
-            
         </div>
     </div>
 
@@ -268,6 +311,14 @@
             processWithAI(text); input.value = "";
         }
 
+        // --- GESTION ANIMATION CERVEAU ---
+        function startThinkingAnimation() {
+            document.getElementById('mic-wrapper').classList.add('thinking');
+        }
+        function stopThinkingAnimation() {
+            document.getElementById('mic-wrapper').classList.remove('thinking');
+        }
+
         // --- GESTION UI ---
         function setMode(mode, btn) {
             currentMode = mode;
@@ -290,6 +341,7 @@
         // --- AUDIO ---
         async function playVocalResponse(textToSpeak) {
             document.getElementById('status-text').innerText = "Réponse...";
+            stopThinkingAnimation(); // Arrêt anim
             if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'fr-FR'; utterance.rate = 1.1; 
@@ -320,6 +372,7 @@
         // --- BRIEF MATINAL ---
         async function startMorningBrief() {
             if(isProcessing) return; isProcessing = true;
+            startThinkingAnimation(); // Anim
             document.getElementById('status-text').innerText = "Analyse..."; document.getElementById('status-text').style.opacity = 1;
             const tasksList = []; document.querySelectorAll('.task-text').forEach(el => tasksList.push(el.innerText));
             const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
@@ -330,7 +383,7 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 playVocalResponse(parsed.text);
-            } catch(e) { console.error(e); isProcessing = false; document.getElementById('status-text').innerText = "Erreur"; }
+            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; document.getElementById('status-text').innerText = "Erreur"; }
         }
 
         // --- CHARGE MENTALE ---
@@ -347,7 +400,7 @@
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
-        // --- AJOUT TÂCHE ---
+        // --- AJOUT TÂCHE (AVEC BOUTON VALIDER POSITIF) ---
         function addTaskToUI(text, type, priority = 'NORMAL') {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
@@ -362,12 +415,15 @@
             const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
             const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE');
 
+            // REMPLACEMENT DE LA CROIX PAR UN CHECK SVG VERT
             div.innerHTML = `
                 <div>
                     <div class="task-text">${text} ${syncIcon} ${fireIcon}</div>
                     <div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div>
                 </div>
-                <button class="done-btn" onclick="completeTask(this)">✕</button>
+                <button class="done-btn" onclick="completeTask(this)">
+                    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </button>
             `;
             
             list.appendChild(div);
@@ -382,18 +438,7 @@
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             return {
-                'DUMP': `Assistant TDAH. DATE: ${today}.
-                Réponds UNIQUEMENT en JSON :
-                {
-                    "text": "Confirmation",
-                    "actions": [
-                        { "type": "TODO", "detail": "...", "priority": "NORMAL" },
-                        { "type": "TODO", "detail": "...", "priority": "HIGH" },
-                        { "type": "CALENDAR", "detail": "..." }
-                    ]
-                }
-                REGLES : Agenda -> CALENDAR. Urgent -> priority: HIGH.`,
-                
+                'DUMP': `Assistant TDAH. DATE: ${today}. JSON Strict: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Urgences=HIGH.`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Guide Routine. JSON Strict: { "text": "Checklist de 3-6 étapes.", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Sur quelle tâche on se met en focus ?", "actions": [] }`
@@ -411,14 +456,19 @@
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
             const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
-            rec.onstart = () => { btnMic.classList.add('active'); statusText.style.opacity = 1; statusText.innerText = "Écoute..."; };
+            rec.onstart = () => { 
+                btnMic.classList.add('active'); 
+                statusText.style.opacity = 1; statusText.innerText = "Écoute..."; 
+            };
             rec.onend = () => { btnMic.classList.remove('active'); };
             rec.onresult = (e) => { processWithAI(e.results[0][0].transcript); };
             rec.start();
         }
 
         async function processWithAI(userInput) {
-            isProcessing = true; statusText.innerText = "Analyse...";
+            isProcessing = true; statusText.innerText = "Réfléchit...";
+            startThinkingAnimation(); // LANCEMENT ANIMATION CERVEAU
+            
             const currentPrompts = getPrompts();
             const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
@@ -433,7 +483,10 @@
                     });
                 }
                 playVocalResponse(parsed.text);
-            } catch (e) { console.error(e); statusText.innerText = "Erreur"; isProcessing = false; }
+            } catch (e) { 
+                console.error(e); stopThinkingAnimation(); 
+                statusText.innerText = "Erreur"; isProcessing = false; 
+            }
         }
     </script>
 </body>
