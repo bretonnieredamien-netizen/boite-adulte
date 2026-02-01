@@ -8,12 +8,12 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V20 (NOTIFICATIONS) --- */
+        /* --- DESIGN NEURO V21 (LOGO) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
             --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
-            --reminder: #D500F9; /* VIOLET POUR LES RAPPELS */
+            --reminder: #D500F9;
         }
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
@@ -21,8 +21,12 @@
         /* HEADER */
         .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
-        .app-title { font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white; }
-        .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; margin-top: 2px; }
+        
+        /* LOGO STYLES (NOUVEAU) */
+        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .app-logo { width: 40px; height: 40px; fill: var(--accent); filter: drop-shadow(0 0 5px rgba(41, 121, 255, 0.5)); margin-bottom: 2px; }
+
+        .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .mood-btn { position: absolute; left: 20px; top: 0; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
@@ -42,8 +46,6 @@
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
-        
-        /* NOUVEAU STYLE RAPPEL */
         .task-item.reminder { border-left: 4px solid var(--reminder) !important; background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
 
         .task-text { font-size: 15px; font-weight: 500; outline: none; flex: 1; }
@@ -148,10 +150,19 @@
                 <span>🛡️</span> ZEN
             </button>
 
-            <div style="text-align:center;">
-                <h1 class="app-title">NEURO</h1>
+            <div class="app-logo-container">
+                <svg class="app-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor" opacity="0.2"/>
+                    <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6ZM12 16C9.79 16 8 14.21 8 12C8 9.79 9.79 8 12 8C14.21 8 16 9.79 16 12C16 14.21 14.21 16 12 16Z" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                    <circle cx="8.5" cy="8.5" r="1" fill="currentColor"/>
+                    <circle cx="15.5" cy="8.5" r="1" fill="currentColor"/>
+                    <circle cx="8.5" cy="15.5" r="1" fill="currentColor"/>
+                    <circle cx="15.5" cy="15.5" r="1" fill="currentColor"/>
+                </svg>
                 <div id="user-display" class="user-greeting">ASSISTANT</div>
             </div>
+            
             <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
         </div>
         <div class="monitor-wrapper">
@@ -250,7 +261,6 @@
             loadTasks(); updateMentalLoad(); renderRoutines();
             initSpeech();
             loadMood();
-            // Demande permission notif
             if ("Notification" in window) Notification.requestPermission();
         });
 
