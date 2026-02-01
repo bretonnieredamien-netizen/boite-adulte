@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V31 (NAVIGATION CORRIGÉE) --- */
+        /* --- DESIGN NEURO V32 (LAYOUT CLEAN) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -16,114 +16,154 @@
             --reminder: #D500F9; --capacity: #00E5FF;
         }
         
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
-        /* GESTION DES VUES (IMPORTANT POUR LE FIX) */
-        .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
-        .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* SIDEBAR CAPACITÉ (Gauche) */
+        /* FIX: bottom: 110px pour ne pas toucher les icones du bas */
+        .capacity-sidebar { 
+            position: fixed; left: 0; top: 0; bottom: 110px; width: 30px; 
+            background: #0f0f0f; border-right: 1px solid #222; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
+            padding-bottom: 10px; z-index: 40; 
+        }
+        .capacity-track { width: 6px; height: 100%; background: #222; border-radius: 3px; position: relative; overflow: hidden; margin-bottom: 10px; margin-top: 60px; /* Espace pour header */ }
+        .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); }
+        .capacity-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; color: #666; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+        .capacity-value { font-size: 9px; font-weight: bold; color: var(--capacity); writing-mode: vertical-rl; transform: rotate(180deg); }
 
         /* HEADER */
-        .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; }
-        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .header { padding-top: 10px; padding-bottom: 5px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; height: 50px; }
+        
         .app-logo-svg { width: 120px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
-        /* BOUTONS HEADER */
-        .header-btn { position: absolute; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; }
-        .mood-btn { left: 0px; }
+        /* BOUTONS HEADER FIXES */
+        .header-btn { position: absolute; top: 12px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
+        .mood-btn { left: 10px; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
-        .sound-btn { right: 0px; }
-        .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
-        .brief-btn { position: absolute; right: 0; bottom: -35px; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 10px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
+        
+        .sound-btn { right: 10px; } /* Décalé pour laisser la place au Brief si besoin, mais Brief est au centre maintenant ? Non Brief à droite */
+        .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
+        .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
+        @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
 
-        /* SIDEBAR CAPACITÉ */
-        .capacity-sidebar { position: fixed; left: 0; top: 0; bottom: 90px; width: 30px; background: #0f0f0f; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px; z-index: 40; }
-        .capacity-track { width: 6px; height: 70%; background: #222; border-radius: 3px; position: relative; overflow: hidden; margin-bottom: 10px; }
-        .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); }
-        .capacity-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; color: #666; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
-        .capacity-value { font-size: 9px; font-weight: bold; color: var(--capacity); writing-mode: vertical-rl; transform: rotate(180deg); }
+        /* BRIEF REMONTÉ (Positionné sous le logo ou à côté) */
+        /* Je le mets en haut à droite, sous le bouton son, ou centré sous le logo */
+        .brief-btn { 
+            position: absolute; top: 45px; right: 10px; /* Remonté */
+            background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); 
+            font-size: 9px; font-weight: bold; padding: 2px 8px; border-radius: 10px; cursor: pointer; 
+            z-index: 20; display: flex; align-items: center; gap: 3px; 
+        }
 
-        /* MONITOR */
-        .monitor-wrapper { width: 85%; margin: 10px auto 5px auto; }
-        .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .load-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        /* MONITOR CHARGE MENTALE (Visible seulement sur Vider/Focus) */
+        .monitor-wrapper { width: 90%; margin: 5px auto 5px auto; transition: opacity 0.3s; opacity: 1; }
+        .monitor-wrapper.hidden { opacity: 0; pointer-events: none; height: 0; margin: 0; overflow: hidden; }
+        
+        .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; width: 100%; display: flex; justify-content: space-between; }
+        .load-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: width 0.6s; }
 
-        /* CONTENT AREA */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; }
-        
-        /* 1. VIEW: LISTE (DUMP) */
-        .task-container { padding: 20px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* CONTENT */
+        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; padding-top: 10px; }
+        .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
+        .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 1. TASK LIST */
+        .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
+        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .task-item:active { transform: scale(0.98); }
         .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left-color: #FF4081; background: #1F1518; order: -1; }
         .task-item.reminder { border-left-color: var(--reminder); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
-        .task-text { font-size: 14px; font-weight: 500; }
+        .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 9px; opacity: 0.6; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
-        .time-badge { background: #333; color: var(--capacity); padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; gap: 3px; border: 1px solid rgba(0, 229, 255, 0.2); }
-        
-        /* 2. VIEW: FOCUS (GRID) */
-        #view-focus { padding: 20px; }
-        .focus-title { text-align: center; font-weight: 900; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px; font-size: 12px; }
-        .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 100px; }
-        .focus-card { 
-            background: #151515; border: 1px solid #333; border-radius: 16px; aspect-ratio: 1; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            text-align: center; padding: 15px; cursor: pointer; transition: all 0.2s;
-        }
-        .focus-card:active { transform: scale(0.95); background: #222; border-color: var(--accent); }
-        .focus-icon { font-size: 24px; margin-bottom: 8px; filter: grayscale(1); }
-        .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
+        .time-badge { background: #333; color: var(--capacity); padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid rgba(0, 229, 255, 0.2); }
+        .time-badge svg { width: 9px; height: 9px; fill: currentColor; }
+        .priority-badge, .sync-badge, .reminder-badge { display: none; margin-left: 5px; }
+        .task-item.priority-high .priority-badge, .task-item.calendar .sync-badge, .task-item.reminder .reminder-badge { display: inline; }
+        .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
+        .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        /* FOCUS LASER ACTIVE */
-        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; }
-        .laser-title { font-size: 10px; color: #666; letter-spacing: 4px; margin-bottom: 30px; font-weight: 900; }
-        .laser-task { font-size: 24px; font-weight: 900; color: white; margin-bottom: 30px; text-shadow: 0 0 20px rgba(41, 121, 255, 0.5); }
-        .laser-ai-box { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--success); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 40px; }
+        /* 2. FOCUS */
+        #view-focus { padding: 10px; }
+        .focus-title { text-align: center; font-weight: 900; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px; font-size: 12px; }
+        .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 100px; }
+        .focus-card { background: #151515; border: 1px solid #333; border-radius: 16px; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; cursor: pointer; }
+        .focus-card:active { background: #222; border-color: var(--accent); }
+        .focus-icon { font-size: 24px; margin-bottom: 5px; filter: grayscale(1); }
+        .focus-text { font-size: 11px; font-weight: bold; color: #BBB; line-height: 1.2; }
+        
+        /* LASER MODE */
+        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; animation: zoomIn 0.3s; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .laser-title { font-size: 10px; color: #666; letter-spacing: 4px; margin-bottom: 20px; font-weight: 900; }
+        .laser-task { font-size: 22px; font-weight: 900; color: white; margin-bottom: 20px; text-shadow: 0 0 20px rgba(41, 121, 255, 0.5); }
+        .laser-ai-box { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--success); padding: 15px; border-radius: 12px; width: 100%; margin-bottom: 30px; }
         .laser-ai-label { color: var(--success); font-size: 9px; font-weight: 900; letter-spacing: 1px; display: block; margin-bottom: 5px; }
-        .laser-ai-text { font-size: 16px; font-style: italic; color: #DDD; }
-        .laser-btn { background: var(--success); color: black; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 900; font-size: 16px; box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); }
+        .laser-ai-text { font-size: 14px; font-style: italic; color: #DDD; }
+        .laser-btn { background: var(--success); color: black; border: none; padding: 15px 40px; border-radius: 50px; font-weight: 900; font-size: 14px; box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); }
         .laser-back { margin-top: 20px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; }
 
-        /* CONTROLS */
-        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:30px; }
-        .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
-        .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
+        /* ROUTINES */
+        .routine-container { display: flex; flex-direction: column; padding: 10px; gap: 10px; }
+        .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 15px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; position: relative; }
+        .routine-delete-btn { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .routine-icon { font-size: 24px; }
+        .routine-name { font-weight: 800; font-size: 12px; text-transform: uppercase; }
+        .active-routine-view { display: none; flex-direction: column; height: 100%; }
+        .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 0 10px; }
+        .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
+        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .delete-step-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+        /* POMO */
+        .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
+        .pomo-timer { font-size: 70px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; }
+        .pomo-controls { display: flex; gap: 20px; }
+        .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 16px; }
+
+        /* CONTROLS (BOTTOM) */
+        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:30px; }
+        .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 10px; width: 100%; justify-content: center; }
+        .mode-card { background: var(--bg-card); padding: 8px 12px; border-radius: 12px; min-width: 70px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
-        .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
-        .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .mode-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+        .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
         
-        .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
-        .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .input-area { position: relative; width: 100%; height: 90px; display: flex; align-items: center; justify-content: center; }
+        .mic-wrapper { width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; position: relative; }
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
-        .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); cursor: pointer; }
-        .mic-btn svg { width: 30px; height: 30px; fill: white; }
+        .mic-wrapper.is-recording svg { fill: var(--danger); }
+        .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
+        .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
+        .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
+        .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
+        .mic-btn { z-index: 2; width: 60px; height: 60px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); cursor: pointer; }
+        .mic-btn svg { width: 24px; height: 24px; fill: white; }
         
-        .keyboard-toggle { position: absolute; left: 20px; bottom: 45px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; }
+        .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 35px; height: 35px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .text-input-container { position: absolute; left: 60px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
-        .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
+        .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
+        .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
 
-        /* ONBOARDING */
-        .onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .onboarding-overlay.show { display: flex; }
+        /* ONBOARDING & ZEN */
+        .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
         .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
         .save-name-btn { background: var(--accent); color: white; padding: 15px 40px; border-radius: 30px; font-weight: bold; border: none; font-size: 16px; }
-        
-        /* ROUTINES (Manquants) */
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
-        .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .routine-icon { font-size: 32px; }
-        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
-        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; text-align: center; margin-top: 50px; }
-        .pomo-controls { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
-        .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; }
+        .zen-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--success); box-shadow: 0 0 50px var(--success); margin-bottom: 20px; animation: breathe 4s infinite ease-in-out; }
     </style>
 </head>
 <body>
@@ -132,6 +172,10 @@
         <div style="font-size:24px; font-weight:900; margin-bottom:20px; color:var(--accent);">Comment t'appelles-tu ?</div>
         <input type="text" id="username-input" class="name-input" placeholder="Ton prénom...">
         <button class="save-name-btn" onclick="saveUsername()">C'est parti !</button>
+    </div>
+
+    <div id="zen-popup" class="zen-overlay" onclick="closeZen()">
+        <div class="zen-circle"></div><div class="zen-text">ESPRIT LIBRE</div>
     </div>
 
     <div class="capacity-sidebar">
@@ -144,9 +188,10 @@
         <div class="header-content">
             <button id="mood-btn" class="header-btn mood-btn zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
             <button id="sound-btn" class="header-btn sound-btn" onclick="toggleBrownNoise()"><span>🎧</span> FOCUS</button>
+            <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
 
             <div class="app-logo-container">
-                <svg class="app-logo-svg" viewBox="0 0 200 130">
+                <svg class="app-logo-svg" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
                     <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
                     <path class="brain-pulse" d="M60 40 Q40 40 35 60 T35 90 Q40 110 60 110 L90 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
                     <path class="brain-pulse" d="M140 40 Q160 40 165 60 T165 90 Q160 110 140 110 L110 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
@@ -159,17 +204,15 @@
                 </svg>
                 <div id="user-display" class="user-greeting"></div>
             </div>
-            
-            <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
         </div>
-        <div class="monitor-wrapper">
+        
+        <div id="monitor-ui" class="monitor-wrapper">
             <div class="monitor-title"><span>CHARGE MENTALE</span><span id="stress-level" style="color:var(--success)">BASSE</span></div>
             <div class="load-track"><div id="load-bar" class="load-fill"></div></div>
         </div>
     </div>
 
     <div class="content-area">
-        
         <div id="view-dump" class="view-section active">
             <div class="task-container" id="task-list">
                 <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div>
@@ -217,7 +260,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="bottom-controls">
@@ -232,6 +274,7 @@
             <div class="keyboard-toggle" onclick="toggleInputMode(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg></div>
             <div id="mic-wrapper" class="mic-wrapper">
                 <div id="btn-mic" class="mic-btn" onclick="toggleRecording()"><svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg><svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg></div>
+                <div class="thinking-wave"></div><div class="thinking-wave" style="animation-delay:0.3s"></div>
             </div>
             <div id="text-input-ui" class="text-input-container"><input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)"><button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>
         </div>
@@ -241,30 +284,34 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
+        // DATA
+        const POSITIVE_PHRASES = ["Tu as tout ce qu'il faut.", "Respire, tu gères.", "Une étape à la fois.", "Bravo d'être là.", "Ton cerveau est unique.", "Pas de pression.", "Tu es un champion.", "Concentration et calme.", "Tu avances.", "Fais-toi confiance."];
+        const TRANSITION_PHRASES = ["Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :", "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :"];
+        const CLOSING_PHRASES = { 'MATIN': ["Bonne journée !"], 'SOIR': ["Bonne nuit."], 'SPORT': ["Bien joué !"], 'TRAVAIL': ["Bon courage !"], 'DEFAULT': ["C'est parti !"] };
+
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
+        let isProcessing = false; isTextMode = false; recognition = null; isRecording = false; finalTranscript = '';
+        let timerInterval = null; timeLeft = 25 * 60; isTimerRunning = false;
         let username = "Champion";
         let audioCtx, brownNoiseNode, gainNode, isNoisePlaying = false;
-        let laserTask = null;
+        let currentFocusTask = null; // Tâche en cours de focus
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
-            initSpeech(); loadMood();
+            initSpeech(); loadMood(); if ("Notification" in window) Notification.requestPermission();
         });
 
-        // --- NAVIGATION SYSTEM (NEW) ---
+        // --- NAVIGATION SYSTEM ---
         function switchView(viewName, btn) {
-            // Update active button
-            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Hide all sections
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); btn.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            
-            // Show target section
             document.getElementById(`view-${viewName}`).classList.add('active');
             
-            // Logic specific to view
+            // HIDE/SHOW MENTAL LOAD MONITOR
+            const monitor = document.getElementById('monitor-ui');
+            if (viewName === 'dump' || viewName === 'focus') monitor.classList.remove('hidden'); else monitor.classList.add('hidden');
+
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             
@@ -277,7 +324,6 @@
             const grid = document.getElementById('focus-grid');
             const tasksHTML = document.getElementById('task-list').innerHTML;
             
-            // Masquer le laser si on revient
             document.getElementById('focus-picker-wrapper').style.display = 'block';
             document.getElementById('focus-laser-wrapper').style.display = 'none';
 
@@ -286,7 +332,6 @@
                 return;
             }
 
-            // Convertir la liste en grille
             grid.innerHTML = "";
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = tasksHTML;
@@ -303,17 +348,15 @@
         }
 
         async function activateLaserMode(taskText) {
-            laserTask = taskText;
+            currentFocusTask = taskText;
             document.getElementById('focus-picker-wrapper').style.display = 'none';
             document.getElementById('focus-laser-wrapper').style.display = 'flex';
             document.getElementById('laser-current-task').innerText = taskText;
-            
-            // IA Suggestion
             document.getElementById('laser-ai-suggestion').style.display = 'none';
             document.getElementById('status-text').innerText = "Analyse...";
             
             try {
-                const prompt = `Coach TDAH. Tâche: "${taskText}". Donne UNE SEULE micro-étape ridicule pour démarrer (ex: "Ouvre le fichier"). Très court.`;
+                const prompt = `Coach TDAH pour ${username}. Tâche: "${taskText}". Donne UNE SEULE micro-étape ridicule pour commencer (ex: "Ouvre le fichier"). Très court.`;
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) });
                 const data = await rep.json();
                 document.getElementById('laser-micro-text').innerText = data.text.replace(/\*/g, '');
@@ -325,15 +368,9 @@
         function completeLaserTask() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             playVocalResponse("Bravo !");
-            
-            // Delete from main list
             const list = document.getElementById('task-list');
             const items = list.querySelectorAll('.task-item');
-            items.forEach(item => {
-                if(item.querySelector('.task-text').innerText.includes(laserTask)) {
-                    item.remove();
-                }
-            });
+            items.forEach(item => { if(item.querySelector('.task-text').innerText.includes(currentFocusTask)) item.remove(); });
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
             setTimeout(exitLaserMode, 2000);
         }
@@ -344,8 +381,54 @@
             renderFocusGrid();
         }
 
+        // --- BUTTONS FIX (AUDIO & MOOD) ---
+        function toggleMood() { 
+            currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; 
+            localStorage.setItem('neuro_mood', currentMood); 
+            updateMoodUI(); 
+            playVocalResponse(currentMood === 'ZEN' ? "Mode Zen activé." : "Mode Boost activé !"); 
+        }
+        function updateMoodUI() { 
+            const btn = document.getElementById('mood-btn'); 
+            if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } 
+            else { btn.className = "header-btn mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } 
+        }
+        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
+
+        function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
+        function startBrownNoise() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 4096;
+            const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+            brownNoise.onaudioprocess = function(e) {
+                const output = e.outputBuffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    output[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = output[i];
+                    output[i] *= 3.5; 
+                }
+            };
+            let lastOut = 0;
+            gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.15;
+            brownNoise.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            brownNoiseNode = brownNoise;
+            isNoisePlaying = true;
+            const btn = document.getElementById('sound-btn');
+            btn.classList.add('active');
+            btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`;
+        }
+        function stopBrownNoise() {
+            if (brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; }
+            isNoisePlaying = false;
+            const btn = document.getElementById('sound-btn');
+            btn.classList.remove('active');
+            btn.innerHTML = `<span>🎧</span> FOCUS`;
+        }
+
         // --- CORE FUNCTIONS (TASK, IA, ETC.) ---
-        // (Identique V26 mais adapté aux nouveaux IDs)
         function addTaskToUI(text, type, priority='NORMAL', duration=15) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
@@ -362,7 +445,7 @@
             div.innerHTML = `
                 <div class="task-content">
                     <div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div>
-                    <div class="task-sub">${timeBadge} <span>${isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'))}</span></div>
+                    <div class="task-sub">${timeBadge}<span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'))}</span></div>
                 </div>
                 <div class="actions-group">
                     <button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>
@@ -370,57 +453,53 @@
             list.appendChild(div); saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- STANDARD JS (COPIED FROM V26 FOR STABILITY) ---
+        // --- STANDARD JS ---
         function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
-        
-        function updateMentalLoad() { 
-            const items = document.querySelectorAll('#task-list .task-item'); let score = 0;
-            items.forEach(i => { if(i.classList.contains('priority-high')) score+=3; else score+=1; });
-            const p = Math.min((score/12)*100, 100); document.getElementById('load-bar').style.width = p+"%";
-            const st = document.getElementById('stress-level');
-            if(score===0) { st.innerText="ZEN"; st.style.color="var(--success)"; } else if(p<85) { st.innerText="OK"; st.style.color="var(--warning)"; } else { st.innerText="HIGH"; st.style.color="var(--danger)"; }
-        }
-        function updateDailyCapacity() {
-            const items = document.querySelectorAll('#task-list .task-item'); let mins = 0;
-            items.forEach(i => { mins += parseInt(i.getAttribute('data-duration')) || 15; });
-            const p = Math.min((mins/360)*100, 100); document.getElementById('capacity-bar').style.height = p+"%";
-            const h=Math.floor(mins/60); const m=mins%60; document.getElementById('capacity-value').innerText = (mins>0)?`${h}h${m>0?m:''}`:"0h";
-        }
-
-        // --- IA & SPEECH ---
-        let isRecording = false; let recognition = null;
-        function initSpeech() { const S = window.SpeechRecognition || window.webkitSpeechRecognition; if(S) { recognition = new S(); recognition.lang='fr-FR'; recognition.continuous=true; recognition.interimResults=true; recognition.onresult = (e)=>{ for(let i=e.resultIndex; i<e.results.length; ++i) if(e.results[i].isFinal) finalTranscript+=e.results[i][0].transcript+' '; }; recognition.onerror=()=>{stopRec()}; } }
-        function toggleRecording() { if(!isRecording) { finalTranscript=''; try{recognition.start(); isRecording=true; document.getElementById('mic-wrapper').classList.add('is-recording');}catch(e){recognition.stop();} } else { recognition.stop(); isRecording=false; document.getElementById('mic-wrapper').classList.remove('is-recording'); setTimeout(()=>{ if(finalTranscript.trim()) processWithAI(finalTranscript); },800); } }
-        function stopRec() { isRecording=false; document.getElementById('mic-wrapper').classList.remove('is-recording'); }
-        
-        async function processWithAI(input) {
-            document.getElementById('mic-wrapper').classList.add('thinking');
-            const prompt = `Assistant TDAH. User: ${input}. JSON: { "text": "Ok", "actions": [{"type":"TODO", "detail":"...", "duration":15}] }`;
-            try {
-                const r = await fetch(`${API_BASE_URL}/api/gemini`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:prompt}) });
-                const d = await r.json();
-                const p = JSON.parse(d.text.replace(/```json|```/g,'').trim());
-                if(p.actions) p.actions.forEach(a => addTaskToUI(a.detail, a.type, 'NORMAL', a.duration));
-                playVocalResponse(p.text);
-            } catch(e){ console.error(e); }
-            document.getElementById('mic-wrapper').classList.remove('thinking');
-        }
-        
-        async function playVocalResponse(txt) { const u = new SpeechSynthesisUtterance(txt); u.lang='fr-FR'; window.speechSynthesis.speak(u); }
-        
-        // --- ONBOARDING & EXTRAS ---
-        function checkOnboarding() { if(localStorage.getItem('neuro_username')) document.getElementById('user-display').innerText = localStorage.getItem('neuro_username'); else document.getElementById('onboarding-modal').classList.add('show'); }
-        function saveUsername() { localStorage.setItem('neuro_username', document.getElementById('username-input').value); document.getElementById('onboarding-modal').classList.remove('show'); document.getElementById('user-display').innerText = document.getElementById('username-input').value; }
-        function toggleMood() { /* Placeholder */ }
-        function toggleBrownNoise() { /* Placeholder */ }
-        function startMorningBrief() { /* Placeholder */ }
-        
-        // ROUTINES (Minimal)
-        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); d.className='routine-card-item'; d.innerHTML=`<span class='routine-name'>${k}</span>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
-        function launchRoutine(name) { /* Placeholder */ }
+        function updateMentalLoad() { const items = document.querySelectorAll('#task-list .task-item'); let score = 0; items.forEach(i => { if(i.classList.contains('priority-high')) score+=3; else score+=1; }); const p = Math.min((score/12)*100, 100); document.getElementById('load-bar').style.width = p+"%"; const st = document.getElementById('stress-level'); if(score===0) { st.innerText="ZEN"; st.style.color="var(--success)"; } else if(p<85) { st.innerText="MOY"; st.style.color="var(--warning)"; } else { st.innerText="HAUTE"; st.style.color="var(--danger)"; } }
+        function updateDailyCapacity() { const items = document.querySelectorAll('#task-list .task-item'); let mins = 0; items.forEach(i => { mins += parseInt(i.getAttribute('data-duration')) || 15; }); const p = Math.min((mins/360)*100, 100); document.getElementById('capacity-bar').style.height = p+"%"; const h=Math.floor(mins/60); const m=mins%60; document.getElementById('capacity-value').innerText = (mins>0)?`${h}h${m>0?m:''}`:"0h"; }
+        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; document.getElementById('user-display').innerText = username; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
+        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('user-display').innerText = username; document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
+        async function startOnboardingSequence(name) { isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation(); const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE. Finis par motivation.`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); playVocalResponse(data.text.replace(/\*/g, '')); } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); } }
+        function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
+        function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { stopRecordingState(); }; }
+        function toggleRecording() { if (isProcessing) { isProcessing = false; stopThinkingAnimation(); } if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute..."; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); } }
+        function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
+        function updateMicVisuals(rec) { const w = document.getElementById('mic-wrapper'); const m = document.getElementById('icon-mic'); const s = document.getElementById('icon-stop'); if(rec) { w.classList.add('is-recording'); m.style.display='none'; s.style.display='block'; } else { w.classList.remove('is-recording'); m.style.display='block'; s.style.display='none'; } }
+        function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
+        function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
+        async function processWithAI(userInput) { isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation(); const currentPrompts = getPrompts(); const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) }); const data = await rep.json(); let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim()); if (currentMode === 'ROUTINE') { if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); stopThinkingAnimation(); isProcessing = false; return; } else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Inconnue.`); } stopThinkingAnimation(); isProcessing = false; return; } } if(parsed.actions) { parsed.actions.forEach(a => { addTaskToUI(a.detail, a.type, 'NORMAL', a.duration); if(a.type === 'CALENDAR' || a.type === 'REMINDER') sendToCalendar(a.detail); }); } playVocalResponse(parsed.text); } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; } }
+        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
+        async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
+        function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
+        function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
+        function deleteStepFromRoutine(n, i) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const k = Object.keys(r).find(x => x === n.toLowerCase()); if (k) { r[k].splice(i, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(n); } }
+        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); d.className='routine-card-item'; d.innerHTML=`<span class='routine-icon'>⚡</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
+        function launchRoutine(n) { const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const s = r[n.toLowerCase()]; if(!s) return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l = document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((step, i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}', ${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
+        function readActiveRoutine() { const l=document.getElementById('routine-steps-list'); let t=`Routine ${document.getElementById('active-routine-name').innerText}. `; l.querySelectorAll('.task-text').forEach(e=>t+=e.innerText+". "); playVocalResponse(t); }
+        function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0) { playVocalResponse("Terminé !"); exitRoutine(); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
+        function toggleInputMode(btn) { isTextMode = !isTextMode; const micUI = document.getElementById('mic-wrapper'); const textUI = document.getElementById('text-input-ui'); if(isTextMode) { micUI.style.opacity = 0; micUI.style.pointerEvents = 'none'; textUI.classList.add('show'); btn.classList.add('active'); document.getElementById('user-input').focus(); } else { micUI.style.opacity = 1; micUI.style.pointerEvents = 'all'; textUI.classList.remove('show'); btn.classList.remove('active'); } }
+        function handleEnter(e) { if(e.key === 'Enter') sendText(); }
+        function sendText() { const input = document.getElementById('user-input'); if(input.value.trim()){ processWithAI(input.value); input.value=""; } }
+        function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
+        function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); confetti(); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
+        function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
+        function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
+        async function startMorningBrief() {
+            if(isProcessing) return; isProcessing = true; startThinkingAnimation();
+            const tasksList = []; document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const briefPrompt = `Assistant TDAH pour ${username}. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour ${username} 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
+                const data = await rep.json();
+                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
+                playVocalResponse(parsed.text);
+            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; }
+        }
     </script>
 </body>
 </html>
