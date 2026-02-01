@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V23 (LOGO CERVEAU TECH) --- */
+        /* --- DESIGN NEURO V24 (LOGO FINAL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -19,20 +19,23 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
-        .header-content { display: flex; align-items: center; justify-content: center; position: relative; gap: 10px; }
+        .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
         
-        /* LOGO STYLES (V23) */
-        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .app-logo { width: 48px; height: 48px; fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.6)); margin-bottom: 4px; }
+        /* --- LOGO COMPILÉ SVG (STYLE IMAGE) --- */
+        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 5px; }
+        .app-logo-svg { width: 140px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        
+        /* Animation subtile du cerveau */
+        .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
+        @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
-        .user-greeting { font-size: 10px; color: var(--accent); font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
-        .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
-        .mood-btn { position: absolute; left: 20px; top: 0; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
+        .brief-btn { position: absolute; right: 20px; top: 15px; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
+        .mood-btn { position: absolute; left: 20px; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
 
-        .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
+        .monitor-wrapper { width: 85%; margin: 10px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
         .load-track { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.3); }
@@ -40,14 +43,11 @@
 
         /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
-        
-        /* TASKS */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
         .task-item.reminder { border-left: 4px solid var(--reminder) !important; background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
-
         .task-text { font-size: 15px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
@@ -56,7 +56,6 @@
         .task-item.calendar .sync-badge { display: inline; }
         .reminder-badge { font-size: 12px; display: none; margin-left: 5px; }
         .task-item.reminder .reminder-badge { display: inline; }
-
         .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
@@ -151,15 +150,26 @@
             </button>
 
             <div class="app-logo-container">
-                <svg class="app-logo" viewBox="0 0 24 24">
-                    <path d="M18.6,6.62c-1.44,0-2.8.56-3.77,1.53L12,10.66 9.17,7.83c-0.97-0.97-2.33-1.53-3.77-1.53C2.42,6.3 0,8.72 0,11.72c0,1.38.56,2.68 1.57,3.69l3.35,3.35c0.57,0.57 1.32,0.88 2.12,0.88s1.55-0.31 2.12-0.88L12,16.03l2.83,2.83c0.57,0.57 1.32,0.88 2.12,0.88s1.55-0.31 2.12-0.88l3.35-3.35C23.44,14.4 24,13.1 24,11.72C24,8.72 21.58,6.3 18.6,6.62zM5.4,14.63c-0.37,0.37-0.87,0.57-1.39,0.57s-1.02-0.2-1.39-0.57l-1.3-1.3c-0.37-0.37-0.57-0.87-0.57-1.39s0.2-1.02 0.57-1.39C2.43,9.44 4.09,9.44 5.2,10.55l2.12,2.12L5.4,14.63zM10.59,16.03l-1.41-1.41L12,11.79l2.83,2.83l-1.41,1.41L12,14.62L10.59,16.03zM18.6,14.63l-1.92-1.92 2.12-2.12c1.11-1.11 2.77-1.11 3.89,0c0.37,0.37 0.57,0.87 0.57,1.39s-0.2,1.02-0.57,1.39l-1.3,1.3c-0.37,0.37-0.87,0.57-1.39,0.57S18.97,15 18.6,14.63z" fill="currentColor" fill-opacity="0.3"/>
-                    <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-                    <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
-                    <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
-                    <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
-                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <svg class="app-logo-svg" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <path class="brain-pulse" d="M60 40 Q40 40 35 60 T35 90 Q40 110 60 110 L90 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+                    <path class="brain-pulse" d="M140 40 Q160 40 165 60 T165 90 Q160 110 140 110 L110 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+                    <path d="M60 55 L80 55 L90 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
+                    <path d="M140 55 L120 55 L110 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
+                    <circle cx="90" cy="70" r="3" fill="#2979FF"/>
+                    <circle cx="110" cy="70" r="3" fill="#2979FF"/>
+                    <line x1="90" y1="70" x2="110" y2="70" stroke="#2979FF" stroke-width="2"/>
+                    <text x="100" y="130" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="white" text-anchor="middle" letter-spacing="4">NEURO</text>
+                    <text x="100" y="145" font-family="'Inter', sans-serif" font-weight="700" font-size="8" fill="#2979FF" text-anchor="middle" letter-spacing="2">ASSISTANT</text>
                 </svg>
-                <div id="user-display" class="user-greeting">ASSISTANT</div>
             </div>
             
             <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
@@ -269,8 +279,8 @@
         function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
 
         // --- ONBOARDING ---
-        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; document.getElementById('user-display').innerText = username; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
-        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('user-display').innerText = username; document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
+        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
+        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
         async function startOnboardingSequence(name) { isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation(); const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe, tri auto urgences). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE (Habitudes). Finis par motivation. Texte simple pour oral.`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); playVocalResponse(data.text.replace(/\*/g, '')); } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
 
@@ -359,14 +369,10 @@
             const isRem = (type === 'REMINDER');
             const isHigh = (priority === 'HIGH');
             
-            // Classes CSS
             div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
-            
-            // Icones badges
             const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : '';
             const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : '';
             const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
-            
             let label = 'TÂCHE';
             if (isCal) label = 'AGENDA';
             if (isRem) label = 'RAPPEL';
