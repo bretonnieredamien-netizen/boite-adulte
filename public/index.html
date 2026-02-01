@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V7 --- */
+        /* --- DESIGN NEURO V8 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -39,15 +39,12 @@
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
         
-        /* BOUTONS ACTIONS */
+        /* ACTIONS */
         .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
-        
-        /* BOUTON SUPPRIMER ETAPE (ROUTINE) */
         .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
-
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
@@ -89,23 +86,29 @@
         /* INPUT AREA */
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
+        
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
         .mic-wrapper.is-recording svg { fill: var(--danger); }
+        
         .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
         .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
         .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
         .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
+
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
+        
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
+
         .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform 0.2s; }
         .send-btn:active { transform: scale(0.9); }
         .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: -2px; }
+
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
@@ -196,28 +199,28 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
-        // PHRASES POSITIVES (ALEATOIRES)
+        // PHRASES POSITIVES
         const POSITIVE_PHRASES = [
-            "C'est une belle journée qui commence !",
-            "Tu vas tout déchirer aujourd'hui.",
-            "Prends ton temps, tu es le meilleur.",
-            "Chaque petite victoire compte.",
-            "Respire, tu gères.",
-            "Tu es capable de grandes choses.",
-            "On y va, étape par étape.",
-            "Fais-toi confiance.",
-            "Ta neuroatypie est ta force.",
+            "Tu as tout ce qu'il faut pour réussir.",
+            "Respire un grand coup, tu gères.",
+            "Une étape à la fois, c'est le secret.",
+            "Bravo d'être là pour toi aujourd'hui.",
+            "Ton cerveau est unique, utilise-le à ton avantage.",
             "Pas de pression, juste de l'action.",
-            "Tu es un champion.",
-            "Rien ne t'arrête aujourd'hui.",
-            "Focus et sérénité.",
-            "Bravo d'être là pour toi.",
+            "Tu es un champion du quotidien.",
+            "Chaque petite croix est une victoire.",
+            "Concentration et calme.",
             "Tu avances, et c'est ce qui compte.",
+            "Fais-toi confiance.",
+            "Ta neuroatypie est une force.",
+            "Aujourd'hui est une bonne journée.",
+            "Rien ne t'arrête.",
+            "Sois fier de chaque effort.",
+            "L'important c'est de commencer.",
+            "Tu es capable de grandes choses.",
             "Garde le sourire, tu es génial.",
-            "Une chose à la fois, tout va bien.",
-            "Ta créativité est un don.",
-            "Sois fier de toi.",
-            "Allez, on attaque en douceur !"
+            "On y va, tranquillement mais sûrement.",
+            "Tu es aux commandes."
         ];
 
         let currentMode = 'DUMP';
@@ -302,7 +305,6 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                // ROUTINE LOGIC
                 if (currentMode === 'ROUTINE') {
                     if (parsed.command === 'SAVE_ROUTINE') {
                         saveRoutine(parsed.name, parsed.steps);
@@ -316,32 +318,23 @@
                             routines[key].push(parsed.add_step);
                             localStorage.setItem('neuro_routines', JSON.stringify(routines));
                             renderRoutines();
-                            // Si la routine est affichée, on met à jour la vue
-                            if(document.getElementById('active-routine-view').style.display === 'flex') {
-                                launchRoutine(key);
-                            }
+                            if(document.getElementById('active-routine-view').style.display === 'flex') { launchRoutine(key); }
                             playVocalResponse(`Ajouté "${parsed.add_step}" à ${parsed.name}.`);
-                        } else {
-                            playVocalResponse(`Je ne trouve pas la routine ${parsed.name}.`);
-                        }
+                        } else { playVocalResponse(`Je ne trouve pas la routine ${parsed.name}.`); }
                         stopThinkingAnimation(); isProcessing = false; return;
                     }
                     else if (parsed.command === 'REMOVE_STEP') {
                         const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
                         const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase());
                         if (key && routines[key]) {
-                            // Filtre intelligent (contient le mot clé)
                             const initialLen = routines[key].length;
                             routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase()));
-                            
                             if (routines[key].length < initialLen) {
                                 localStorage.setItem('neuro_routines', JSON.stringify(routines));
                                 renderRoutines();
                                 if(document.getElementById('active-routine-view').style.display === 'flex') { launchRoutine(key); }
                                 playVocalResponse(`J'ai enlevé l'étape de la routine ${parsed.name}.`);
-                            } else {
-                                playVocalResponse(`Je n'ai pas trouvé l'étape ${parsed.step_keyword}.`);
-                            }
+                            } else { playVocalResponse(`Je n'ai pas trouvé l'étape ${parsed.step_keyword}.`); }
                         }
                         stopThinkingAnimation(); isProcessing = false; return;
                     }
@@ -383,9 +376,9 @@
             let routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
             const key = Object.keys(routines).find(k => k === name.toLowerCase());
             if (key && routines[key]) {
-                routines[key].splice(index, 1); // Supprime l'élément à l'index
+                routines[key].splice(index, 1);
                 localStorage.setItem('neuro_routines', JSON.stringify(routines));
-                launchRoutine(name); // Rafraîchir l'affichage
+                launchRoutine(name);
             }
         }
 
@@ -416,7 +409,6 @@
             document.getElementById('active-routine-name').innerText = name.toUpperCase();
             const list = document.getElementById('routine-steps-list');
             list.innerHTML = "";
-            
             steps.forEach((step, index) => {
                 const div = document.createElement('div');
                 div.className = "task-item"; div.style.borderLeftColor = "#00E676";
@@ -434,12 +426,9 @@
                 list.appendChild(div);
             });
         }
-        function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder pour update complexe */ }
+        function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder update */ }
         
-        function getRandomIntro() {
-            return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)];
-        }
-
+        function getRandomIntro() { return POSITIVE_PHRASES[Math.floor(Math.random() * POSITIVE_PHRASES.length)]; }
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
             let text = "Bonjour ! " + getRandomIntro() + " Voici les étapes : ";
@@ -487,7 +476,7 @@
             document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation();
             if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            utterance.lang = 'fr-FR'; utterance.rate = 1.1; 
+            utterance.lang = 'fr-FR'; utterance.rate = 0.9; 
             const voices = window.speechSynthesis.getVoices();
             const frenchVoice = voices.find(v => v.lang.includes('fr'));
             if(frenchVoice) utterance.voice = frenchVoice;
@@ -495,7 +484,6 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -503,8 +491,8 @@
         function updateMentalLoad() { const list = document.getElementById('task-list'); const count = list.querySelectorAll('.task-item').length; let percent = Math.min((count / 8) * 100, 100); const bar = document.getElementById('load-bar'); bar.style.width = percent + "%"; if (count === 0) { bar.style.background = "var(--success)"; document.getElementById('load-status').innerText = "ESPRIT LIBRE"; document.getElementById('load-status').style.color = "var(--success)"; } else if (percent < 80) { bar.style.background = "var(--warning)"; document.getElementById('load-status').innerText = "CHARGE MOYENNE"; document.getElementById('load-status').style.color = "var(--warning)"; } else { bar.style.background = "var(--danger)"; document.getElementById('load-status').innerText = "SURCHARGE"; document.getElementById('load-status').style.color = "var(--danger)"; } checkZenMode(); }
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
-        function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
-        function completeTask(btn) { const item = btn.parentElement; item.style.transform = "translateX(100%)"; item.style.opacity = "0"; setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); checkZenMode(); }, 300); }
+        function addTaskToUI(text, type, priority = 'NORMAL') { const list = document.getElementById('task-list'); if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; const div = document.createElement('div'); const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH'); div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`; const syncIcon = isCal ? '<span class="sync-badge">☁️</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : ''; const label = isCal ? 'AGENDA' : (isHigh ? 'URGENT' : 'TÂCHE'); div.innerHTML = `<div><div class="task-text">${text} ${syncIcon} ${fireIcon}</div><div class="task-sub" style="color:${isCal ? '#FF8A80' : '#888'}">${label}</div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`; list.appendChild(div); saveTasks(); updateMentalLoad(); }
+        function completeTask(btn) { const item = btn.parentElement.parentElement; item.style.transform = "translateX(100%)"; item.style.opacity = "0"; setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); checkZenMode(); }, 300); }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
@@ -516,20 +504,11 @@
             return {
                 'DUMP': `Assistant TDAH. DATE: ${today}. JSON Strict: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
-                
-                // INTELLIGENCE ROUTINES RENFORCÉE
-                'ROUTINE': `Expert Organisation.
-                Routines existantes : [${existingRoutines}].
-                Analyse l'intention :
-                1. CRÉATION (ex: "Crée routine matin : lit, café") ->
-                   JSON : { "text": "Routine créée.", "command": "SAVE_ROUTINE", "name": "matin", "steps": ["Faire lit", "Café"] }
-                2. AJOUT (ex: "Ajoute 'Doudou' à la routine matin") ->
-                   JSON : { "text": "J'ajoute Doudou au matin.", "command": "UPDATE_ROUTINE", "name": "matin", "add_step": "Prendre Doudou" }
-                3. SUPPRESSION (ex: "Enlève 'café' de la routine matin") ->
-                   JSON : { "text": "Ok.", "command": "REMOVE_STEP", "name": "matin", "step_keyword": "café" }
-                4. EXECUTION (ex: "Lance matin") ->
-                   JSON : { "text": "C'est parti.", "command": "GET_ROUTINE", "name": "matin" }`,
-                
+                'ROUTINE': `Expert Organisation. Routines connues: [${existingRoutines}]. 
+                Si création: { "text": "Sauvegardé", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
+                Si ajout étape: { "text": "Ajouté.", "command": "UPDATE_ROUTINE", "name": "nom", "add_step": "étape" }.
+                Si suppression étape (ex: "Enlève café de matin"): { "text": "Ok.", "command": "REMOVE_STEP", "name": "matin", "step_keyword": "café" }.
+                Si demande routine: { "text": "Je lance...", "command": "GET_ROUTINE", "name": "nom" }.`,
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
             };
         }
