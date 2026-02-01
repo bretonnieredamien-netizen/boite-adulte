@@ -16,7 +16,6 @@
             --success: #03DAC6;
             --warning: #FFB74D;
             --danger: #CF6679;
-            --important: #3700B3; /* Bleu profond pour Important non urgent */
         }
         
         body { 
@@ -38,7 +37,7 @@
             display: flex; align-items: center; justify-content: center; position: relative;
         }
 
-        /* BOUTON BRIEF */
+        /* BOUTON BRIEF (SOLEIL) */
         .brief-btn {
             position: absolute; right: 20px; top: 0;
             background: rgba(255, 183, 77, 0.1); 
@@ -57,7 +56,7 @@
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(3, 218, 198, 0.3); }
         .load-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--success); transition: color 0.3s; }
 
-        /* ZONE CENTRALE */
+        /* ZONE CENTRALE (Tâches ou Timer) */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
         
         /* LISTE DES TÂCHES */
@@ -71,18 +70,15 @@
         }
 
         /* --- STYLES EISENHOWER --- */
-        /* FEU (Urgent & Important) */
         .task-item.priority-high { 
             border-left: 4px solid #FF3D00; /* Rouge vif */
             background: linear-gradient(90deg, rgba(255, 61, 0, 0.1), var(--bg-card));
-            order: -2; /* Force l'affichage en haut */
+            order: -2; 
         }
-        
-        /* AGENDA (Date fixe) */
         .task-item.calendar { 
             border-left: 4px solid var(--danger) !important; 
             background: #2A1A1A; 
-            order: -1; /* Juste en dessous des urgences */
+            order: -1; 
         }
 
         .task-text { font-size: 14px; font-weight: 500; }
@@ -123,22 +119,44 @@
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         
-        /* ZONE INPUT */
-        .input-area { position: relative; width: 100%; display: flex; justify-content: center; align-items: center; height: 80px; }
+        /* ZONE INPUT CORRIGÉE (FLEXBOX) */
+        .input-area { 
+            position: relative; width: 100%; height: 80px; 
+            display: flex; align-items: center; justify-content: center;
+        }
         
-        .mic-wrapper { position: absolute; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: opacity 0.3s; }
+        /* MICRO CENTRÉ */
+        .mic-wrapper { 
+            width: 80px; height: 80px; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: opacity 0.3s; 
+        }
         .mic-btn { width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
         
-        .keyboard-toggle { position: absolute; right: 20px; bottom: 25px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        /* BOUTON CLAVIER À GAUCHE (NOUVEAU) */
+        .keyboard-toggle { 
+            position: absolute; left: 20px; bottom: 25px; /* Déplacé à gauche */
+            width: 40px; height: 40px; border-radius: 50%; 
+            background: #222; border: 1px solid #444; color: #888; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s; z-index: 20;
+        }
         .keyboard-toggle.active { background: var(--accent); color: black; border-color: var(--accent); }
 
-        .text-input-container { position: absolute; bottom: 10px; width: 90%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+        /* ZONE TEXTE AU CENTRE */
+        .text-input-container { 
+            position: absolute; 
+            left: 70px; right: 20px; bottom: 20px; /* Prend toute la largeur moins le bouton gauche */
+            background: var(--bg-card); border: 1px solid var(--accent); 
+            border-radius: 30px; padding: 5px; 
+            display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); 
+        }
         .text-input-container.show { display: flex; }
         
         .text-input { flex: 1; background: transparent; border: none; color: white; padding: 10px 15px; font-size: 16px; outline: none; }
-        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: black; font-weight: bold; }
+        .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: black; font-weight: bold; flex-shrink: 0; }
 
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
 
@@ -197,16 +215,20 @@
         </div>
 
         <div class="input-area">
+            
+            <div class="keyboard-toggle" onclick="toggleInputMode(this)">⌨️</div>
+
             <div id="mic-wrapper" class="mic-wrapper">
                 <div id="btn-mic" class="mic-btn">
                     <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                 </div>
             </div>
+
             <div id="text-input-ui" class="text-input-container">
                 <input type="text" id="user-input" class="text-input" placeholder="Écris ici..." onkeypress="handleEnter(event)">
                 <button class="send-btn" onclick="sendText()">→</button>
             </div>
-            <div class="keyboard-toggle" onclick="toggleInputMode(this)">⌨️</div>
+            
         </div>
     </div>
 
@@ -325,13 +347,12 @@
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
-        // --- AJOUT TÂCHE (AVEC TRI EISENHOWER) ---
+        // --- AJOUT TÂCHE ---
         function addTaskToUI(text, type, priority = 'NORMAL') {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
             const div = document.createElement('div');
             
-            // Classes spéciales pour Priority High et Calendar
             const isCal = (type === 'CALENDAR');
             const isHigh = (priority === 'HIGH');
             
@@ -361,7 +382,6 @@
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             return {
-                // PROMPT AVEC ANALYSE D'URGENCE (EISENHOWER)
                 'DUMP': `Assistant TDAH. DATE: ${today}.
                 Réponds UNIQUEMENT en JSON :
                 {
@@ -372,10 +392,7 @@
                         { "type": "CALENDAR", "detail": "..." }
                     ]
                 }
-                REGLES :
-                1. Agenda (date/heure précise) -> type: CALENDAR
-                2. Urgence absolue (impôts, santé, "vite", "important") -> priority: HIGH
-                3. Le reste -> priority: NORMAL`,
+                REGLES : Agenda -> CALENDAR. Urgent -> priority: HIGH.`,
                 
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Guide Routine. JSON Strict: { "text": "Checklist de 3-6 étapes.", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
@@ -411,7 +428,6 @@
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 if(parsed.actions) {
                     parsed.actions.forEach(act => {
-                        // On passe la priorité (HIGH/NORMAL) à la fonction d'affichage
                         addTaskToUI(act.detail, act.type, act.priority || 'NORMAL');
                         if(act.type === 'CALENDAR') { statusText.innerText = "Agenda..."; sendToCalendar(act.detail); }
                     });
