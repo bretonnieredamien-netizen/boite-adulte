@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V26 (STABLE) --- */
+        /* --- DESIGN NEURO V24 (LOGO FINAL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -22,57 +22,46 @@
         .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
         
+        /* --- LOGO COMPILÉ SVG (STYLE IMAGE) --- */
         .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 5px; }
         .app-logo-svg { width: 140px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        
+        /* Animation subtile du cerveau */
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
-        /* BOUTONS HEADER */
-        .header-btn { position: absolute; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
-        
-        .mood-btn { left: 10px; }
+        .brief-btn { position: absolute; right: 20px; top: 15px; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
+        .mood-btn { position: absolute; left: 20px; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 12px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
 
-        .sound-btn { right: 10px; }
-        .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
-        .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
-        @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
-
         .monitor-wrapper { width: 85%; margin: 10px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
-        .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; display: flex; justify-content: space-between; width: 100%; }
-        .load-track { width: 100%; height: 12px; background: #222; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid #333; }
-        .load-track::after { content: "2h 4h 6h"; position: absolute; top: 0; left: 0; width: 100%; height: 100%; color: #444; font-size: 8px; display: flex; justify-content: space-around; align-items: center; pointer-events: none; }
+        .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .load-track { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.3); }
         .load-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--success); transition: color 0.3s; }
 
         /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
-        
-        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
         .task-item.reminder { border-left: 4px solid var(--reminder) !important; background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
-
-        .task-content { flex: 1; }
-        .task-text { font-size: 15px; font-weight: 500; outline: none; }
-        .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 2px; display: flex; gap: 8px; align-items: center; }
-        
-        .time-badge { background: #333; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 10px; display: flex; align-items: center; gap: 4px; }
-        .time-badge svg { width: 10px; height: 10px; fill: currentColor; }
-
+        .task-text { font-size: 15px; font-weight: 500; outline: none; flex: 1; }
+        .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
         .reminder-badge { font-size: 12px; display: none; margin-left: 5px; }
         .task-item.reminder .reminder-badge { display: inline; }
-
-        .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
+        .actions-group { display: flex; gap: 10px; align-items: center; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
-        
+        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -86,8 +75,6 @@
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
         .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
-        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
         /* POMO */
         .pomo-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
@@ -158,28 +145,37 @@
 
     <div class="header">
         <div class="header-content">
-            <button id="mood-btn" class="header-btn mood-btn zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
-            <button id="sound-btn" class="header-btn sound-btn" onclick="toggleBrownNoise()"><span>🎧</span> FOCUS</button>
+            <button id="mood-btn" class="mood-btn zen" onclick="toggleMood()">
+                <span>🛡️</span> ZEN
+            </button>
 
             <div class="app-logo-container">
-                <svg class="app-logo-svg" viewBox="0 0 200 130">
-                    <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                <svg class="app-logo-svg" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
                     <path class="brain-pulse" d="M60 40 Q40 40 35 60 T35 90 Q40 110 60 110 L90 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
                     <path class="brain-pulse" d="M140 40 Q160 40 165 60 T165 90 Q160 110 140 110 L110 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
                     <path d="M60 55 L80 55 L90 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
                     <path d="M140 55 L120 55 L110 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
-                    <circle cx="90" cy="70" r="3" fill="#2979FF"/><circle cx="110" cy="70" r="3" fill="#2979FF"/>
+                    <circle cx="90" cy="70" r="3" fill="#2979FF"/>
+                    <circle cx="110" cy="70" r="3" fill="#2979FF"/>
                     <line x1="90" y1="70" x2="110" y2="70" stroke="#2979FF" stroke-width="2"/>
                     <text x="100" y="130" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="white" text-anchor="middle" letter-spacing="4">NEURO</text>
                     <text x="100" y="145" font-family="'Inter', sans-serif" font-weight="700" font-size="8" fill="#2979FF" text-anchor="middle" letter-spacing="2">ASSISTANT</text>
                 </svg>
             </div>
+            
+            <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
         </div>
         <div class="monitor-wrapper">
-            <div class="monitor-title">
-                <span>CAPACITÉ DU JOUR</span>
-                <span id="time-total" style="color:var(--success)">0h 00</span>
-            </div>
+            <div class="monitor-title">CHARGE MENTALE</div>
             <div class="load-track"><div id="load-bar" class="load-fill"></div></div>
             <div id="load-status" class="load-status">OPTIMAL</div>
         </div>
@@ -191,6 +187,7 @@
                 <p>Mémoire vide.</p>
             </div>
         </div>
+
         <div id="routine-ui" class="routine-container">
             <div id="routines-grid" class="routine-grid"></div>
             <div id="active-routine-view" class="active-routine-view">
@@ -202,6 +199,7 @@
                 <div id="routine-steps-list" class="task-container" style="padding:0;"></div>
             </div>
         </div>
+
         <div id="pomo-ui" class="pomo-container">
             <div class="pomo-status" id="pomo-msg">FOCUS SESSION</div>
             <div class="pomo-timer" id="timer-display">25:00</div>
@@ -215,13 +213,24 @@
     <div class="bottom-controls">
         <div id="status-text" class="ai-feedback">Prêt.</div>
         <div class="mode-selector">
-            <div class="mode-card active" onclick="setMode('DUMP', this)"><span class="mode-icon">🧠</span><span class="mode-label">Vider</span></div>
-            <div class="mode-card" onclick="setMode('FOCUS', this)"><span class="mode-icon">⚡</span><span class="mode-label">Focus</span></div>
-            <div class="mode-card" onclick="setMode('POMO', this)"><span class="mode-icon">⏳</span><span class="mode-label">Pomo</span></div>
-            <div class="mode-card" onclick="setMode('ROUTINE', this)"><span class="mode-icon">🔄</span><span class="mode-label">Routine</span></div>
+            <div class="mode-card active" onclick="setMode('DUMP', this)">
+                <span class="mode-icon">🧠</span><span class="mode-label">Vider</span>
+            </div>
+            <div class="mode-card" onclick="setMode('FOCUS', this)">
+                <span class="mode-icon">⚡</span><span class="mode-label">Focus</span>
+            </div>
+            <div class="mode-card" onclick="setMode('POMO', this)">
+                <span class="mode-icon">⏳</span><span class="mode-label">Pomo</span>
+            </div>
+            <div class="mode-card" onclick="setMode('ROUTINE', this)">
+                <span class="mode-icon">🔄</span><span class="mode-label">Routine</span>
+            </div>
         </div>
+
         <div class="input-area">
-            <div class="keyboard-toggle" onclick="toggleInputMode(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg></div>
+            <div class="keyboard-toggle" onclick="toggleInputMode(this)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+            </div>
             <div id="mic-wrapper" class="mic-wrapper">
                 <div class="thinking-wave"></div><div class="thinking-wave"></div><div class="thinking-wave"></div>
                 <div id="btn-mic" class="mic-btn" onclick="toggleRecording()">
@@ -229,7 +238,10 @@
                     <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
                 </div>
             </div>
-            <div id="text-input-ui" class="text-input-container"><input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)"><button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>
+            <div id="text-input-ui" class="text-input-container">
+                <input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)">
+                <button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+            </div>
         </div>
     </div>
 
@@ -237,11 +249,12 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
-        // CONFIG
-        const POSITIVE_PHRASES = ["Tu as tout ce qu'il faut.", "Respire, tu gères.", "Une étape à la fois.", "Bravo d'être là.", "Ton cerveau est unique.", "Pas de pression.", "Tu es un champion.", "Chaque petite croix compte.", "Concentration et calme.", "Tu avances, c'est l'essentiel."];
-        const TRANSITION_PHRASES = ["Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :", "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :", "On déroule le tapis rouge :"];
-        const CLOSING_PHRASES = { 'MATIN': ["Passe une superbe journée !", "Brille aujourd'hui !"], 'SOIR': ["Fais de beaux rêves.", "Repose-toi bien."], 'SPORT': ["Bonne séance !", "Donne tout !"], 'TRAVAIL': ["Bon courage !", "Sois productif !"], 'DEFAULT': ["C'est parti !", "À toi de jouer."] };
+        // DATA
+        const POSITIVE_PHRASES = ["Tu as tout ce qu'il faut.", "Respire, tu gères.", "Une étape à la fois.", "Bravo d'être là.", "Ton cerveau est unique.", "Pas de pression.", "Tu es un champion.", "Chaque petite croix compte.", "Concentration et calme.", "Tu avances, c'est l'essentiel.", "Fais-toi confiance.", "Ta différence est une force.", "Belle journée en vue.", "Rien ne t'arrête.", "Sois fier de toi.", "L'important c'est de commencer.", "Tu es capable.", "Garde le sourire.", "On y va cool.", "Tu es aux commandes."];
+        const TRANSITION_PHRASES = ["Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :", "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :", "On déroule le tapis rouge :", "Tes missions du moment :", "Allons-y gaiement :", "Suis le mouvement :", "Cap sur l'objectif :", "Voici ta checklist :", "On enchaîne fluidement :", "Ton parcours fléché :", "Rien que pour toi :", "Allez, focus sur ça :", "Ta feuille de route :", "On s'y met ensemble :", "Voici le déroulé :", "Prêt ? C'est par ici :"];
+        const CLOSING_PHRASES = { 'MATIN': ["Passe une superbe journée !", "Brille aujourd'hui !", "Bonne journée à toi.", "Profite bien !"], 'SOIR': ["Fais de beaux rêves.", "Repose-toi bien.", "Bonne nuit.", "À demain matin."], 'SPORT': ["Bonne séance !", "Donne tout !", "Tu vas te sentir bien après !", "Force à toi !"], 'TRAVAIL': ["Bon courage !", "Sois productif !", "Tu vas gérer.", "Fonce !"], 'DEFAULT': ["C'est parti !", "À toi de jouer.", "Courage !", "Go !"] };
 
+        // VARS
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
         let isProcessing = false;
@@ -251,86 +264,33 @@
         let finalTranscript = '';
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
         let username = "Champion";
-        let audioCtx, brownNoiseNode, gainNode, isNoisePlaying = false;
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding();
-            loadTasks(); 
-            updateMentalLoad(); 
-            renderRoutines();
+            loadTasks(); updateMentalLoad(); renderRoutines();
             initSpeech();
             loadMood();
             if ("Notification" in window) Notification.requestPermission();
         });
 
-        // --- AUDIO BROWN NOISE ---
-        function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
-        function startBrownNoise() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 4096;
-            const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-            brownNoise.onaudioprocess = function(e) {
-                const output = e.outputBuffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    output[i] = (lastOut + (0.02 * white)) / 1.02;
-                    lastOut = output[i];
-                    output[i] *= 3.5; 
-                }
-            };
-            let lastOut = 0;
-            gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.15;
-            brownNoise.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            brownNoiseNode = brownNoise;
-            isNoisePlaying = true;
-            const btn = document.getElementById('sound-btn');
-            btn.classList.add('active');
-            btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span><span class="sound-wave" style="animation-delay:0.1s"></span>`;
-        }
-        function stopBrownNoise() {
-            if (brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; }
-            isNoisePlaying = false;
-            const btn = document.getElementById('sound-btn');
-            btn.classList.remove('active');
-            btn.innerHTML = `<span>🎧</span> FOCUS`;
-        }
-
-        // --- STATE & UI ---
+        // --- MOOD MANAGEMENT ---
         function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
-        function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
-        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
-        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; document.getElementById('user-display').innerText = username; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
-        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('user-display').innerText = username; document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
-        async function startOnboardingSequence(name) { isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation(); const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE. Finis par motivation.`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); playVocalResponse(data.text.replace(/\*/g, '')); } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); } }
+        function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen activé." : "Mode Boost activé !"); }
+        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
+
+        // --- ONBOARDING ---
+        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
+        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('onboarding-modal').classList.remove('show'); startOnboardingSequence(username); } }
+        async function startOnboardingSequence(name) { isProcessing = true; document.getElementById('status-text').innerText = "Initialisation..."; startThinkingAnimation(); const prompt = `Tu es NEURO, assistant TDAH. 1ere fois que ${name} t'utilise. Présente-toi chaudement (max 40s): 1. Onglet VIDER (Cerveau externe, tri auto urgences). 2. FOCUS (Déblocage). 3. POMO (Timer). 4. ROUTINE (Habitudes). Finis par motivation. Texte simple pour oral.`; try { const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); playVocalResponse(data.text.replace(/\*/g, '')); } catch(e) { stopThinkingAnimation(); isProcessing = false; playVocalResponse(`Bienvenue ${name}. Je suis prêt.`); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
 
-        // --- MICROPHONE FIX ---
-        function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { stopRecordingState(); }; }
-        function toggleRecording() { 
-            // SAFETY CHECK: Force reset if stuck
-            if (isProcessing) { isProcessing = false; stopThinkingAnimation(); }
-            
-            if (!isRecording) { 
-                finalTranscript = ''; 
-                try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute..."; } 
-                catch(e) { console.error(e); recognition.stop(); isRecording = false; } 
-            } else { 
-                recognition.stop(); 
-                isRecording = false; 
-                updateMicVisuals(false); 
-                document.getElementById('status-text').innerText = "Attente fin..."; 
-                setTimeout(() => { 
-                    if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } 
-                    else { document.getElementById('status-text').innerText = "Rien entendu."; } 
-                }, 800); 
-            } 
-        }
+        // --- MICRO ---
+        function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) { alert("Micro non supporté"); return; } recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { stopRecordingState(); }; }
+        function toggleRecording() { if(isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)"; } catch(e) { recognition.stop(); } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); } }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
         function updateMicVisuals(rec) { const w = document.getElementById('mic-wrapper'); const m = document.getElementById('icon-mic'); const s = document.getElementById('icon-stop'); if(rec) { w.classList.add('is-recording'); m.style.display='none'; s.style.display='block'; } else { w.classList.remove('is-recording'); m.style.display='block'; s.style.display='none'; } }
 
-        // --- CORE AI ---
+        // --- IA PROCESS ---
         function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
         function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
 
@@ -349,39 +309,15 @@
                     else if (parsed.command === 'REMOVE_STEP') { const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase()); if (key && routines[key]) { routines[key] = routines[key].filter(step => !step.toLowerCase().includes(parsed.step_keyword.toLowerCase())); localStorage.setItem('neuro_routines', JSON.stringify(routines)); renderRoutines(); if(document.getElementById('active-routine-view').style.display === 'flex') launchRoutine(key); playVocalResponse(`C'est retiré.`); } stopThinkingAnimation(); isProcessing = false; return; }
                     else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Je ne connais pas ça.`); } stopThinkingAnimation(); isProcessing = false; return; }
                 }
+                
                 if(parsed.actions) { 
                     parsed.actions.forEach(act => { 
-                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration); 
+                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL'); 
                         if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
                     }); 
                 }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
-        }
-
-        // --- TASKS & UI FIX ---
-        function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
-        function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
-        
-        function addTaskToUI(text, type, priority = 'NORMAL', duration = 15) { 
-            const list = document.getElementById('task-list'); 
-            if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; 
-            const div = document.createElement('div'); 
-            const isCal = (type === 'CALENDAR'); const isRem = (type === 'REMINDER'); const isHigh = (priority === 'HIGH');
-            div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
-            div.setAttribute('data-duration', duration);
-            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
-            const timeBadge = `<span class="time-badge"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
-            div.innerHTML = `<div class="task-content"><div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div><div class="task-sub">${timeBadge}<span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'))}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
-            list.appendChild(div); saveTasks(); updateMentalLoad(); 
-        }
-        
-        function completeTask(btn) { 
-            const item = btn.closest('.task-item'); // FIXED: Uses .closest()
-            if(item) {
-                item.style.transform = "translateX(100%)"; item.style.opacity = "0"; 
-                setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); }, 300); 
-            }
         }
 
         // --- ROUTINES ---
@@ -410,14 +346,13 @@
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         
         function updateMentalLoad() { 
-            const list = document.getElementById('task-list'); const items = list.querySelectorAll('.task-item'); let totalMinutes = 0;
-            items.forEach(item => { const dur = parseInt(item.getAttribute('data-duration')) || 15; totalMinutes += dur; });
-            const percent = Math.min((totalMinutes / 360) * 100, 100); const bar = document.getElementById('load-bar'); const st = document.getElementById('load-status'); const timeDisplay = document.getElementById('time-total');
-            const h = Math.floor(totalMinutes / 60); const m = totalMinutes % 60; timeDisplay.innerText = `${h}h ${m.toString().padStart(2,'0')}`;
+            const list = document.getElementById('task-list'); const items = list.querySelectorAll('.task-item'); let totalLoad = 0;
+            items.forEach(item => { if (item.classList.contains('priority-high')) totalLoad += 3; else if (item.classList.contains('calendar')) totalLoad += 2; else totalLoad += 1; });
+            const percent = Math.min((totalLoad / 12) * 100, 100); const bar = document.getElementById('load-bar'); const st = document.getElementById('load-status');
             bar.style.width = percent + "%"; 
-            if (totalMinutes === 0 && list.innerText.trim() !== "Mémoire vide.") { bar.style.background = "var(--success)"; st.innerText = "ESPRIT LIBRE"; st.style.color = "var(--success)"; triggerConfetti(); } 
-            else if (percent < 50) { bar.style.background = "var(--success)"; st.innerText = "CAPACITÉ OK"; st.style.color = "var(--success)"; } 
-            else if (percent < 85) { bar.style.background = "var(--warning)"; st.innerText = "JOURNÉE PLEINE"; st.style.color = "var(--warning)"; } 
+            if (totalLoad === 0 && list.innerText.trim() !== "Mémoire vide.") { bar.style.background = "var(--success)"; st.innerText = "ESPRIT LIBRE"; st.style.color = "var(--success)"; triggerConfetti(); } 
+            else if (percent < 45) { bar.style.background = "var(--success)"; st.innerText = "OPTIMAL"; st.style.color = "var(--success)"; } 
+            else if (percent < 80) { bar.style.background = "var(--warning)"; st.innerText = "CHARGE MOYENNE"; st.style.color = "var(--warning)"; } 
             else { bar.style.background = "var(--danger)"; st.innerText = "SURCHARGE"; st.style.color = "var(--danger)"; } 
             checkZenMode(); 
         }
@@ -425,6 +360,48 @@
         function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const p = document.getElementById('zen-popup'); p.classList.add('show'); setTimeout(() => p.classList.remove('show'), 3000); } }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         
+        function addTaskToUI(text, type, priority = 'NORMAL') { 
+            const list = document.getElementById('task-list'); 
+            if(list.innerText.includes("Mémoire vide")) list.innerHTML = ""; 
+            const div = document.createElement('div'); 
+            
+            const isCal = (type === 'CALENDAR');
+            const isRem = (type === 'REMINDER');
+            const isHigh = (priority === 'HIGH');
+            
+            div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
+            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : '';
+            const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : '';
+            const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
+            let label = 'TÂCHE';
+            if (isCal) label = 'AGENDA';
+            if (isRem) label = 'RAPPEL';
+            if (isHigh) label = 'URGENT';
+
+            div.innerHTML = `
+                <div>
+                    <div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div>
+                    <div class="task-sub" style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${label}</div>
+                </div>
+                <div class="actions-group">
+                    <button class="done-btn" onclick="completeTask(this)">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </button>
+                </div>
+            `;
+            list.appendChild(div); saveTasks(); updateMentalLoad(); 
+        }
+        
+        function completeTask(btn) { 
+            const item = btn.closest('.task-item'); 
+            if(item) {
+                item.style.transform = "translateX(100%)"; item.style.opacity = "0"; 
+                setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); }, 300); 
+            }
+        }
+        
+        function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
+        function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
 
         function getPrompts() {
@@ -434,11 +411,18 @@
 
             return {
                 'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}.
-                JSON Strict. Champ "text": Choisis un seul mot aléatoire parmi: ["Ok", "Noté", "C'est fait", "Reçu", "Ça marche", "Enregistré"].
-                Actions: [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15 } ].
-                ESTIME LA DURÉE (en min) de chaque tâche dans 'duration'.`,
+                JSON Strict.
                 
-                'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "...", "duration": 5 } ] }`,
+                Pour le champ "text" (réponse orale) : Choisis UN SEUL mot très court (ex: "Noté", "Ok", "Reçu", "C'est fait"). NE FAIS PAS DE PHRASE.
+                
+                Pour les actions :
+                - Si c'est une tâche simple : type="TODO"
+                - Si c'est un RDV précis (date/heure) : type="CALENDAR"
+                - Si c'est un RAPPEL PÉRIODIQUE ou FUTUR (ex: "dans 20min", "tous les jours") : type="REMINDER"
+                
+                Format JSON : { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH" } ] }`,
+                
+                'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
                 Si ajout: { "text": "Ajouté.", "command": "UPDATE_ROUTINE", "name": "nom", "add_step": "étape" }.
