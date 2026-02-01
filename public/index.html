@@ -102,6 +102,18 @@
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
+        /* FOCUS MODE UI */
+        .focus-ui-container { display: none; flex-direction: column; padding: 20px 10px; height: 100%; }
+        .focus-header-text { font-size: 14px; color: #888; margin-bottom: 20px; text-align: center; }
+        .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .focus-card { background: var(--bg-card); border: 1px solid #333; padding: 15px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; position: relative; height: 100px; }
+        .focus-card:active { transform: scale(0.95); background: #252525; }
+        .focus-card.active { border-color: var(--accent); background: rgba(41, 121, 255, 0.1); }
+        .focus-icon { font-size: 28px; margin-bottom: 5px; }
+        .focus-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: white; }
+        .focus-desc { font-size: 9px; color: #888; line-height: 1.2; }
+        .focus-response-area { flex: 1; border-top: 1px dashed #333; padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px 10px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -238,6 +250,34 @@
                 <p>Mémoire vide.</p>
             </div>
         </div>
+
+        <div id="focus-ui" class="focus-ui-container">
+            <div class="focus-header-text">Quel est le blocage ?</div>
+            <div class="focus-grid">
+                <div class="focus-card" onclick="setFocusTarget('CUT', this)">
+                    <span class="focus-icon">🔪</span>
+                    <span class="focus-label">DÉCOUPER</span>
+                    <span class="focus-desc">C'est trop gros</span>
+                </div>
+                <div class="focus-card" onclick="setFocusTarget('START', this)">
+                    <span class="focus-icon">🚀</span>
+                    <span class="focus-label">IMPULSION</span>
+                    <span class="focus-desc">J'arrive pas à m'y mettre</span>
+                </div>
+                <div class="focus-card" onclick="setFocusTarget('GAME', this)">
+                    <span class="focus-icon">🎲</span>
+                    <span class="focus-label">JEU</span>
+                    <span class="focus-desc">C'est ennuyeux</span>
+                </div>
+                <div class="focus-card" onclick="setFocusTarget('PANIC', this)">
+                    <span class="focus-icon">🆘</span>
+                    <span class="focus-label">SOS</span>
+                    <span class="focus-desc">Je suis submergé</span>
+                </div>
+            </div>
+            <div id="focus-response-list" class="task-container" style="padding:0; flex:1;"></div>
+        </div>
+
         <div id="routine-ui" class="routine-container">
             <div id="routines-grid" class="routine-grid"></div>
             <div id="active-routine-view" class="active-routine-view">
@@ -291,6 +331,7 @@
 
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
+        let focusTarget = null; // NEW: Focus state logic
         let isProcessing = false;
         let isTextMode = false;
         let recognition = null;
@@ -304,7 +345,7 @@
             checkOnboarding();
             loadTasks(); 
             updateMentalLoad(); 
-            updateDailyCapacity(); // NEW: Init jauge verticale
+            updateDailyCapacity(); 
             renderRoutines();
             initSpeech();
             loadMood();
@@ -368,7 +409,7 @@
 
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation();
-            const currentPrompts = getPrompts();
+            const currentPrompts = getPrompts(focusTarget); // Pass target to prompts
             const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
@@ -383,10 +424,22 @@
                 }
                 
                 if(parsed.actions) { 
-                    parsed.actions.forEach(act => { 
-                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
-                    }); 
+                    // Special Handling for Focus Mode Breakdown
+                    if (currentMode === 'FOCUS' && focusTarget) {
+                        const focusList = document.getElementById('focus-response-list');
+                        focusList.innerHTML = ""; // Clear previous
+                        parsed.actions.forEach(act => {
+                            const div = document.createElement('div'); div.className = "task-item";
+                            div.innerHTML = `<div class="task-content"><div class="task-text">${act.detail}</div><div class="task-sub"><span class="time-badge">${act.duration}m</span></div></div><div class="actions-group"><button class="done-btn" onclick="this.closest('.task-item').remove()"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
+                            focusList.appendChild(div);
+                        });
+                    } else {
+                        // Standard Mode
+                        parsed.actions.forEach(act => { 
+                            addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration); 
+                            if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
+                        }); 
+                    }
                 }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
@@ -493,16 +546,70 @@
         function toggleInputMode(btn) { isTextMode = !isTextMode; const micUI = document.getElementById('mic-wrapper'); const textUI = document.getElementById('text-input-ui'); if(isTextMode) { micUI.style.opacity = 0; micUI.style.pointerEvents = 'none'; textUI.classList.add('show'); btn.classList.add('active'); document.getElementById('user-input').focus(); } else { micUI.style.opacity = 1; micUI.style.pointerEvents = 'all'; textUI.classList.remove('show'); btn.classList.remove('active'); } }
         function handleEnter(e) { if(e.key === 'Enter') sendText(); }
         function sendText() { const input = document.getElementById('user-input'); if(input.value.trim()){ processWithAI(input.value); input.value=""; } }
-        function setMode(mode, btn) { currentMode = mode; document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); btn.classList.add('active'); const t = document.getElementById('task-list'); const r = document.getElementById('routine-ui'); const p = document.getElementById('pomo-ui'); t.style.display='none'; r.style.display='none'; p.style.display='none'; if (mode === 'DUMP' || mode === 'FOCUS') t.style.display='flex'; else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } else if (mode === 'POMO') p.style.display='flex'; document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; }
+        
+        function setMode(mode, btn) { 
+            currentMode = mode; 
+            focusTarget = null; // Reset selection
+            
+            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); 
+            btn.classList.add('active'); 
+            
+            const t = document.getElementById('task-list'); 
+            const f = document.getElementById('focus-ui'); // NEW
+            const r = document.getElementById('routine-ui'); 
+            const p = document.getElementById('pomo-ui'); 
+            
+            t.style.display='none'; f.style.display='none'; r.style.display='none'; p.style.display='none'; 
+            
+            if (mode === 'DUMP') t.style.display='flex';
+            else if (mode === 'FOCUS') {
+                 f.style.display='flex'; 
+                 document.getElementById('focus-response-list').innerHTML = ""; // Clear results
+            }
+            else if (mode === 'ROUTINE') { r.style.display='flex'; exitRoutine(); } 
+            else if (mode === 'POMO') p.style.display='flex'; 
+            
+            document.getElementById('status-text').innerText = {'DUMP': `Je note ${username}...`, 'FOCUS': "Choisis la cible...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."}[mode]; 
+        }
+
+        // NEW: Focus Target Logic
+        function setFocusTarget(target, btn) {
+            focusTarget = target;
+            document.querySelectorAll('.focus-card').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const prompts = {
+                'CUT': "Quelle tâche te semble énorme ?",
+                'START': "Qu'est-ce que tu repousses ?",
+                'GAME': "Qu'est-ce qui t'ennuie ?",
+                'PANIC': "Qu'est-ce qui stresse ?"
+            };
+            playVocalResponse(prompts[target]);
+        }
+
         async function playVocalResponse(textToSpeak) { document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation(); const cleanText = cleanTextForSpeech(textToSpeak); if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; } const u = new SpeechSynthesisUtterance(cleanText); u.lang = 'fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('fr')); if(v) u.voice = v; u.onend = () => { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; }; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         
-        function getPrompts() {
+        function getPrompts(target = null) {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
+
+            // NEW: DYNAMIC PROMPT FOR FOCUS
+            let focusPrompt = "";
+            if (!target) {
+                focusPrompt = `Coach TDAH. ${tone}. Demande à l'utilisateur de cliquer sur une cible ou de décrire le problème.`;
+            } else if (target === 'CUT') {
+                focusPrompt = `Expert "Découpage". Tâche trop grosse. Action: Découpe en 3-5 micro-étapes ridicules. JSON Strict: { "text": "Plan d'attaque.", "actions": [ { "type": "TODO", "detail": "Etape 1...", "duration": 5 } ] }`;
+            } else if (target === 'START') {
+                focusPrompt = `Expert "Démarrage". Blocage exécutif. Action: Donne UNIQUEMENT la 1ère action physique (règle des 5 secondes). JSON Strict: { "text": "Juste ça. Go.", "actions": [ { "type": "TODO", "detail": "Juste la 1ere action...", "duration": 2 } ] }`;
+            } else if (target === 'GAME') {
+                focusPrompt = `Expert "Gamification". Ennui. Action: Transforme en jeu/défi/mission secrète. JSON Strict: { "text": "Mission Agent ${username}.", "actions": [ { "type": "TODO", "detail": "Titre épique...", "duration": 15 } ] }`;
+            } else if (target === 'PANIC') {
+                focusPrompt = `Expert "Urgence". Panique. Action: Identifie LA seule priorité absolue. Ignore le reste. JSON Strict: { "text": "Respire. Ta seule priorité c'est ça.", "actions": [ { "type": "TODO", "detail": "LA PRIORITÉ", "priority": "HIGH", "duration": 20 } ] }`;
+            }
 
             return {
                 'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}.
@@ -510,7 +617,8 @@
                 Actions: [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15 } ].
                 ESTIME LA DURÉE (en min) de chaque tâche dans 'duration'.`,
                 
-                'FOCUS': `Coach TDAH pour ${username}. ${tone}. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "...", "duration": 5 } ] }`,
+                'FOCUS': focusPrompt, // NOW DYNAMIC
+
                 'ROUTINE': `Expert Organisation. ${tone}. Routines: [${existingRoutines}]. 
                 Si création: { "text": "Sauvegardé.", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
                 Si ajout: { "text": "Ajouté.", "command": "UPDATE_ROUTINE", "name": "nom", "add_step": "étape" }.
