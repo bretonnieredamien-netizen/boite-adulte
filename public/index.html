@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V12 --- */
+        /* --- DESIGN NEURO V13 (Ergonomie Mobile) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -50,7 +50,7 @@
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .routine-card-item { background: var(--bg-card); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .routine-card-item:active { transform: scale(0.95); background: #222; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: background 0.2s; }
         .routine-delete-btn:active { background: var(--danger); }
@@ -79,7 +79,11 @@
         @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* CONTROLS */
-        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 30px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; }
+        .bottom-controls { 
+            background: linear-gradient(to top, #121212 90%, transparent); 
+            padding-bottom: 60px; /* AUGMENTÉ POUR EVITER CHEVAUCHEMENT */
+            display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; 
+        }
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
@@ -98,9 +102,20 @@
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
-        .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
+        
+        /* BOUTONS REMONTÉS */
+        .keyboard-toggle { 
+            position: absolute; left: 20px; bottom: 45px; /* REMONTÉ */
+            width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; 
+        }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
+        
+        .text-input-container { 
+            position: absolute; left: 70px; right: 20px; bottom: 40px; /* REMONTÉ */
+            background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; 
+            display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); 
+        }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform 0.2s; }
@@ -232,10 +247,8 @@
             initSpeech();
         });
 
-        // --- FONCTION NETTOYAGE TEXTE AUDIO ---
         function cleanTextForSpeech(text) {
             if(!text) return "";
-            // Enlève markdown bold (** ou *), les #, les tirets de liste au début
             return text.replace(/[*#]/g, '').replace(/^- /g, '');
         }
 
@@ -506,7 +519,6 @@
             document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation();
             const cleanText = cleanTextForSpeech(textToSpeak);
             if(!cleanText) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
-            
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.lang = 'fr-FR'; utterance.rate = 0.9; 
             const voices = window.speechSynthesis.getVoices();
@@ -516,11 +528,12 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         function finishTimer() { clearInterval(timerInterval); isTimerRunning = false; playVocalResponse("Session terminée ! Bravo."); const bar = document.getElementById('load-bar'); bar.style.width = "0%"; setTimeout(() => updateMentalLoad(), 2000); }
+        
+        // CHARGE MENTALE V11 (PONDEREE)
         function updateMentalLoad() { 
             const list = document.getElementById('task-list'); 
             const items = list.querySelectorAll('.task-item');
