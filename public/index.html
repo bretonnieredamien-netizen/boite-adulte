@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V5 (Stable) --- */
+        /* --- DESIGN NEURO V6 (Complet) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -80,11 +80,9 @@
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
         
-        /* ETAT ENREGISTREMENT (CARRÉ ROUGE) */
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
         .mic-wrapper.is-recording svg { fill: var(--danger); }
         
-        /* ONDES CEREBRALES (IA RÉFLÉCHIT) */
         .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
         .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
         .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
@@ -210,7 +208,7 @@
             initSpeech();
         });
 
-        // --- GESTION MICRO ROBUSTE (MANUELLE) ---
+        // --- GESTION MICRO ---
         function initSpeech() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
@@ -220,56 +218,39 @@
             recognition.interimResults = true;
 
             recognition.onresult = (event) => {
-                let interim = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
                         finalTranscript += event.results[i][0].transcript + ' ';
-                    } else {
-                        interim += event.results[i][0].transcript;
                     }
                 }
             };
-            
-            recognition.onerror = (e) => { 
-                console.error(e); stopRecordingState();
-            };
+            recognition.onerror = (e) => { stopRecordingState(); };
         }
 
         function toggleRecording() {
             if(isProcessing) return;
-
             if (!isRecording) {
-                // START
                 finalTranscript = '';
                 try {
                     recognition.start();
                     isRecording = true;
                     updateMicVisuals(true);
                     document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)";
-                } catch(e) {
-                    console.error("Erreur start", e);
-                    recognition.stop();
-                }
+                } catch(e) { recognition.stop(); }
             } else {
-                // STOP MANUEL
                 recognition.stop();
                 isRecording = false;
                 updateMicVisuals(false);
-                
                 document.getElementById('status-text').innerText = "Attente fin...";
                 setTimeout(() => {
-                    if(finalTranscript.trim().length > 0) {
-                        processWithAI(finalTranscript);
-                    } else {
-                        document.getElementById('status-text').innerText = "Rien entendu.";
-                    }
+                    if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } 
+                    else { document.getElementById('status-text').innerText = "Rien entendu."; }
                 }, 800);
             }
         }
 
         function stopRecordingState() {
-            isRecording = false;
-            updateMicVisuals(false);
+            isRecording = false; updateMicVisuals(false);
             document.getElementById('status-text').innerText = "Erreur Micro (Réessaie)";
         }
 
@@ -277,19 +258,11 @@
             const wrapper = document.getElementById('mic-wrapper');
             const iconMic = document.getElementById('icon-mic');
             const iconStop = document.getElementById('icon-stop');
-            
-            if(recording) {
-                wrapper.classList.add('is-recording');
-                iconMic.style.display = 'none';
-                iconStop.style.display = 'block';
-            } else {
-                wrapper.classList.remove('is-recording');
-                iconMic.style.display = 'block';
-                iconStop.style.display = 'none';
-            }
+            if(recording) { wrapper.classList.add('is-recording'); iconMic.style.display = 'none'; iconStop.style.display = 'block'; } 
+            else { wrapper.classList.remove('is-recording'); iconMic.style.display = 'block'; iconStop.style.display = 'none'; }
         }
 
-        // --- UI & IA ---
+        // --- IA & LOGIQUE ---
         function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
         function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
 
@@ -303,13 +276,26 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                // ROUTINE LOGIC
+                // ROUTINES LOGIQUE AMÉLIORÉE
                 if (currentMode === 'ROUTINE') {
                     if (parsed.command === 'SAVE_ROUTINE') {
                         saveRoutine(parsed.name, parsed.steps);
                         playVocalResponse(`Routine ${parsed.name} enregistrée.`);
                         stopThinkingAnimation(); isProcessing = false; return;
-                    } 
+                    }
+                    else if (parsed.command === 'UPDATE_ROUTINE') {
+                        const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+                        const key = Object.keys(routines).find(k => k === parsed.name.toLowerCase());
+                        if (key) {
+                            routines[key].push(parsed.add_step);
+                            localStorage.setItem('neuro_routines', JSON.stringify(routines));
+                            renderRoutines();
+                            playVocalResponse(`Ajouté "${parsed.add_step}" à ${parsed.name}.`);
+                        } else {
+                            playVocalResponse(`Je ne trouve pas la routine ${parsed.name}.`);
+                        }
+                        stopThinkingAnimation(); isProcessing = false; return;
+                    }
                     else if (parsed.command === 'GET_ROUTINE') {
                         const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()];
                         if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine ${parsed.name}.`); }
@@ -325,10 +311,7 @@
                     });
                 }
                 playVocalResponse(parsed.text);
-            } catch (e) { 
-                console.error(e); stopThinkingAnimation(); 
-                document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; 
-            }
+            } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
         }
 
         // --- GESTION ROUTINES ---
@@ -338,7 +321,6 @@
             localStorage.setItem('neuro_routines', JSON.stringify(routines));
             renderRoutines();
         }
-
         function deleteRoutine(name, event) {
             if(event) event.stopPropagation();
             if(confirm(`Supprimer la routine "${name}" ?`)) {
@@ -348,17 +330,11 @@
                 renderRoutines();
             }
         }
-
         function renderRoutines() {
             const grid = document.getElementById('routines-grid');
             const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
             grid.innerHTML = "";
-
-            if (Object.keys(routines).length === 0) {
-                grid.innerHTML = `<div style="grid-column:span 2; opacity:0.5; font-size:12px; text-align:center;">Aucune routine.<br>Dis "Configure ma routine du matin..."</div>`;
-                return;
-            }
-
+            if (Object.keys(routines).length === 0) { grid.innerHTML = `<div style="grid-column:span 2; opacity:0.5; font-size:12px; text-align:center;">Aucune routine.<br>Dis "Crée routine matin : café, douche"</div>`; return; }
             for (let name in routines) {
                 const btn = document.createElement('div');
                 btn.className = "routine-card-item";
@@ -366,57 +342,37 @@
                 delBtn.className = "routine-delete-btn";
                 delBtn.innerHTML = "✕";
                 delBtn.onclick = (e) => deleteRoutine(name, e);
-                
-                const content = `<span style="font-size:24px">🔄</span><span class="routine-name">${name}</span>`;
-                btn.innerHTML = content;
+                btn.innerHTML = `<span style="font-size:24px">🔄</span><span class="routine-name">${name}</span>`;
                 btn.appendChild(delBtn);
                 btn.onclick = () => launchRoutine(name);
                 grid.appendChild(btn);
             }
         }
-
         function launchRoutine(name) {
             const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
             const steps = routines[name.toLowerCase()];
             if(!steps) return;
-
             document.getElementById('routines-grid').style.display = 'none';
             document.getElementById('active-routine-view').style.display = 'flex';
             document.getElementById('active-routine-name').innerText = name.toUpperCase();
-            
             const list = document.getElementById('routine-steps-list');
             list.innerHTML = "";
-            
             steps.forEach(step => {
                 const div = document.createElement('div');
-                div.className = "task-item"; 
-                div.style.borderLeftColor = "#00E676";
-                // EDITABLE
-                div.innerHTML = `
-                    <div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div>
-                    <button class="done-btn" onclick="this.parentElement.remove(); checkRoutineFinish();">
-                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                    </button>
-                `;
+                div.className = "task-item"; div.style.borderLeftColor = "#00E676";
+                div.innerHTML = `<div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div><button class="done-btn" onclick="this.parentElement.remove(); checkRoutineFinish();"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>`;
                 list.appendChild(div);
             });
         }
-
-        // Mise à jour si on modifie le texte
-        function updateRoutineStep(routineName, oldStep, newStep) {
-            // (Simplification: Pour l'instant on modifie juste l'affichage)
-        }
-
+        function updateRoutineStep(routineName, oldStep, newStep) { /* Placeholder pour update complexe */ }
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
             let text = "C'est parti. ";
             list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". ");
             playVocalResponse(text);
         }
-
         function checkRoutineFinish() {
-            const list = document.getElementById('routine-steps-list');
-            if (list.children.length === 0) {
+            if (document.getElementById('routine-steps-list').children.length === 0) {
                 playVocalResponse("Routine terminée. Bien joué !");
                 setTimeout(exitRoutine, 2000);
             }
@@ -426,7 +382,7 @@
             document.getElementById('active-routine-view').style.display = 'none';
         }
 
-        // --- INPUT TEXTE ---
+        // --- UI UTILS ---
         function toggleInputMode(btn) {
             isTextMode = !isTextMode;
             const micUI = document.getElementById('mic-wrapper');
@@ -444,21 +400,16 @@
             const taskList = document.getElementById('task-list');
             const routineUI = document.getElementById('routine-ui');
             const pomoUI = document.getElementById('pomo-ui');
-
             taskList.style.display = 'none'; routineUI.style.display = 'none'; pomoUI.style.display = 'none';
-
             if (mode === 'DUMP' || mode === 'FOCUS') { taskList.style.display = 'flex'; } 
             else if (mode === 'ROUTINE') { routineUI.style.display = 'flex'; exitRoutine(); } 
             else if (mode === 'POMO') { pomoUI.style.display = 'flex'; }
-
             const msgs = {'DUMP': "Je note tout...", 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."};
             document.getElementById('status-text').innerText = msgs[mode];
-            document.getElementById('status-text').style.opacity = 1;
         }
 
         async function playVocalResponse(textToSpeak) {
-            document.getElementById('status-text').innerText = "Réponse...";
-            stopThinkingAnimation();
+            document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation();
             if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'fr-FR'; utterance.rate = 1.1; 
@@ -469,7 +420,6 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // --- FONCTIONS SECONDAIRES ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -481,10 +431,9 @@
         function completeTask(btn) { const item = btn.parentElement; item.style.transform = "translateX(100%)"; item.style.opacity = "0"; setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); checkZenMode(); }, 300); }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
-        
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
 
-        // --- PROMPTS ---
+        // --- PROMPTS INTELLIGENTS ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
@@ -492,14 +441,16 @@
                 'DUMP': `Assistant TDAH. DATE: ${today}. JSON Strict: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
                 
-                // PROMPT RENFORCÉ POUR ROUTINES
+                // INTELLIGENCE ROUTINES RENFORCÉE
                 'ROUTINE': `Tu es un Expert en Routines.
+                Routines existantes : [${existingRoutines}].
                 Analyse l'intention :
-                1. CRÉATION (ex: "Configure routine matin : café, douche") ->
-                   JSON : { "text": "...", "command": "SAVE_ROUTINE", "name": "matin", "steps": ["Boire café", "Prendre douche"] }
-                2. EXECUTION (ex: "Lance matin") ->
-                   JSON : { "text": "...", "command": "GET_ROUTINE", "name": "matin" }
-                3. AMELIORATION (ex: "Ajoute sport à routine matin") -> gère intelligemment.`,
+                1. CRÉATION (ex: "Crée routine matin : lit, café") ->
+                   JSON : { "text": "Routine créée.", "command": "SAVE_ROUTINE", "name": "matin", "steps": ["Faire lit", "Café"] }
+                2. AJOUT (ex: "Ajoute 'Doudou' à la routine matin") ->
+                   JSON : { "text": "J'ajoute Doudou au matin.", "command": "UPDATE_ROUTINE", "name": "matin", "add_step": "Prendre Doudou" }
+                3. EXECUTION (ex: "Lance matin") ->
+                   JSON : { "text": "C'est parti.", "command": "GET_ROUTINE", "name": "matin" }`,
                 
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
             };
