@@ -7,95 +7,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V2 (Bleu & Positif) --- */
+        /* --- DESIGN NEURO V3 (Structure Séparée) --- */
         :root { 
-            --bg-main: #121212; 
-            --bg-card: #1E1E1E; 
-            --accent: #2979FF; 
-            --text-main: #E0E0E0;
-            --success: #00E676; 
-            --warning: #FFAB00;
-            --danger: #FF1744;
+            --bg-main: #121212; --bg-card: #1E1E1E; 
+            --accent: #2979FF; --text-main: #E0E0E0;
+            --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
         }
         
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-main);
-            color: var(--text-main);
+            font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main);
             height: 100vh; overflow: hidden; margin: 0; touch-action: none;
             display: flex; flex-direction: column;
         }
 
         /* HEADER */
-        .header { 
-            padding-top: 20px; padding-bottom: 15px; 
-            background: #121212; z-index: 10; border-bottom: 1px solid #333; 
-            position: relative;
-        }
-        
-        .header-content {
-            display: flex; align-items: center; justify-content: center; position: relative;
-        }
-
-        .brief-btn {
-            position: absolute; right: 20px; top: 0;
-            background: rgba(255, 171, 0, 0.1); 
-            border: 1px solid var(--warning); color: var(--warning);
-            font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px;
-            cursor: pointer; display: flex; align-items: center; gap: 5px;
-            transition: all 0.2s;
-        }
+        .header { padding-top: 20px; padding-bottom: 15px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; }
+        .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
+        .brief-btn { position: absolute; right: 20px; top: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 10px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; }
         .brief-btn:active { transform: scale(0.95); }
-
         .monitor-wrapper { width: 85%; margin: 15px auto 5px auto; display: flex; flex-direction: column; align-items: center; }
         .monitor-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
-
         .load-track { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
         .load-fill { height: 100%; width: 0%; background: var(--success); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.3); }
         .load-status { margin-top: 8px; font-size: 12px; font-weight: bold; color: var(--success); transition: color 0.3s; }
 
-        /* ZONE CENTRALE */
+        /* ZONE CENTRALE (Switchable) */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
         
+        /* 1. LISTE TÂCHES (VIDER) */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
-        
-        .task-item { 
-            background: var(--bg-card); padding: 15px; border-radius: 16px; 
-            display: flex; align-items: center; justify-content: space-between; 
-            border-left: 4px solid var(--accent); 
-            animation: slideIn 0.3s ease-out; transition: all 0.4s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .task-item.priority-high { 
-            border-left: 4px solid var(--danger);
-            background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card));
-            order: -2; 
-        }
-        .task-item.calendar { 
-            border-left: 4px solid #FF4081 !important; 
-            background: #1F1518; 
-            order: -1; 
-        }
-
+        .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
+        .task-item.calendar { border-left: 4px solid #FF4081 !important; background: #1F1518; order: -1; }
         .task-text { font-size: 15px; font-weight: 500; }
         .task-sub { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-top: 4px; display: flex; gap: 5px; align-items: center; }
-        
         .priority-badge { font-weight: 900; color: var(--danger); display: none; }
         .priority-high .priority-badge { display: inline; }
-
-        .done-btn { 
-            background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); 
-            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: all 0.2s;
-        }
+        .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
         .done-btn:active { background: var(--success); color: black; transform: scale(0.9); }
         .done-btn svg { width: 16px; height: 16px; fill: currentColor; }
-
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
-        /* TIMER POMODORO */
+        /* 2. ROUTINES UI */
+        .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
+        .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .routine-card-item { 
+            background: var(--bg-card); border: 1px solid #333; padding: 20px; 
+            border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+        }
+        .routine-card-item:active { transform: scale(0.95); background: #222; }
+        .routine-name { font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .routine-icon { font-size: 24px; }
+        
+        /* ACTIVE ROUTINE VIEW */
+        .active-routine-view { display: none; flex-direction: column; height: 100%; }
+        .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .back-btn { background: transparent; border: none; color: #888; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .routine-steps-list { display: flex; flex-direction: column; gap: 10px; }
+
+        /* 3. POMODORO UI */
         .pomo-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
         .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); margin: 20px 0; }
         .pomo-status { font-size: 14px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent); margin-bottom: 20px; }
@@ -105,7 +77,7 @@
         .btn-stop { background: #333; color: white; }
         .pomo-btn:active { transform: scale(0.95); }
 
-        /* ZEN */
+        /* COMMON */
         .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s; }
         .zen-overlay.show { opacity: 1; pointer-events: all; }
         .zen-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--success); box-shadow: 0 0 50px var(--success); margin-bottom: 20px; animation: breathe 4s infinite ease-in-out; }
@@ -115,37 +87,30 @@
 
         /* CONTROLES BAS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 30px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; }
-        
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
         .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         
-        /* ZONE INPUT */
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
-        
         .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
         .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
         .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
         .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
-
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; }
         .mic-btn.active { background: var(--accent); transform: scale(1.1); }
         .mic-btn svg { width: 30px; height: 30px; fill: white; }
-        
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
-
         .text-input-container { position: absolute; left: 70px; right: 20px; bottom: 30px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 5px 5px 5px 20px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform 0.2s; }
         .send-btn:active { transform: scale(0.9); }
         .send-btn svg { width: 18px; height: 18px; fill: white; margin-left: -2px; }
-
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
@@ -170,9 +135,24 @@
     <div class="content-area">
         <div class="task-container" id="task-list">
             <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;">
-                <p>Aucune charge détectée.</p>
+                <p>Mémoire vide.</p>
             </div>
         </div>
+
+        <div id="routine-ui" class="routine-container">
+            <div id="routines-grid" class="routine-grid">
+                </div>
+            
+            <div id="active-routine-view" class="active-routine-view">
+                <div class="routine-header">
+                    <button class="back-btn" onclick="exitRoutine()">← BIBLIOTHÈQUE</button>
+                    <span id="active-routine-name" style="font-weight:bold; color:var(--success);">...</span>
+                </div>
+                <div id="routine-steps-list" class="routine-steps-list">
+                    </div>
+            </div>
+        </div>
+
         <div id="pomo-ui" class="pomo-container">
             <div class="pomo-status" id="pomo-msg">FOCUS SESSION</div>
             <div class="pomo-timer" id="timer-display">25:00</div>
@@ -180,7 +160,6 @@
                 <button class="pomo-btn btn-stop" onclick="resetTimer()">STOP</button>
                 <button class="pomo-btn btn-start" onclick="toggleTimer()" id="btn-timer-action">START</button>
             </div>
-            <p style="margin-top:20px; font-size:10px; color:#666;">Une tâche à la fois.</p>
         </div>
     </div>
 
@@ -227,50 +206,126 @@
         let isTextMode = false;
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
         
-        document.addEventListener('DOMContentLoaded', () => { loadTasks(); updateMentalLoad(); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            loadTasks(); 
+            updateMentalLoad(); 
+            renderRoutines(); // Charge les routines enregistrées
+        });
 
-        // --- UI GESTION ---
-        function toggleInputMode(btn) {
-            isTextMode = !isTextMode;
-            const micUI = document.getElementById('mic-wrapper');
-            const textUI = document.getElementById('text-input-ui');
-            if(isTextMode) {
-                micUI.style.opacity = 0; micUI.style.pointerEvents = 'none'; textUI.classList.add('show');
-                btn.classList.add('active'); document.getElementById('user-input').focus();
-            } else {
-                micUI.style.opacity = 1; micUI.style.pointerEvents = 'all'; textUI.classList.remove('show');
-                btn.classList.remove('active');
-            }
-        }
-        function handleEnter(e) { if(e.key === 'Enter') sendText(); }
-        function sendText() {
-            const input = document.getElementById('user-input');
-            const text = input.value;
-            if(!text || text.trim() === "") return;
-            processWithAI(text); input.value = "";
-        }
-        function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
-        function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
+        // --- UI SWITCHING ---
         function setMode(mode, btn) {
             currentMode = mode;
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active'));
             btn.classList.add('active');
+
+            // Visibilité des conteneurs
             const taskList = document.getElementById('task-list');
+            const routineUI = document.getElementById('routine-ui');
             const pomoUI = document.getElementById('pomo-ui');
-            if (mode === 'POMO') {
-                taskList.style.display = 'none'; pomoUI.style.display = 'flex';
-                document.getElementById('status-text').innerText = "Prêt à foncer ?";
-            } else {
-                taskList.style.display = 'flex'; pomoUI.style.display = 'none';
-                const msgs = {'DUMP': "Je note tout...", 'FOCUS': "On débloque...", 'ROUTINE': "Go routine..."};
-                document.getElementById('status-text').innerText = msgs[mode];
+
+            taskList.style.display = 'none';
+            routineUI.style.display = 'none';
+            pomoUI.style.display = 'none';
+
+            if (mode === 'DUMP' || mode === 'FOCUS') {
+                taskList.style.display = 'flex';
+            } else if (mode === 'ROUTINE') {
+                routineUI.style.display = 'flex';
+                exitRoutine(); // Revenir à la liste des routines par défaut
+            } else if (mode === 'POMO') {
+                pomoUI.style.display = 'flex';
             }
+
+            const msgs = {'DUMP': "Je note tout...", 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."};
+            document.getElementById('status-text').innerText = msgs[mode];
             document.getElementById('status-text').style.opacity = 1;
         }
 
+        // --- GESTION DES ROUTINES (SEPAREES) ---
+        function saveRoutine(name, steps) {
+            let routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+            routines[name.toLowerCase()] = steps;
+            localStorage.setItem('neuro_routines', JSON.stringify(routines));
+            renderRoutines();
+        }
+
+        function renderRoutines() {
+            const grid = document.getElementById('routines-grid');
+            const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+            grid.innerHTML = "";
+
+            if (Object.keys(routines).length === 0) {
+                grid.innerHTML = `<div style="grid-column:span 2; opacity:0.5; font-size:12px;">Aucune routine.<br>Dis "Crée une routine..."</div>`;
+                return;
+            }
+
+            for (let name in routines) {
+                const btn = document.createElement('div');
+                btn.className = "routine-card-item";
+                btn.innerHTML = `<span class="routine-icon">🔄</span><span class="routine-name">${name}</span>`;
+                btn.onclick = () => launchRoutine(name);
+                grid.appendChild(btn);
+            }
+        }
+
+        function launchRoutine(name) {
+            const routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
+            const steps = routines[name.toLowerCase()];
+            
+            if(!steps) return;
+
+            // Afficher la vue active
+            document.getElementById('routines-grid').style.display = 'none';
+            document.getElementById('active-routine-view').style.display = 'flex';
+            document.getElementById('active-routine-name').innerText = name.toUpperCase();
+            
+            const list = document.getElementById('routine-steps-list');
+            list.innerHTML = "";
+            
+            steps.forEach(step => {
+                const div = document.createElement('div');
+                div.className = "task-item"; // Même style que les tâches
+                div.style.borderLeftColor = "#00E676"; // Vert pour routine
+                div.innerHTML = `
+                    <div class="task-text">${step}</div>
+                    <button class="done-btn" onclick="this.parentElement.remove(); checkRoutineFinish();">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function checkRoutineFinish() {
+            const list = document.getElementById('routine-steps-list');
+            if (list.children.length === 0) {
+                playVocalResponse("Routine terminée. Bien joué !");
+                setTimeout(exitRoutine, 2000);
+            }
+        }
+
+        function exitRoutine() {
+            document.getElementById('routines-grid').style.display = 'grid';
+            document.getElementById('active-routine-view').style.display = 'none';
+        }
+
+
+        // --- INPUT & ANIMATIONS ---
+        function toggleInputMode(btn) {
+            isTextMode = !isTextMode;
+            const micUI = document.getElementById('mic-wrapper');
+            const textUI = document.getElementById('text-input-ui');
+            if(isTextMode) { micUI.style.opacity = 0; micUI.style.pointerEvents = 'none'; textUI.classList.add('show'); btn.classList.add('active'); document.getElementById('user-input').focus(); } 
+            else { micUI.style.opacity = 1; micUI.style.pointerEvents = 'all'; textUI.classList.remove('show'); btn.classList.remove('active'); }
+        }
+        function handleEnter(e) { if(e.key === 'Enter') sendText(); }
+        function sendText() { const input = document.getElementById('user-input'); if(input.value.trim()){ processWithAI(input.value); input.value=""; } }
+        function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
+        function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
+
+        // --- AUDIO ---
         async function playVocalResponse(textToSpeak) {
-            document.getElementById('status-text').innerText = "Réponse...";
-            stopThinkingAnimation();
+            document.getElementById('status-text').innerText = "Réponse..."; stopThinkingAnimation();
             if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'fr-FR'; utterance.rate = 1.1; 
@@ -281,71 +336,10 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // --- ROUTINES ---
-        function saveRoutine(name, steps) {
-            let routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
-            routines[name.toLowerCase()] = steps;
-            localStorage.setItem('neuro_routines', JSON.stringify(routines));
-            return true;
-        }
-
-        function loadRoutine(name) {
-            let routines = JSON.parse(localStorage.getItem('neuro_routines') || '{}');
-            // Recherche approximative (ex: "matin" dans "routine du matin")
-            const key = Object.keys(routines).find(k => name.toLowerCase().includes(k));
-            return key ? routines[key] : null;
-        }
-
-        // --- POMODORO ---
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer-display').innerText = `${m}:${s}`;
-        }
-        function toggleTimer() {
-            const btn = document.getElementById('btn-timer-action');
-            if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } 
-            else {
-                timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000);
-                isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888";
-            }
-        }
-        function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
-        function finishTimer() { clearInterval(timerInterval); isTimerRunning = false; playVocalResponse("Session terminée ! Bravo champion."); const bar = document.getElementById('load-bar'); bar.style.transition = "width 1s"; bar.style.width = "0%"; setTimeout(() => updateMentalLoad(), 2000); document.getElementById('pomo-msg').innerText = "BRAVO !"; document.getElementById('pomo-msg').style.color = "var(--success)"; }
-
-        // --- BRIEF ---
-        async function startMorningBrief() {
-            if(isProcessing) return; isProcessing = true;
-            startThinkingAnimation();
-            document.getElementById('status-text').innerText = "Analyse..."; document.getElementById('status-text').style.opacity = 1;
-            const tasksList = []; document.querySelectorAll('.task-text').forEach(el => tasksList.push(el.innerText));
-            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
-            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            const briefPrompt = `Assistant TDAH. Date: ${today}. Tâches: ${tasksString}. Brief (30s max). 1. Bonjour 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
-            try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
-                const data = await rep.json();
-                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                playVocalResponse(parsed.text);
-            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; document.getElementById('status-text').innerText = "Erreur"; }
-        }
-
-        // --- LOGIC ---
-        function updateMentalLoad() {
-            const list = document.getElementById('task-list'); const count = list.querySelectorAll('.task-item').length;
-            let percent = Math.min((count / 8) * 100, 100);
-            const bar = document.getElementById('load-bar'); const status = document.getElementById('load-status');
-            bar.style.width = percent + "%";
-            if (count === 0) { bar.style.background = "var(--success)"; status.innerText = "ESPRIT LIBRE"; status.style.color = "var(--success)"; }
-            else if (percent < 40) { bar.style.background = "var(--success)"; status.innerText = "OPTIMAL"; status.style.color = "var(--success)"; }
-            else if (percent < 80) { bar.style.background = "var(--warning)"; status.innerText = "CHARGE MOYENNE"; status.style.color = "var(--warning)"; }
-            else { bar.style.background = "var(--danger)"; status.innerText = "SURCHARGE"; status.style.color = "var(--danger)"; }
-        }
-        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
-        function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
+        // --- UI UPDATE ---
         function addTaskToUI(text, type, priority = 'NORMAL') {
             const list = document.getElementById('task-list');
-            if(list.innerText.includes("Aucune charge")) list.innerHTML = "";
+            if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
             const div = document.createElement('div');
             const isCal = (type === 'CALENDAR'); const isHigh = (priority === 'HIGH');
             div.className = `task-item ${isCal ? 'calendar' : ''} ${isHigh ? 'priority-high' : ''}`;
@@ -358,37 +352,43 @@
         function completeTask(btn) { const item = btn.parentElement; item.style.transform = "translateX(100%)"; item.style.opacity = "0"; setTimeout(() => { item.remove(); saveTasks(); updateMentalLoad(); checkZenMode(); }, 300); }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const saved = localStorage.getItem('neuro_tasks'); if(saved && saved.trim() !== "") document.getElementById('task-list').innerHTML = saved; }
+        
+        // --- CHARGE MENTALE ---
+        function updateMentalLoad() {
+            const list = document.getElementById('task-list'); const count = list.querySelectorAll('.task-item').length;
+            let percent = Math.min((count / 8) * 100, 100);
+            const bar = document.getElementById('load-bar'); const status = document.getElementById('load-status');
+            bar.style.width = percent + "%";
+            if (count === 0) { bar.style.background = "var(--success)"; status.innerText = "ESPRIT LIBRE"; status.style.color = "var(--success)"; }
+            else if (percent < 40) { bar.style.background = "var(--success)"; status.innerText = "OPTIMAL"; status.style.color = "var(--success)"; }
+            else if (percent < 80) { bar.style.background = "var(--warning)"; status.innerText = "CHARGE MOYENNE"; status.style.color = "var(--warning)"; }
+            else { bar.style.background = "var(--danger)"; status.innerText = "SURCHARGE"; status.style.color = "var(--danger)"; }
+        }
+        function checkZenMode() { if(document.getElementById('task-list').querySelectorAll('.task-item').length === 0) { const popup = document.getElementById('zen-popup'); popup.classList.add('show'); setTimeout(() => popup.classList.remove('show'), 3000); } }
+        function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
 
+        // --- POMODORO ---
+        function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
+        function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
+        function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
+        function finishTimer() { clearInterval(timerInterval); isTimerRunning = false; playVocalResponse("Session terminée ! Bravo."); const bar = document.getElementById('load-bar'); bar.style.width = "0%"; setTimeout(() => updateMentalLoad(), 2000); }
+
+        // --- PROMPTS ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            // On récupère la liste des routines existantes pour aider l'IA
-            const existingRoutines = Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ");
-
             return {
                 'DUMP': `Assistant TDAH. DATE: ${today}. JSON Strict: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH" }, { "type": "CALENDAR", "detail": "..." } ] }. Regles: Agenda=CALENDAR. Urgence=HIGH.`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise + Micro-Action + Motivation. JSON Strict: { "text": "...", "actions": [ { "type": "TODO", "detail": "..." } ] }`,
-                
-                // INTELLIGENCE ROUTINES PERSONNALISÉES
-                'ROUTINE': `Expert Organisation.
-                Routines connues en mémoire : [${existingRoutines}].
-                
-                Analyse la demande :
-                
-                CAS 1 : L'utilisateur veut CRÉER/ENREGISTRER une routine (ex: "Configure ma routine du matin : café, douche").
-                -> Réponds JSON : { "text": "Routine [nom] enregistrée.", "command": "SAVE_ROUTINE", "name": "[nom]", "steps": ["étape 1", "étape 2"] }
-                
-                CAS 2 : L'utilisateur veut LANCER une routine (ex: "Routine du matin").
-                -> Réponds JSON : { "text": "Lancement routine...", "command": "GET_ROUTINE", "name": "[nom]" }
-                
-                CAS 3 : Routine inconnue ou générique.
-                -> Réponds JSON : { "text": "Voici une routine proposée.", "actions": [ { "type": "TODO", "detail": "..." } ] }
-                `
+                'ROUTINE': `Expert Organisation. Routines connues: [${Object.keys(JSON.parse(localStorage.getItem('neuro_routines') || '{}')).join(", ")}]. 
+                Si création: { "text": "Sauvegardé", "command": "SAVE_ROUTINE", "name": "nom", "steps": ["a","b"] }.
+                Si demande routine: { "text": "Je lance...", "command": "GET_ROUTINE", "name": "nom" }.`,
+                'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
             };
         }
 
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
 
+        // --- IA PROCESSING ---
         const btnMic = document.getElementById('btn-mic');
         const statusText = document.getElementById('status-text');
         btnMic.addEventListener('click', () => { if(!isProcessing) startListening(); });
@@ -403,9 +403,22 @@
             rec.start();
         }
 
+        async function startMorningBrief() {
+            if(isProcessing) return; isProcessing = true; startThinkingAnimation();
+            const tasksList = []; document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const briefPrompt = `Assistant TDAH. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
+                const data = await rep.json();
+                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
+                playVocalResponse(parsed.text);
+            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; }
+        }
+
         async function processWithAI(userInput) {
-            isProcessing = true; statusText.innerText = "Réfléchit...";
-            startThinkingAnimation();
+            isProcessing = true; statusText.innerText = "Réfléchit..."; startThinkingAnimation();
             const currentPrompts = getPrompts();
             const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
 
@@ -414,25 +427,18 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                // GESTION SPECIALE ROUTINE (SAVE / LOAD)
+                // ROUTINE LOGIC
                 if (currentMode === 'ROUTINE') {
                     if (parsed.command === 'SAVE_ROUTINE') {
                         saveRoutine(parsed.name, parsed.steps);
-                        playVocalResponse(`C'est noté. La routine ${parsed.name} est enregistrée.`);
-                        stopThinkingAnimation();
-                        return;
+                        playVocalResponse(`Routine ${parsed.name} enregistrée.`);
+                        stopThinkingAnimation(); return;
                     } 
                     else if (parsed.command === 'GET_ROUTINE') {
-                        const savedSteps = loadRoutine(parsed.name);
-                        if (savedSteps) {
-                            savedSteps.forEach(step => addTaskToUI(step, 'TODO'));
-                            playVocalResponse(`Voici ta routine ${parsed.name}.`);
-                        } else {
-                            // Pas trouvé -> Fallback générique
-                            playVocalResponse(`Je ne connais pas encore cette routine. Dis-moi "Configure la routine ${parsed.name}" pour l'apprendre.`);
-                        }
-                        stopThinkingAnimation();
-                        return;
+                        const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()];
+                        if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine ${parsed.name}.`); }
+                        else { playVocalResponse(`Je ne connais pas la routine ${parsed.name}.`); }
+                        stopThinkingAnimation(); return;
                     }
                 }
 
