@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V9 --- */
+        /* --- DESIGN NEURO V10 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -47,13 +47,29 @@
         .sync-badge { font-size: 10px; color: var(--accent); display: none; margin-left: 5px; }
         .task-item.calendar .sync-badge { display: inline; }
 
-        /* ROUTINES */
+        /* ROUTINES (NOUVEAU DESIGN) */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
-        .routine-card-item:active { transform: scale(0.95); background: #222; }
-        .routine-delete-btn { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; background: rgba(255,23,68,0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .routine-icon { font-size: 28px; }
+        
+        .routine-card-item { 
+            /* Fond par défaut, sera écrasé par JS */
+            background: var(--bg-card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            /* Bordure gauche épaisse gérée par JS */
+        }
+        .routine-card-item:active { transform: scale(0.95); }
+        
+        .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: background 0.2s; }
+        .routine-delete-btn:active { background: var(--danger); }
+        
+        .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -87,16 +103,13 @@
         /* INPUT AREA */
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
-        
         .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
         .mic-wrapper.is-recording svg { fill: var(--danger); }
-        
         .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
         .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
         .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
         .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
         @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
-
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
@@ -197,7 +210,7 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app";
         const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
-        // --- PHRASES (DOPAMINE) ---
+        // PHRASES POSITIVES
         const POSITIVE_PHRASES = [
             "Tu as tout ce qu'il faut pour réussir.", "Respire un grand coup, tu gères.", "Une étape à la fois, c'est le secret.",
             "Bravo d'être là pour toi aujourd'hui.", "Ton cerveau est unique, utilise-le à ton avantage.", "Pas de pression, juste de l'action.",
@@ -208,7 +221,7 @@
             "On y va, tranquillement mais sûrement.", "Tu es aux commandes."
         ];
 
-        // --- PHRASES DE TRANSITION (Au lieu de "Voici les étapes") ---
+        // TRANSITIONS NATURELLES (IA AUDIO)
         const TRANSITION_PHRASES = [
             "Voici la marche à suivre.", "On attaque avec ça.", "Ton plan d'action :",
             "Laisse-toi guider :", "C'est parti pour la suite.", "Regarde ce programme :",
@@ -378,15 +391,26 @@
             }
         }
 
-        // --- ICONES DYNAMIQUES ---
-        function getRoutineIcon(name) {
+        // --- INTELLIGENCE VISUELLE (ICONES & COULEURS) ---
+        function getRoutineStyle(name) {
             const n = name.toLowerCase();
-            if (n.includes('matin') || n.includes('reveil') || n.includes('jour')) return '☀️';
-            if (n.includes('soir') || n.includes('nuit') || n.includes('dodo')) return '🌙';
-            if (n.includes('sport') || n.includes('gym') || n.includes('yoga')) return '💪';
-            if (n.includes('travail') || n.includes('boulot') || n.includes('focus')) return '💼';
-            if (n.includes('maison') || n.includes('menage') || n.includes('course')) return '🏠';
-            return '🔄';
+            // Matin : Or
+            if (n.includes('matin') || n.includes('reveil') || n.includes('jour')) 
+                return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' };
+            // Soir : Bleu Nuit
+            if (n.includes('soir') || n.includes('nuit') || n.includes('dodo')) 
+                return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' };
+            // Sport : Rose/Rouge
+            if (n.includes('sport') || n.includes('gym') || n.includes('yoga') || n.includes('forme')) 
+                return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' };
+            // Travail : Cyan
+            if (n.includes('travail') || n.includes('boulot') || n.includes('focus') || n.includes('bureau')) 
+                return { icon: '💼', color: '#00E5FF', bg: 'rgba(0, 229, 255, 0.1)' };
+            // Maison : Vert
+            if (n.includes('maison') || n.includes('menage') || n.includes('course') || n.includes('rangement')) 
+                return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' };
+            // Défaut : Violet
+            return { icon: '🔄', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' };
         }
 
         function renderRoutines() {
@@ -402,9 +426,12 @@
                 delBtn.innerHTML = "✕";
                 delBtn.onclick = (e) => deleteRoutine(name, e);
                 
-                // Icone Dynamique
-                const icon = getRoutineIcon(name);
-                btn.innerHTML = `<span class="routine-icon">${icon}</span><span class="routine-name">${name}</span>`;
+                // Style dynamique
+                const style = getRoutineStyle(name);
+                btn.style.borderLeft = `4px solid ${style.color}`;
+                btn.style.background = `linear-gradient(135deg, ${style.bg}, var(--bg-card))`;
+                
+                btn.innerHTML = `<span class="routine-icon">${style.icon}</span><span class="routine-name">${name}</span>`;
                 btn.appendChild(delBtn);
                 btn.onclick = () => launchRoutine(name);
                 grid.appendChild(btn);
@@ -417,11 +444,17 @@
             document.getElementById('routines-grid').style.display = 'none';
             document.getElementById('active-routine-view').style.display = 'flex';
             document.getElementById('active-routine-name').innerText = name.toUpperCase();
+            
+            // Appliquer la couleur du titre
+            const style = getRoutineStyle(name);
+            document.getElementById('active-routine-name').style.color = style.color;
+
             const list = document.getElementById('routine-steps-list');
             list.innerHTML = "";
             steps.forEach((step, index) => {
                 const div = document.createElement('div');
-                div.className = "task-item"; div.style.borderLeftColor = "#00E676";
+                div.className = "task-item"; 
+                div.style.borderLeftColor = style.color; // Couleur assortie
                 div.innerHTML = `
                     <div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div>
                     <div class="actions-group">
@@ -443,7 +476,6 @@
 
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
-            // Construction de la phrase : Bonjour + Positif + Transition + Liste
             let text = "Bonjour ! " + getRandomIntro() + " " + getRandomTransition() + " ";
             list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". ");
             playVocalResponse(text);
