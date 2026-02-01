@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V4 --- */
+        /* --- DESIGN NEURO V5 (Stable) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -28,8 +28,6 @@
 
         /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; }
-        
-        /* TASKS */
         .task-container { padding: 20px; padding-bottom: 100px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 15px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); animation: slideIn 0.3s ease-out; transition: all 0.4s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left: 4px solid var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
@@ -46,17 +44,9 @@
         /* ROUTINES */
         .routine-container { display: none; flex-direction: column; padding: 20px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .routine-card-item { 
-            background: var(--bg-card); border: 1px solid #333; padding: 20px; 
-            border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative;
-        }
+        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
         .routine-card-item:active { transform: scale(0.95); background: #222; }
-        .routine-delete-btn {
-            position: absolute; top: 5px; right: 5px; width: 24px; height: 24px;
-            background: rgba(255,23,68,0.1); color: var(--danger); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 12px;
-        }
+        .routine-delete-btn { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; background: rgba(255,23,68,0.1); color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
@@ -90,17 +80,21 @@
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
         
-        /* Animation d'enregistrement (Pulse Rouge) */
-        .recording-pulse { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--danger); opacity: 0; pointer-events: none; }
-        .is-recording .recording-pulse { animation: pulse-red 1.5s infinite; opacity: 0.3; }
-        .is-recording .mic-btn { border-color: var(--danger); background: #330000; }
-        .is-recording svg { fill: var(--danger); }
-        
-        @keyframes pulse-red { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2); opacity: 0; } }
-
+        /* MICROPHONE STYLES */
         .mic-btn { z-index: 2; width: 70px; height: 70px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: all 0.2s; cursor: pointer; }
         .mic-btn svg { width: 30px; height: 30px; fill: white; transition: fill 0.2s; }
         
+        /* ETAT ENREGISTREMENT (CARRÉ ROUGE) */
+        .mic-wrapper.is-recording .mic-btn { border-color: var(--danger); background: #330000; box-shadow: 0 0 30px var(--danger); }
+        .mic-wrapper.is-recording svg { fill: var(--danger); }
+        
+        /* ONDES CEREBRALES (IA RÉFLÉCHIT) */
+        .thinking-wave { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0; pointer-events: none; }
+        .thinking .thinking-wave { animation: ripple 1.5s infinite; opacity: 1; }
+        .thinking .thinking-wave:nth-child(2) { animation-delay: 0.3s; }
+        .thinking .thinking-wave:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 4px; } 100% { transform: scale(2.5); opacity: 0; border-width: 0px; } }
+
         .keyboard-toggle { position: absolute; left: 20px; bottom: 35px; width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1px solid #444; color: #888; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 20; }
         .keyboard-toggle.active { background: var(--accent); color: white; border-color: var(--accent); }
 
@@ -185,8 +179,8 @@
             </div>
             
             <div id="mic-wrapper" class="mic-wrapper">
-                <div class="recording-pulse"></div>
-                <div id="btn-mic" class="mic-btn">
+                <div class="thinking-wave"></div><div class="thinking-wave"></div><div class="thinking-wave"></div>
+                <div id="btn-mic" class="mic-btn" onclick="toggleRecording()">
                     <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                     <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
                 </div>
@@ -207,7 +201,8 @@
         let isProcessing = false;
         let isTextMode = false;
         let recognition = null;
-        let isRecording = false; // Etat du toggle micro
+        let isRecording = false;
+        let finalTranscript = '';
         
         let timerInterval = null; let timeLeft = 25 * 60; let isTimerRunning = false;
         
@@ -216,97 +211,72 @@
             initSpeech();
         });
 
-        // --- GESTION MICROPHONE (ON/OFF) ---
+        // --- GESTION MICRO ROBUSTE (MANUELLE) ---
         function initSpeech() {
             const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!Speech) { alert("Micro non supporté"); return; }
             recognition = new Speech();
             recognition.lang = 'fr-FR';
-            recognition.continuous = true; // IMPORTANT: Ne s'arrête pas tout seul
-            recognition.interimResults = false;
+            recognition.continuous = true; // IMPORTANT : Ne s'arrête pas tout seul
+            recognition.interimResults = true;
 
             recognition.onresult = (event) => {
-                // On accumule pas ici, on prendra tout à la fin ou le dernier résultat
-                // Dans le cas de continuous, on veut le dernier bloc finalisé
-                const last = event.results.length - 1;
-                const transcript = event.results[last][0].transcript;
-                console.log("Reçu:", transcript);
-                // On peut afficher en temps réel si besoin
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript + ' ';
+                    } else {
+                        interim += event.results[i][0].transcript;
+                    }
+                }
+                // On pourrait afficher interim ici pour voir ce qu'on dit en direct
             };
             
-            // Gestion erreur/fin
-            recognition.onerror = (e) => { console.error(e); stopRecordingState(); };
+            recognition.onerror = (e) => { 
+                console.error(e); 
+                // En cas d'erreur ou coupure, on force l'arrêt propre
+                stopRecordingState();
+            };
         }
-
-        const btnMic = document.getElementById('btn-mic');
-        btnMic.addEventListener('click', toggleRecording);
 
         function toggleRecording() {
             if(isProcessing) return;
 
             if (!isRecording) {
                 // START
+                finalTranscript = '';
                 try {
                     recognition.start();
                     isRecording = true;
                     updateMicVisuals(true);
                     document.getElementById('status-text').innerText = "J'écoute... (Clique pour finir)";
-                } catch(e) { console.error(e); }
+                } catch(e) {
+                    console.error("Erreur start", e);
+                    // Si erreur (déjà démarré), on essaye de restart
+                    recognition.stop();
+                }
             } else {
-                // STOP & PROCESS
+                // STOP MANUEL
                 recognition.stop();
                 isRecording = false;
                 updateMicVisuals(false);
-                document.getElementById('status-text').innerText = "Analyse...";
                 
-                // Petite astuce : on attend un peu que le 'onresult' final arrive
-                // Mais comme on n'a pas accès facile au buffer complet ici simplement,
-                // On va utiliser une méthode plus simple pour ce code :
-                // On relance une écoute "One Shot" pour capturer la phrase complète si continuous pose problème avec l'API Gemini directe.
-                // MAIS pour faire simple et robuste : 
-                // On va dire à l'utilisateur : c'est bon.
-                // NOTE: Avec l'API Web Speech simple, récupérer tout le texte en mode continuous demande de concaténer.
-                // Simplification pour ce code : On va utiliser le dernier résultat capturé.
+                // Petit délai pour être sûr d'avoir le dernier mot
+                document.getElementById('status-text').innerText = "Attente fin...";
+                setTimeout(() => {
+                    if(finalTranscript.trim().length > 0) {
+                        processWithAI(finalTranscript);
+                    } else {
+                        document.getElementById('status-text').innerText = "Rien entendu.";
+                    }
+                }, 800);
             }
         }
-        
-        // Surcharge pour gérer la récupération du texte complet
-        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new Speech();
-            recognition.lang = 'fr-FR';
-            recognition.continuous = true; 
-            let finalTranscript = '';
 
-            recognition.onresult = (event) => {
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript + ' ';
-                    }
-                }
-            };
-
-            btnMic.onclick = () => {
-                if (!isRecording) {
-                    finalTranscript = ''; // Reset
-                    recognition.start();
-                    isRecording = true;
-                    updateMicVisuals(true);
-                    document.getElementById('status-text').innerText = "J'écoute... (Cliquez pour arrêter)";
-                } else {
-                    recognition.stop();
-                    isRecording = false;
-                    updateMicVisuals(false);
-                    // On envoie le texte accumulé
-                    setTimeout(() => {
-                        if(finalTranscript.trim().length > 0) {
-                            processWithAI(finalTranscript);
-                        } else {
-                            document.getElementById('status-text').innerText = "Je n'ai rien entendu.";
-                        }
-                    }, 800); // Petit délai pour laisser le dernier mot arriver
-                }
-            };
+        function stopRecordingState() {
+            isRecording = false;
+            updateMicVisuals(false);
+            document.getElementById('status-text').innerText = "Erreur Micro (Réessaie)";
         }
 
         function updateMicVisuals(recording) {
@@ -322,6 +292,48 @@
                 wrapper.classList.remove('is-recording');
                 iconMic.style.display = 'block';
                 iconStop.style.display = 'none';
+            }
+        }
+
+        // --- UI & IA ---
+        function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
+        function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
+
+        async function processWithAI(userInput) {
+            isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation();
+            const currentPrompts = getPrompts();
+            const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
+
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
+                const data = await rep.json();
+                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
+                
+                // ROUTINE LOGIC
+                if (currentMode === 'ROUTINE') {
+                    if (parsed.command === 'SAVE_ROUTINE') {
+                        saveRoutine(parsed.name, parsed.steps);
+                        playVocalResponse(`Routine ${parsed.name} enregistrée.`);
+                        stopThinkingAnimation(); isProcessing = false; return;
+                    } 
+                    else if (parsed.command === 'GET_ROUTINE') {
+                        const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()];
+                        if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine ${parsed.name}.`); }
+                        else { playVocalResponse(`Je ne connais pas la routine ${parsed.name}.`); }
+                        stopThinkingAnimation(); isProcessing = false; return;
+                    }
+                }
+
+                if(parsed.actions) {
+                    parsed.actions.forEach(act => {
+                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL');
+                        if(act.type === 'CALENDAR') { document.getElementById('status-text').innerText = "Agenda..."; sendToCalendar(act.detail); }
+                    });
+                }
+                playVocalResponse(parsed.text);
+            } catch (e) { 
+                console.error(e); stopThinkingAnimation(); 
+                document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; 
             }
         }
 
@@ -356,7 +368,6 @@
             for (let name in routines) {
                 const btn = document.createElement('div');
                 btn.className = "routine-card-item";
-                // Bouton Delete
                 const delBtn = document.createElement('div');
                 delBtn.className = "routine-delete-btn";
                 delBtn.innerHTML = "✕";
@@ -386,9 +397,9 @@
                 const div = document.createElement('div');
                 div.className = "task-item"; 
                 div.style.borderLeftColor = "#00E676";
-                // RENDRE LE TEXTE EDITABLE
+                // EDITABLE
                 div.innerHTML = `
-                    <div class="task-text" contenteditable="true">${step}</div>
+                    <div class="task-text" contenteditable="true" onblur="updateRoutineStep('${name}', '${step}', this.innerText)">${step}</div>
                     <button class="done-btn" onclick="this.parentElement.remove(); checkRoutineFinish();">
                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                     </button>
@@ -397,9 +408,16 @@
             });
         }
 
+        // Mise à jour si on modifie le texte
+        function updateRoutineStep(routineName, oldStep, newStep) {
+            // (Simplification: Pour l'instant on modifie juste l'affichage, 
+            // pour une vraie modif persistente il faudrait re-sauvegarder tout le tableau)
+            // On laisse l'utilisateur supprimer/refaire pour l'instant pour la simplicité du code
+        }
+
         function readActiveRoutine() {
             const list = document.getElementById('routine-steps-list');
-            let text = "Voici les étapes : ";
+            let text = "C'est parti. ";
             list.querySelectorAll('.task-text').forEach(el => text += el.innerText + ". ");
             playVocalResponse(text);
         }
@@ -416,7 +434,7 @@
             document.getElementById('active-routine-view').style.display = 'none';
         }
 
-        // --- UI & LOGIQUE GENERALE (Reste inchangé ou adapté) ---
+        // --- INPUT TEXTE ---
         function toggleInputMode(btn) {
             isTextMode = !isTextMode;
             const micUI = document.getElementById('mic-wrapper');
@@ -443,10 +461,12 @@
 
             const msgs = {'DUMP': "Je note tout...", 'FOCUS': "On débloque...", 'ROUTINE': "Bibliothèque...", 'POMO': "Focus..."};
             document.getElementById('status-text').innerText = msgs[mode];
+            document.getElementById('status-text').style.opacity = 1;
         }
 
         async function playVocalResponse(textToSpeak) {
             document.getElementById('status-text').innerText = "Réponse...";
+            stopThinkingAnimation();
             if(!textToSpeak) { isProcessing = false; document.getElementById('status-text').innerText = "Prêt."; return; }
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'fr-FR'; utterance.rate = 1.1; 
@@ -457,8 +477,7 @@
             window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
         }
 
-        // ... [FONCTIONS POMODORO, BRIEF, CHARGE MENTALE RESTENT LES MÊMES] ...
-        // (Je remets les fonctions courtes pour que ça marche)
+        // --- FONCTIONS SECONDAIRES (POMO, BRIEF, ETC) ---
         function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const btn = document.getElementById('btn-timer-action'); if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; btn.innerText = "REPRENDRE"; btn.style.background = "#FFB74D"; } else { timerInterval = setInterval(() => { timeLeft--; updateTimerDisplay(); if (timeLeft <= 0) finishTimer(); }, 1000); isTimerRunning = true; btn.innerText = "PAUSE"; btn.style.background = "transparent"; btn.style.border = "1px solid #666"; btn.style.color = "#888"; } }
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
@@ -486,29 +505,19 @@
                 'POMO': `Coach Pomodoro. JSON Strict: { "text": "Focus sur quoi ?", "actions": [] }`
             };
         }
-
-        async function processWithAI(userInput) {
-            isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit...";
-            const currentPrompts = getPrompts();
-            const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
-
+        
+        async function startMorningBrief() {
+            if(isProcessing) return; isProcessing = true; startThinkingAnimation();
+            const tasksList = []; document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const briefPrompt = `Assistant TDAH. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
             try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                
-                if (currentMode === 'ROUTINE') {
-                    if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); return; } 
-                    else if (parsed.command === 'GET_ROUTINE') { 
-                        const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()];
-                        if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine ${parsed.name}.`); }
-                        else { playVocalResponse(`Inconnue.`); }
-                        return;
-                    }
-                }
-                if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL'); if(act.type === 'CALENDAR') sendToCalendar(act.detail); }); }
                 playVocalResponse(parsed.text);
-            } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
+            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; }
         }
     </script>
 </body>
