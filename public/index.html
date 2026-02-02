@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V51 (MODERN ICONS) --- */
+        /* --- DESIGN NEURO V52 (ROUTINES FIX) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -32,14 +32,15 @@
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 1.5s infinite ease-in-out; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 3px; opacity:0.6; } 50% { height: 10px; opacity:1; } }
-        
         .brief-btn { background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); }
         .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
         @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* MONITOR & SIDEBAR */
+        /* MONITOR CHARGE MENTALE */
         .monitor-bar-container { width: 100%; height: 8px; background: #1a1a1a; flex-shrink: 0; position: relative; border-bottom: 1px solid #222; }
         .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+
+        /* SIDEBAR GAUCHE */
         .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: #0f0f0f; border-right: 1px solid #222; z-index: 40; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
 
@@ -91,28 +92,30 @@
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         .laser-task { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
         .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
+        .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; cursor: pointer; }
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
+        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
         .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
+        .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
+        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
         .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
         .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
         .pomo-controls { display: flex; gap: 20px; }
         .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
-        .btn-start { background: var(--success); color: black; } .btn-stop { background: #333; color: white; }
+        .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
+        .btn-stop { background: #333; color: white; }
 
         /* FOOTER & CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
-        
-        /* NEW MODERN CARD */
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
-        
-        /* SVG ICONS FOR NAV */
         .mode-icon { margin-bottom: 4px; display: flex; }
         .mode-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
         .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
@@ -127,13 +130,14 @@
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
+
         .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
-        /* ONBOARDING */
+        /* ONBOARDING & ZEN */
         .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
         .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
@@ -330,7 +334,7 @@
             document.getElementById('status-text').innerText = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"}[viewName];
         }
 
-        // --- AUDIO : PINK NOISE (PLUIE) ---
+        // --- AUDIO : PINK NOISE ---
         function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
         function startPinkNoise() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -391,7 +395,7 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- HELPERS ---
+        // --- HELPERS (STRICT IA) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
@@ -400,7 +404,7 @@
             return {
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
-                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. Commandes: SAVE_ROUTINE / GET_ROUTINE.`,
+                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. Pour CRÉER: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape1", "Etape2"] }. Pour LIRE: { "command": "GET_ROUTINE", "name": "Nom" }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
@@ -430,7 +434,7 @@
         function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
         function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('onboarding-modal').classList.remove('show'); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
-        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
+        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
         
         function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
