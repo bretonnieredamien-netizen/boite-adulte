@@ -8,52 +8,76 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V34 (CALENDRIER) --- */
+        /* --- DESIGN NEURO V35 (FINAL EPURÉ) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
             --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
             --reminder: #D500F9; --capacity: #00E5FF;
-            --date-badge: #FF4081;
         }
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 30px; }
+        .header { padding-top: 15px; padding-bottom: 10px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 15px; /* Réduit car barre plus fine */ }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; }
         .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 5px; }
         .app-logo-svg { width: 140px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
-        /* BOUTONS */
+        /* BOUTONS (Tous alignés en haut) */
         .header-btn { position: absolute; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
+        
         .mood-btn { left: 0px; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
-        .sound-btn { right: 0px; }
+        
+        .sound-btn { right: 70px; } /* Décalé pour laisser place au Brief */
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
-        .brief-btn { position: absolute; right: 0; bottom: -35px; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 10px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
 
-        /* SIDEBAR */
-        .capacity-sidebar { position: fixed; left: 0; top: 0; bottom: 110px; width: 30px; background: #0f0f0f; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px; z-index: 40; }
-        .capacity-track { width: 6px; height: 70%; background: #222; border-radius: 3px; position: relative; overflow: hidden; margin-bottom: 10px; }
-        .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); }
-        .capacity-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; color: #666; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
-        .capacity-value { font-size: 9px; font-weight: bold; color: var(--capacity); writing-mode: vertical-rl; transform: rotate(180deg); }
+        /* BRIEF REMONTÉ */
+        .brief-btn { 
+            position: absolute; top: 15px; right: 0; /* Aligné avec les autres */
+            background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); 
+            font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; 
+            z-index: 20; display: flex; align-items: center; gap: 3px; 
+        }
 
-        /* MONITOR */
-        .monitor-wrapper { width: 85%; margin: 10px auto 5px auto; transition: opacity 0.3s; }
+        /* SIDEBAR CAPACITÉ (GAUCHE - MINIMALISTE) */
+        .capacity-sidebar { 
+            position: fixed; left: 0; top: 0; bottom: 90px; width: 15px; /* Plus fin */
+            background: #0f0f0f; border-right: 1px solid #222; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
+            padding-bottom: 0; z-index: 40; 
+        }
+        .capacity-track { width: 100%; height: 100%; background: #0f0f0f; position: relative; overflow: hidden; }
+        .capacity-fill { 
+            width: 100%; height: 0%; background: var(--capacity); 
+            position: absolute; bottom: 0; left: 0; 
+            transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1); 
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); 
+            opacity: 0.8;
+        }
+
+        /* MONITOR CHARGE MENTALE (GRADIENT) */
+        .monitor-wrapper { width: 90%; margin: 10px auto 5px auto; transition: opacity 0.3s; }
         .monitor-wrapper.hidden { opacity: 0; pointer-events: none; }
-        .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 5px; display: flex; justify-content: space-between; }
-        .load-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-        .load-fill { height: 100%; width: 0%; background: var(--success); transition: width 0.6s; }
+        .monitor-title { font-size: 9px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; width: 100%; display: flex; justify-content: space-between; }
+        .load-track { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
+        
+        /* BARRE PROGRESSIVE (GRADIENT) */
+        .load-fill { 
+            height: 100%; width: 0%; 
+            background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%);
+            transition: width 0.6s ease-out; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
 
         /* CONTENT */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 35px; }
+        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 20px; }
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -63,42 +87,34 @@
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left-color: #FF4081; background: #1F1518; order: -1; }
+        .task-item.reminder { border-left-color: var(--reminder); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
         .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 9px; opacity: 0.6; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
-        
-        /* BADGES */
         .time-badge, .date-badge { background: #333; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid rgba(255,255,255,0.1); }
         .time-badge { color: var(--capacity); border-color: rgba(0, 229, 255, 0.2); }
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
-        
         .priority-badge { font-weight: 900; color: var(--danger); display: none; margin-left:5px; }
         .task-item.priority-high .priority-badge { display: inline; }
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        /* 2. CALENDAR (NOUVEAU) */
+        .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* 2. CALENDAR */
         #view-calendar { padding: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .month-label { font-size: 16px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 2px; }
         .cal-nav-btn { background: #222; border: 1px solid #444; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px; }
         .day-name { text-align: center; font-size: 10px; color: #666; font-weight: bold; margin-bottom: 5px; }
-        
-        .day-cell { 
-            aspect-ratio: 1; background: #151515; border-radius: 10px; border: 1px solid #333; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative;
-        }
+        .day-cell { aspect-ratio: 1; background: #151515; border-radius: 10px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative; }
         .day-cell.today { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
-        .day-cell.has-task::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: var(--date-badge); border-radius: 50%; }
+        .day-cell.has-task::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: #FF4081; border-radius: 50%; }
         .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); }
-        
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* 3. FOCUS (LASER) */
+        /* 3. FOCUS */
         #view-focus { padding: 15px; }
         .focus-title { text-align: center; font-weight: 900; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px; font-size: 12px; }
         .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-bottom: 100px; }
@@ -106,7 +122,6 @@
         .focus-card:active { transform: scale(0.95); background: #222; border-color: var(--accent); }
         .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
         .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
-        
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; animation: zoomIn 0.3s; }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .laser-task { font-size: 26px; font-weight: 900; color: white; margin-bottom: 30px; text-shadow: 0 0 20px rgba(41, 121, 255, 0.5); }
@@ -121,11 +136,13 @@
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .routine-icon { font-size: 32px; }
+        .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
         .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
         .pomo-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
         .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; }
@@ -135,10 +152,10 @@
         /* CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:30px; }
         .mode-selector { display: flex; gap: 10px; overflow-x: auto; padding: 10px 20px; margin-bottom: 15px; width: 100%; justify-content: center; }
-        .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 60px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
+        .mode-card { background: var(--bg-card); padding: 10px 15px; border-radius: 12px; min-width: 80px; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 20px; display: block; margin-bottom: 2px; }
-        .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .mode-label { font-size: 10px; font-weight: 700; text-transform: uppercase; }
         
         .input-area { position: relative; width: 100%; height: 100px; display: flex; align-items: center; justify-content: center; }
         .mic-wrapper { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -173,15 +190,14 @@
     </div>
 
     <div class="capacity-sidebar">
-        <div id="capacity-value" class="capacity-value">0h</div>
         <div class="capacity-track"><div id="capacity-bar" class="capacity-fill"></div></div>
-        <div class="capacity-label">CAPACITÉ</div>
     </div>
 
     <div class="header">
         <div class="header-content">
             <button id="mood-btn" class="header-btn mood-btn zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
             <button id="sound-btn" class="header-btn sound-btn" onclick="toggleBrownNoise()"><span>🎧</span> FOCUS</button>
+            <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
 
             <div class="app-logo-container">
                 <svg class="app-logo-svg" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
@@ -197,8 +213,6 @@
                 </svg>
                 <div id="user-display" class="user-greeting"></div>
             </div>
-            
-            <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
         </div>
         
         <div id="monitor-ui" class="monitor-wrapper">
@@ -208,7 +222,6 @@
     </div>
 
     <div class="content-area">
-        
         <div id="view-dump" class="view-section active">
             <div class="task-container" id="task-list">
                 <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div>
@@ -276,7 +289,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="bottom-controls">
@@ -291,8 +303,8 @@
         <div class="input-area">
             <div class="keyboard-toggle" onclick="toggleInputMode(this)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg></div>
             <div id="mic-wrapper" class="mic-wrapper">
+                <div class="thinking-wave"></div><div class="thinking-wave"></div><div class="thinking-wave"></div>
                 <div id="btn-mic" class="mic-btn" onclick="toggleRecording()"><svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg><svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg></div>
-                <div class="thinking-wave"></div><div class="thinking-wave" style="animation-delay:0.3s"></div>
             </div>
             <div id="text-input-ui" class="text-input-container"><input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)"><button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></div>
         </div>
@@ -338,88 +350,39 @@
             document.getElementById('status-text').innerText = titles[viewName];
         }
 
-        // --- CALENDAR LOGIC (NEW) ---
+        // --- CALENDAR ---
         function renderCalendar() {
             const container = document.getElementById('cal-days-container');
             const monthLabel = document.getElementById('cal-month-label');
             const year = currentCalDate.getFullYear();
             const month = currentCalDate.getMonth();
-            
-            // Nom du mois
             const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
             monthLabel.innerText = `${monthNames[month]} ${year}`;
-            
-            // Jours
             container.innerHTML = "";
-            const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+            const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const offset = (firstDay === 0) ? 6 : firstDay - 1; // Lundi=0 pour CSS Grid
-
-            // Empty slots
-            for(let i=0; i<offset; i++) {
-                const empty = document.createElement('div');
-                container.appendChild(empty);
-            }
-
-            // Récupérer les tâches avec dates
+            const offset = (firstDay === 0) ? 6 : firstDay - 1;
+            for(let i=0; i<offset; i++) container.appendChild(document.createElement('div'));
             const tasks = [];
-            document.querySelectorAll('.task-item').forEach(item => {
-                const dateAttr = item.getAttribute('data-date');
-                if(dateAttr) tasks.push({ date: dateAttr, html: item.outerHTML });
-            });
-
-            // Days
+            document.querySelectorAll('.task-item').forEach(item => { const dateAttr = item.getAttribute('data-date'); if(dateAttr) tasks.push({ date: dateAttr, html: item.outerHTML }); });
             for(let d=1; d<=daysInMonth; d++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.className = "day-cell";
-                dayDiv.innerText = d;
-                
-                // Check format YYYY-MM-DD
+                const dayDiv = document.createElement('div'); dayDiv.className = "day-cell"; dayDiv.innerText = d;
                 const currentDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-                
-                // Highlight today
-                const today = new Date();
-                if(d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) dayDiv.classList.add('today');
-
-                // Check for tasks
+                const today = new Date(); if(d === today.getDate() && month === today.getMonth() && year === today.getFullYear()) dayDiv.classList.add('today');
                 const dayTasks = tasks.filter(t => t.date === currentDateStr);
                 if(dayTasks.length > 0) dayDiv.classList.add('has-task');
-
-                dayDiv.onclick = () => {
-                    document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected'));
-                    dayDiv.classList.add('selected');
-                    showTasksForDay(dayTasks, d, monthNames[month]);
-                };
-
+                dayDiv.onclick = () => { document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('selected')); dayDiv.classList.add('selected'); showTasksForDay(dayTasks, d, monthNames[month]); };
                 container.appendChild(dayDiv);
             }
         }
-
-        function changeMonth(delta) {
-            currentCalDate.setMonth(currentCalDate.getMonth() + delta);
-            renderCalendar();
-        }
-
+        function changeMonth(delta) { currentCalDate.setMonth(currentCalDate.getMonth() + delta); renderCalendar(); }
         function showTasksForDay(tasks, day, monthName) {
             const list = document.getElementById('cal-task-list');
-            if(tasks.length === 0) {
-                list.innerHTML = `<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${day} ${monthName}.</div>`;
-            } else {
-                list.innerHTML = "";
-                tasks.forEach(t => {
-                    const div = document.createElement('div');
-                    // On recrée un div simple pour l'affichage (pas interactif complet pour éviter bugs)
-                    div.innerHTML = t.html;
-                    // On désactive les boutons pour cet affichage lecture seule ou on simplifie
-                    const btn = div.querySelector('.done-btn');
-                    if(btn) btn.style.display='none'; // Juste consultation
-                    list.appendChild(div.firstChild); // extract .task-item
-                });
-            }
+            if(tasks.length === 0) { list.innerHTML = `<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${day} ${monthName}.</div>`; } 
+            else { list.innerHTML = ""; tasks.forEach(t => { const div = document.createElement('div'); div.innerHTML = t.html; const btn = div.querySelector('.done-btn'); if(btn) btn.style.display='none'; list.appendChild(div.firstChild); }); }
         }
 
-        // --- CORE FUNCTIONS (TASK, IA, ETC.) ---
-        // Ajout du paramètre DATE
+        // --- CORE UI ---
         function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
@@ -427,122 +390,68 @@
             const isCal = (type === 'CALENDAR'); const isRem = (type === 'REMINDER'); const isHigh = (priority === 'HIGH');
             div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
             div.setAttribute('data-duration', duration);
-            if(date) div.setAttribute('data-date', date); // Format YYYY-MM-DD
-            
-            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; 
-            const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; 
-            const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
-            
-            let dateBadge = '';
-            if(date) {
-                // Format display DD/MM
-                const dObj = new Date(date);
-                const dStr = `${dObj.getDate()}/${dObj.getMonth()+1}`;
-                dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dStr}</span>`;
-            }
-
+            if(date) div.setAttribute('data-date', date);
+            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; const fireIcon = isHigh ? '<span class="priority-badge">🔥</span>' : '';
+            let dateBadge = ''; if(date) { const dObj = new Date(date); dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}</span>`; }
             const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
-
-            div.innerHTML = `
-                <div class="task-content">
-                    <div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div>
-                    <div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'))}</span></div>
-                </div>
-                <div class="actions-group">
-                    <button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button>
-                </div>`;
+            div.innerHTML = `<div class="task-content"><div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div><div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'))}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
             list.appendChild(div); saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; startThinkingAnimation();
-            const currentPrompts = getPrompts();
-            const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
+            const currentPrompts = getPrompts(); const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                
-                if (currentMode === 'ROUTINE') { /* ... Routine logic ... */ }
-                
-                if(parsed.actions) { 
-                    parsed.actions.forEach(act => { 
-                        // On passe la date extraite (due_date) à la fonction
-                        addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
-                    }); 
-                }
+                if (currentMode === 'ROUTINE') { /* Routine logic */ }
+                if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration, act.due_date); if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); }); }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); stopThinkingAnimation(); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
         }
 
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            // Date format ISO for matching
             const todayISO = new Date().toISOString().split('T')[0];
-            
             let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
-
             return {
-                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today} (${todayISO}).
-                JSON Strict.
-                Champ "text": 1 mot court.
-                Actions: [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ].
-                ESTIME LA DURÉE (en min).
-                SI UNE DATE EST MENTIONNÉE (demain, lundi, le 24...), mets-la dans "due_date" au format YYYY-MM-DD.`,
-                
+                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today} (${todayISO}). JSON Strict. Champ "text": 1 mot court. Actions: [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ]. ESTIME LA DURÉE (en min). SI DATE (demain, lundi, 24...), mets dans "due_date".`,
                 'FOCUS': `Coach TDAH. Mission: Dédramatise. JSON Strict: { "text": "...", "actions": [] }`,
-                'ROUTINE': `Expert Organisation. ${tone}. Commandes: SAVE_ROUTINE/GET_ROUTINE.`,
+                'ROUTINE': `Expert. ${tone}. Commandes: SAVE_ROUTINE/GET_ROUTINE.`,
                 'POMO': `Coach Pomodoro. ${tone}. JSON Strict: { "text": "Focus ?", "actions": [] }`
             };
         }
 
-        // --- FOCUS LOGIC (SAME AS V33) ---
+        // --- FOCUS (CIBLES) ---
         function renderFocusGrid() {
-            const grid = document.getElementById('focus-grid');
-            const tasksHTML = document.getElementById('task-list').innerHTML;
-            document.getElementById('focus-picker-wrapper').style.display = 'block';
-            document.getElementById('focus-laser-wrapper').style.display = 'none';
+            const grid = document.getElementById('focus-grid'); const tasksHTML = document.getElementById('task-list').innerHTML;
+            document.getElementById('focus-picker-wrapper').style.display = 'block'; document.getElementById('focus-laser-wrapper').style.display = 'none';
             if (tasksHTML.includes("Mémoire vide")) { grid.innerHTML = `<div style="text-align:center; opacity:0.5; grid-column:span 2; margin-top:40px;">Aucune cible.</div>`; return; }
-            grid.innerHTML = "";
-            const tempDiv = document.createElement('div'); tempDiv.innerHTML = tasksHTML;
-            tempDiv.querySelectorAll('.task-item').forEach(item => {
-                const text = item.querySelector('.task-text').innerText;
-                const div = document.createElement('div'); div.className = "focus-card";
-                div.innerHTML = `<span class="focus-icon">🎯</span><span class="focus-text">${text}</span>`;
-                div.onclick = () => activateLaserMode(text); grid.appendChild(div);
-            });
+            grid.innerHTML = ""; const tempDiv = document.createElement('div'); tempDiv.innerHTML = tasksHTML;
+            tempDiv.querySelectorAll('.task-item').forEach(item => { const text = item.querySelector('.task-text').innerText; const div = document.createElement('div'); div.className = "focus-card"; div.innerHTML = `<span class="focus-icon">🎯</span><span class="focus-text">${text}</span>`; div.onclick = () => activateLaserMode(text); grid.appendChild(div); });
         }
         async function activateLaserMode(taskText) {
             currentFocusTask = taskText; document.getElementById('focus-picker-wrapper').style.display = 'none'; document.getElementById('focus-laser-wrapper').style.display = 'flex'; document.getElementById('laser-current-task').innerText = taskText; document.getElementById('laser-ai-suggestion').style.display = 'none'; document.getElementById('status-text').innerText = "Analyse...";
-            try {
-                const prompt = `Coach TDAH. Tâche: "${taskText}". Donne UNE SEULE micro-étape ridicule.`;
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) });
-                const data = await rep.json();
-                document.getElementById('laser-micro-text').innerText = data.text.replace(/\*/g, ''); document.getElementById('laser-ai-suggestion').style.display = 'block'; playVocalResponse(`Cible verrouillée. ${data.text}`);
-            } catch(e) {}
+            try { const prompt = `Coach TDAH. Tâche: "${taskText}". Donne UNE SEULE micro-étape ridicule.`; const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: prompt }) }); const data = await rep.json(); document.getElementById('laser-micro-text').innerText = data.text.replace(/\*/g, ''); document.getElementById('laser-ai-suggestion').style.display = 'block'; playVocalResponse(`Cible verrouillée. ${data.text}`); } catch(e) {}
         }
-        function completeLaserTask() {
-            triggerConfetti(); playVocalResponse("Bravo !");
-            const list = document.getElementById('task-list'); const items = list.querySelectorAll('.task-item');
-            items.forEach(item => { if(item.querySelector('.task-text').innerText.includes(currentFocusTask)) item.remove(); });
-            saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode, 2000);
-        }
+        function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo !"); const list = document.getElementById('task-list'); const items = list.querySelectorAll('.task-item'); items.forEach(item => { if(item.querySelector('.task-text').innerText.includes(currentFocusTask)) item.remove(); }); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode, 2000); }
         function exitLaserMode() { document.getElementById('focus-laser-wrapper').style.display = 'none'; document.getElementById('focus-picker-wrapper').style.display = 'block'; renderFocusGrid(); }
 
-        // --- STANDARD JS (Audio, Mood, etc.) ---
-        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
+        // --- BUTTONS & AUDIO (FIXED) ---
         function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
         function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
+        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
         function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
         function startBrownNoise() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const bufferSize = 4096; const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1); brownNoise.onaudioprocess = function(e) { const output = e.outputBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; } }; let lastOut = 0; gainNode = audioCtx.createGain(); gainNode.gain.value = 0.15; brownNoise.connect(gainNode); gainNode.connect(audioCtx.destination); brownNoiseNode = brownNoise; isNoisePlaying = true; const btn = document.getElementById('sound-btn'); btn.classList.add('active'); btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`; }
         function stopBrownNoise() { if (brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; } isNoisePlaying = false; const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`; }
-        
+
+        // --- UTILS ---
         function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
         function updateMentalLoad() { const items = document.querySelectorAll('#task-list .task-item'); let score = 0; items.forEach(i => { if(i.classList.contains('priority-high')) score+=3; else score+=1; }); const p = Math.min((score/12)*100, 100); document.getElementById('load-bar').style.width = p+"%"; const st = document.getElementById('stress-level'); if(score===0) { st.innerText="ZEN"; st.style.color="var(--success)"; } else if(p<85) { st.innerText="MOY"; st.style.color="var(--warning)"; } else { st.innerText="HAUTE"; st.style.color="var(--danger)"; } }
-        function updateDailyCapacity() { const items = document.querySelectorAll('#task-list .task-item'); let mins = 0; items.forEach(i => { mins += parseInt(i.getAttribute('data-duration')) || 15; }); const p = Math.min((mins/360)*100, 100); document.getElementById('capacity-bar').style.height = p+"%"; const h=Math.floor(mins/60); const m=mins%60; document.getElementById('capacity-value').innerText = (mins>0)?`${h}h${m>0?m:''}`:"0h"; }
+        function updateDailyCapacity() { const items = document.querySelectorAll('#task-list .task-item'); let mins = 0; items.forEach(i => { mins += parseInt(i.getAttribute('data-duration')) || 15; }); const p = Math.min((mins/360)*100, 100); document.getElementById('capacity-bar').style.height = p+"%"; }
         function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; document.getElementById('user-display').innerText = username; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
         function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('user-display').innerText = username; document.getElementById('onboarding-modal').classList.remove('show'); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
@@ -553,9 +462,9 @@
         function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
         function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
         async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
+        async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
         function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
-        function deleteStepFromRoutine(n, i) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const k = Object.keys(r).find(x => x === n.toLowerCase()); if (k) { r[k].splice(i, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(n); } }
         function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); d.className='routine-card-item'; d.innerHTML=`<span class='routine-icon'>⚡</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
         function launchRoutine(n) { const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const s = r[n.toLowerCase()]; if(!s) return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l = document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((step, i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}', ${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function readActiveRoutine() { const l=document.getElementById('routine-steps-list'); let t=`Routine ${document.getElementById('active-routine-name').innerText}. `; l.querySelectorAll('.task-text').forEach(e=>t+=e.innerText+". "); playVocalResponse(t); }
@@ -569,7 +478,19 @@
         function resetTimer() { clearInterval(timerInterval); isTimerRunning = false; timeLeft = 25 * 60; updateTimerDisplay(); const btn = document.getElementById('btn-timer-action'); btn.innerText = "START"; btn.style.background = "var(--success)"; btn.style.color = "black"; }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        async function startMorningBrief() { /* Placeholder */ }
+        async function startMorningBrief() {
+            if(isProcessing) return; isProcessing = true; startThinkingAnimation();
+            const tasksList = []; document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
+            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            const briefPrompt = `Assistant TDAH pour ${username}. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour ${username} 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
+                const data = await rep.json();
+                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
+                playVocalResponse(parsed.text);
+            } catch(e) { console.error(e); stopThinkingAnimation(); isProcessing = false; }
+        }
     </script>
 </body>
 </html>
