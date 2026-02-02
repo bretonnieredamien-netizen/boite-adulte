@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V57 (SILENT MIC) --- */
+        /* --- DESIGN NEURO V57 (CALENDRIER FIX) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -50,7 +50,7 @@
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TASKS */
+        /* TASK LIST */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
         .task-item:active { transform: scale(0.98); }
@@ -64,6 +64,7 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         .priority-icon { color: var(--danger); font-size:12px; margin-left:5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -75,11 +76,13 @@
         .cal-nav-btn { background: #222; border: 1px solid #444; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-name { text-align: center; font-size: 10px; color: #666; font-weight: bold; margin-bottom: 5px; }
+        
         .day-cell { aspect-ratio: 1; background: #151515; border-radius: 8px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative; transition: all 0.2s; }
         .day-cell.today { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
         .day-cell.has-task { border-color: rgba(255, 23, 68, 0.3); }
         .day-cell.has-task::after { content: ''; position: absolute; bottom: 5px; width: 5px; height: 5px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 5px var(--danger); }
-        .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); }
+        .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 15px rgba(41, 121, 255, 0.4); z-index: 10; }
+        
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
@@ -125,25 +128,11 @@
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
-        
-        /* MICRO SANS SON, JUSTE VISUEL */
-        .mic-container { position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
-        .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); z-index: 10; width: 60px; height: 60px; }
-        .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); }
+        .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
+        .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); animation: pulseRed 1s infinite; }
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
-        
-        /* ONDES VISUELLES LORS DE L'ENREGISTREMENT */
-        .mic-wave { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            border-radius: 50%; border: 1px solid var(--danger);
-            opacity: 0; pointer-events: none;
-        }
-        .is-recording .mic-wave { animation: ripple 2s infinite linear; }
-        .is-recording .mic-wave:nth-child(2) { animation-delay: 0.5s; }
-        .is-recording .mic-wave:nth-child(3) { animation-delay: 1s; }
-        
-        @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 2px; } 100% { transform: scale(3); opacity: 0; border-width: 0px; } }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
 
         .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
@@ -261,12 +250,9 @@
                 <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
             </div>
             
-            <div id="mic-wrapper" class="mic-container">
-                <div class="mic-wave"></div><div class="mic-wave"></div><div class="mic-wave"></div>
-                <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
-                    <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                    <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
-                </div>
+            <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
+                <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
             </div>
         </div>
         
@@ -307,7 +293,7 @@
             document.getElementById('status-text').innerText = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"}[viewName];
         }
 
-        // --- AUDIO ---
+        // --- AUDIO : PINK NOISE (PLUIE) ---
         function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
         function startPinkNoise() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -331,26 +317,10 @@
             const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`;
         }
 
-        // --- MICROPHONE MANUEL & VISUEL ---
+        // --- MICROPHONE MANUEL ---
         function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { if(e.error === 'not-allowed') stopRecordingState(); }; }
         function toggleRecording() { if (isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "Enregistrement... (Cliquez pour Stop)"; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Analyse..."; setTimeout(() => { if (finalTranscript.trim().length > 0) processWithAI(finalTranscript); else document.getElementById('status-text').innerText = "Rien entendu."; }, 800); } }
-        function updateMicVisuals(rec) { 
-            const btn = document.getElementById('btn-mic'); 
-            const wrapper = document.getElementById('mic-wrapper');
-            const micIcon = document.getElementById('icon-mic'); 
-            const stopIcon = document.getElementById('icon-stop'); 
-            if (rec) { 
-                wrapper.classList.add('is-recording'); 
-                btn.classList.add('recording'); 
-                micIcon.style.display = 'none'; 
-                stopIcon.style.display = 'block'; 
-            } else { 
-                wrapper.classList.remove('is-recording'); 
-                btn.classList.remove('recording'); 
-                micIcon.style.display = 'block'; 
-                stopIcon.style.display = 'none'; 
-            } 
-        }
+        function updateMicVisuals(rec) { const btn = document.getElementById('btn-mic'); const micIcon = document.getElementById('icon-mic'); const stopIcon = document.getElementById('icon-stop'); if (rec) { btn.classList.add('recording'); micIcon.style.display = 'none'; stopIcon.style.display = 'block'; } else { btn.classList.remove('recording'); micIcon.style.display = 'block'; stopIcon.style.display = 'none'; } }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
 
         // --- IA PROCESS ---
@@ -371,7 +341,8 @@
                 
                 if(parsed.actions) { 
                     parsed.actions.forEach(act => { 
-                        const validText = act.detail || act.text || act.task || act.title || "Tâche";
+                        // ANTI-UNDEFINED & FALLBACKS
+                        const validText = act.detail || act.text || act.task || act.title || act.content || act.description || "Nouvelle tâche";
                         addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
                         if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
                     }); 
@@ -380,6 +351,52 @@
             } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
         }
 
+        // CALENDAR CLICK FIX
+        function renderCalendar() { 
+            const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; 
+            const f=new Date(y,mo,1).getDay(); const dim=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; 
+            for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); 
+            
+            // CORRECT TASK EXTRACTION FOR CALENDAR
+            const tasksData = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                const dateAttr = item.getAttribute('data-date');
+                if (dateAttr) { tasksData.push({ date: dateAttr, html: item.outerHTML }); }
+            });
+
+            for(let i=1;i<=dim;i++){ 
+                const dd=document.createElement('div'); dd.className="day-cell"; dd.innerText=i; 
+                const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; 
+                if(new Date().toDateString()===new Date(y,mo,i).toDateString())dd.classList.add('today'); 
+                
+                if(tasksData.some(t=>t.date===ds)) dd.classList.add('has-task'); 
+                
+                dd.onclick=()=>{ 
+                    document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected')); dd.classList.add('selected'); 
+                    showTasksForDay(tasksData.filter(t=>t.date===ds), i); 
+                }; 
+                c.appendChild(dd); 
+            } 
+        }
+        
+        function showTasksForDay(tasks, day) {
+            const list = document.getElementById('cal-task-list');
+            if (tasks.length === 0) {
+                list.innerHTML = `<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${day}.</div>`;
+            } else {
+                list.innerHTML = "";
+                tasks.forEach(t => {
+                    const div = document.createElement('div');
+                    div.innerHTML = t.html;
+                    // Disable delete button in calendar view to avoid confusion
+                    const btn = div.querySelector('.done-btn');
+                    if(btn) btn.style.display = 'none';
+                    list.appendChild(div.firstChild);
+                });
+            }
+        }
+
+        // ... (REST OF UTILS IDENTICAL TO V54) ...
         function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
@@ -397,16 +414,17 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
+        // --- HELPERS (STRICT IA) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
             let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
-            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT. Champ "text": phrase courte. Champ "actions": liste. NE DIS PAS TDAH.`;
+            const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions. INTERDICTION FORMELLE DE PRONONCER LE MOT 'TDAH' OU 'TROUBLE'.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Entrée: "${username}". Tâche: { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }.`,
-                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE micro-action.`,
-                'ROUTINE': `TU ES ARCHITECTE. Crée une routine JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape1", "Etape2"] }. Si l'user dit juste "Routine Sport", INVENTE les étapes logiques.`,
-                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO.`
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
+                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
+                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. IMPORTANT: Pour CRÉER une routine, utilise la structure JSON: { "command": "SAVE_ROUTINE", "name": "NomDeLaRoutine", "steps": ["Etape 1", "Etape 2"] }. Pour LIRE: { "command": "GET_ROUTINE", "name": "Nom" }. SI ET SEULEMENT SI L'UTILISATEUR DIT "ROUTINE SPORT", ALORS CRÉE LA ROUTINE "SPORT" AVEC LES ÉTAPES ADÉQUATES.`,
+                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
         
@@ -424,7 +442,7 @@
         function cleanTextForSpeech(t) { if(!t)return""; return t.replace(/[*#]/g,'').replace(/^- /g,''); }
         async function playVocalResponse(t) { document.getElementById('status-text').innerText="Prêt."; isProcessing=false; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(cleanTextForSpeech(t)); u.lang='fr-FR'; u.rate=(currentMood==='ZEN')?0.85:1.1; window.speechSynthesis.speak(u); }
         async function sendToCalendar(d) { try{await fetch(MAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({detail:d,type:'CALENDAR'})});}catch(e){} }
-        function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
+        function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; if(x.includes('maison'))return{icon:'🏠',color:'#00E676',bg:'rgba(0,230,118,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
         function saveRoutine(n,s) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); r[n.toLowerCase()]=s; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
         function deleteStepFromRoutine(n,i) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const k=Object.keys(r).find(x=>x===n.toLowerCase()); if(k){r[k].splice(i,1); localStorage.setItem('neuro_routines',JSON.stringify(r)); launchRoutine(n);} }
@@ -432,7 +450,6 @@
         function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0){playVocalResponse("Terminé!");exitRoutine();} }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
-        function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push(i.getAttribute('data-date'));}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.includes(ds))e.classList.add('has-task'); c.appendChild(e); } }
         function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
         function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
         async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
@@ -447,6 +464,7 @@
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
         async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
+        function stopThinkingAnimation() { /* Supprimé car visuel light */ }
     </script>
 </body>
 </html>
