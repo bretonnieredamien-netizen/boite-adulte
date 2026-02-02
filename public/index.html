@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V58 (STABLE + ROUTINE FIX) --- */
+        /* --- DESIGN NEURO V59 (STABLE GLOBAL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -36,11 +36,9 @@
         .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
         @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* MONITOR CHARGE MENTALE */
+        /* MONITOR & SIDEBAR */
         .monitor-bar-container { width: 100%; height: 8px; background: #1a1a1a; flex-shrink: 0; position: relative; border-bottom: 1px solid #222; }
         .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
-
-        /* SIDEBAR GAUCHE */
         .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: #0f0f0f; border-right: 1px solid #222; z-index: 40; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
 
@@ -48,12 +46,10 @@
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 15px; padding-top: 10px; }
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* TASKS */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .task-item:active { transform: scale(0.98); }
         .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); order: -2; }
         .task-item.calendar { border-left-color: #FF4081; background: #1F1518; order: -1; }
         .task-item.reminder { border-left-color: var(--reminder); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
@@ -126,7 +122,6 @@
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
-        
         .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
         .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); animation: pulseRed 1s infinite; }
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
@@ -248,6 +243,7 @@
             <div class="action-circle btn-keyboard" onclick="toggleInputMode(this)">
                 <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
             </div>
+            
             <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
                 <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
                 <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
@@ -315,20 +311,17 @@
         }
 
         function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { if(e.error === 'not-allowed') stopRecordingState(); }; }
-        function toggleRecording() { if (isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "Enregistrement..."; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Analyse..."; setTimeout(() => { if (finalTranscript.trim().length > 0) processWithAI(finalTranscript); else document.getElementById('status-text').innerText = "Rien entendu."; }, 800); } }
+        function toggleRecording() { if (isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "Enregistrement... (Cliquez pour Stop)"; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Analyse..."; setTimeout(() => { if (finalTranscript.trim().length > 0) processWithAI(finalTranscript); else document.getElementById('status-text').innerText = "Rien entendu."; }, 800); } }
         function updateMicVisuals(rec) { const btn = document.getElementById('btn-mic'); const micIcon = document.getElementById('icon-mic'); const stopIcon = document.getElementById('icon-stop'); if (rec) { btn.classList.add('recording'); micIcon.style.display = 'none'; stopIcon.style.display = 'block'; } else { btn.classList.remove('recording'); micIcon.style.display = 'block'; stopIcon.style.display = 'none'; } }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
 
+        // --- IA PROCESS ---
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
-            
-            // LOGIQUE DE BASCULE AUTOMATIQUE VERS ROUTINE
             const lowerInput = userInput.toLowerCase();
             let forcedMode = currentMode;
-            if (lowerInput.includes("routine") || lowerInput.includes("crée une routine")) {
-                forcedMode = 'ROUTINE';
-            }
-
+            if (lowerInput.includes("routine") || lowerInput.includes("crée une routine")) { forcedMode = 'ROUTINE'; }
+            
             const currentPrompts = getPrompts(); 
             const finalPrompt = `${currentPrompts[forcedMode]}\n\nUTILISATEUR : "${userInput}"`;
             try {
@@ -336,29 +329,16 @@
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
-                // ROUTINE HANDLER
-                if (parsed.command === 'SAVE_ROUTINE') { 
-                    saveRoutine(parsed.name, parsed.steps); 
-                    playVocalResponse(`Routine ${parsed.name} enregistrée.`); 
-                    // AUTO-NAVIGATE TO ROUTINE VIEW
-                    switchView('routine', document.querySelectorAll('.mode-card')[4]);
-                    isProcessing = false; 
-                    return; 
-                } 
-                else if (parsed.command === 'GET_ROUTINE') { 
-                    const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; 
-                    if (savedSteps) { 
-                        switchView('routine', document.querySelectorAll('.mode-card')[4]);
-                        launchRoutine(parsed.name); 
-                        playVocalResponse(`Voici ta routine.`); 
-                    } else { playVocalResponse(`Routine inconnue.`); } 
-                    isProcessing = false; 
-                    return; 
-                }
+                if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); switchView('routine', document.querySelectorAll('.mode-card')[4]); isProcessing = false; return; }
+                else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { switchView('routine', document.querySelectorAll('.mode-card')[4]); launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Routine inconnue.`); } isProcessing = false; return; }
                 
-                if(parsed.actions) { 
-                    parsed.actions.forEach(act => { 
-                        const validText = act.detail || act.text || "Tâche";
+                // FALLBACK FOR ACTIONS (Fixes the "Nothing happens" bug)
+                let actionsList = parsed.actions;
+                if (!actionsList && parsed.type) { actionsList = [parsed]; } // Handle single object return
+                
+                if(actionsList) { 
+                    actionsList.forEach(act => { 
+                        const validText = act.detail || act.text || act.task || act.title || "Tâche";
                         addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
                         if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
                     }); 
@@ -384,15 +364,16 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- PROMPTS (ROUTINE AGRESSIVE) ---
+        // --- PROMPTS (ROUTINE + TASK FIX) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const todayISO = new Date().toISOString().split('T')[0];
             let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
             const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT. NE DIS PAS TDAH.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today}. Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }.`,
-                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action.`,
-                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Ton but est de créer des SÉQUENCES d'étapes. NE CRÉE PAS DE TÂCHES SIMPLES. Si l'utilisateur dit "Routine Sport" (ou autre sujet), INVENTE et DÉTAILLE 3 à 5 étapes logiques (ex: "Mettre baskets", "Boire eau"). Sortie JSON OBLIGATOIRE: { "command": "SAVE_ROUTINE", "name": "NomDeLaRoutine", "steps": ["Etape 1", "Etape 2", "Etape 3"] }.`,
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}". Si c'est une tâche simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
+                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
+                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Si l'utilisateur dit "Routine Sport", INVENTE 3-5 étapes logiques. Sortie JSON OBLIGATOIRE: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1", "Etape 2"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
@@ -419,7 +400,7 @@
         function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0){playVocalResponse("Terminé!");exitRoutine();} }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
-        function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const dim=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push({d:i.getAttribute('data-date'),h:i.outerHTML});}); for(let i=1;i<=dim;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.some(x=>x.d===ds))e.classList.add('has-task'); e.onclick=()=>{document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected'));e.classList.add('selected');showTasksForDay(t.filter(x=>x.d===ds),i);}; c.appendChild(e); } }
+        function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push({d:i.getAttribute('data-date'),h:i.outerHTML});}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.some(x=>x.d===ds))e.classList.add('has-task'); e.onclick=()=>{document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected'));e.classList.add('selected');showTasksForDay(t.filter(x=>x.d===ds),i);}; c.appendChild(e); } }
         function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
         function showTasksForDay(t,d) { const l=document.getElementById('cal-task-list'); if(t.length===0)l.innerHTML=`<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${d}.</div>`; else { l.innerHTML=""; t.forEach(x=>{const d=document.createElement('div');d.innerHTML=x.h;if(d.querySelector('.done-btn'))d.querySelector('.done-btn').style.display='none';l.appendChild(d.firstChild);}); } }
         function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
@@ -435,6 +416,7 @@
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
         async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
+        function stopThinkingAnimation() { }
     </script>
 </body>
 </html>
