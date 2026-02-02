@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V48 (AUDIO DRONE PUR) --- */
+        /* --- DESIGN NEURO V49 (IA STRICTE) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -21,28 +21,23 @@
         /* HEADER */
         .header { background: #121212; z-index: 50; border-bottom: 1px solid #333; padding: 15px 15px 5px 15px; flex-shrink: 0; }
         .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; margin-bottom: 10px; }
-        
-        /* LOGO */
         .app-logo-svg { width: 90px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
         
-        /* BOUTONS */
         .header-actions { display: flex; gap: 8px; }
         .header-btn { background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
         .mood-btn.active.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
         .mood-btn.active.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         
-        /* Bouton Audio Pulse */
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 15px rgba(41, 121, 255, 0.3); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: quietPulse 2s infinite ease-in-out; margin-left:2px; }
         @keyframes quietPulse { 0%, 100% { height: 4px; opacity:0.5; } 50% { height: 12px; opacity:1; } }
         
         .brief-btn { background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); }
 
-        /* MONITOR CHARGE MENTALE (FORCE VISIBLE) */
+        /* MONITOR CHARGE MENTALE */
         .monitor-container { 
             width: 100%; height: 8px; 
-            background: #2a2a2a; /* Fond plus clair pour voir la jauge vide */
-            border-radius: 4px; overflow: hidden; position: relative; margin-top: 5px;
+            background: #2a2a2a; border-radius: 4px; overflow: hidden; position: relative; margin-top: 5px;
             border: 1px solid #333;
         }
         .load-fill { 
@@ -102,7 +97,7 @@
 
         /* FOCUS & ROUTINE & POMO */
         #view-focus, #view-routine, #view-pomo { padding: 15px; }
-        .focus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .focus-grid, .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .focus-card { background: #222; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #333; cursor: pointer; }
         .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
         .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
@@ -111,28 +106,29 @@
         .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         
-        .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .routine-icon { font-size: 32px; }
+        .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
         .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
         
-        .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
-        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; }
+        .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
+        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
         .pomo-controls { display: flex; gap: 20px; }
         .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
-        .btn-start { background: var(--success); color: black; } .btn-stop { background: #333; color: white; }
+        .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
+        .btn-stop { background: #333; color: white; }
 
-        /* CONTROLS & FOOTER */
+        /* FOOTER & CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
         .mode-icon { font-size: 18px; display: block; margin-bottom: 2px; }
-        .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
+        .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
         .action-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
@@ -236,10 +232,6 @@
             </div>
             <div id="focus-laser-wrapper" class="laser-container">
                 <div class="laser-task" id="laser-current-task">...</div>
-                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none">
-                    <span class="laser-ai-label">PREMIÈRE ÉTAPE</span>
-                    <span id="laser-micro-text" class="laser-ai-text">...</span>
-                </div>
                 <button class="laser-btn" onclick="completeLaserTask()">C'EST FAIT</button>
                 <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
             </div>
@@ -320,29 +312,23 @@
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
-            
             const monitor = document.getElementById('monitor-ui');
             if (viewName === 'dump' || viewName === 'focus') monitor.style.opacity = '1'; else monitor.style.opacity = '0';
-
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             if (viewName === 'calendar') renderCalendar();
-            
             const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"};
             document.getElementById('status-text').innerText = titles[viewName];
         }
 
         // --- NEW AUDIO : BINAURAL SINE DRONE (OM SOUND) ---
         function toggleZenDrone() { if (isNoisePlaying) stopZenDrone(); else startZenDrone(); }
-        
         function startZenDrone() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const masterGain = audioCtx.createGain();
             masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
             masterGain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 2); // Doux
             masterGain.connect(audioCtx.destination);
-
-            // 3 Oscillateurs pour un accord parfait et profond (sans grésillement)
             const freqs = [180, 183, 90]; 
             freqs.forEach(f => {
                 const osc = audioCtx.createOscillator();
@@ -352,14 +338,12 @@
                 osc.start();
                 activeOscillators.push(osc);
             });
-
             gainNode = masterGain;
             isNoisePlaying = true;
             const btn = document.getElementById('sound-btn');
             btn.classList.add('active');
             btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`;
         }
-
         function stopZenDrone() {
             if (gainNode) {
                 gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); // Fade out
@@ -410,7 +394,7 @@
         }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
 
-        // --- IA PROCESS ---
+        // --- IA PROCESS (STRICT) ---
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
             const currentPrompts = getPrompts(); const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
@@ -444,33 +428,20 @@
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
-            let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
+            let tone = (currentMood === 'ZEN') ? "Ton: Calme." : "Ton: Rapide.";
+            const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions.`;
             return {
-                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today} (${todayISO}). JSON Strict. Champ "text": 1 mot court. Actions: [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ]. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
-                'FOCUS': `Coach TDAH. Mission: Dédramatise. JSON Strict: { "text": "...", "actions": [] }`,
-                'ROUTINE': `Expert. ${tone}. Commandes: SAVE_ROUTINE/GET_ROUTINE.`,
-                'POMO': `Coach Pomodoro. ${tone}. JSON Strict: { "text": "Focus ?", "actions": [] }`
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE.`,
+                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
+                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. Commandes: SAVE_ROUTINE / GET_ROUTINE.`,
+                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
-        
-        function readActiveRoutine() { 
-            const list = document.getElementById('routine-steps-list'); 
-            const name = document.getElementById('active-routine-name').innerText;
-            const items = list.querySelectorAll('.task-text');
-            let narrative = `Ok ${username}, c'est parti pour ta routine ${name}. `;
-            items.forEach((item, index) => {
-                const step = item.innerText;
-                if (index === 0) narrative += `On commence par : ${step}. `;
-                else if (index === items.length - 1) narrative += `Et pour finir : ${step}. Allez, tu gères !`;
-                else { const connectors = ["Ensuite, ", "Puis, ", "Après ça, ", "On enchaîne avec "]; narrative += connectors[index % connectors.length] + step + ". "; }
-            });
-            playVocalResponse(narrative); 
-        }
 
+        // --- BUTTONS ---
         function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
         function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn active zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn active boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
         function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
-        
         function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
@@ -482,6 +453,7 @@
         async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
         
+        // Routines & Cal
         function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
         function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
