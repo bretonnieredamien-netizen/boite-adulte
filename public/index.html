@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEURO - Assistant TDAH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>NEURO - Assistant Personnel</title> <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V50 (FEEDBACK BRIEF) --- */
+        /* --- DESIGN NEURO V51 (NO TDAH LABEL) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -106,15 +105,25 @@
         .focus-card { background: #222; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #333; cursor: pointer; }
         .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
         .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
-        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-        .laser-task { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
-        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
-        .active-routine-view { display: none; flex-direction: column; height: 100%; }
-        
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
+        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; animation: zoomIn 0.3s; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .laser-task { font-size: 26px; font-weight: 900; color: white; margin-bottom: 30px; text-shadow: 0 0 20px rgba(41, 121, 255, 0.5); }
+        .laser-ai-box { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--success); padding: 20px; border-radius: 16px; width: 100%; margin-bottom: 40px; }
+        .laser-ai-label { color: var(--success); font-size: 9px; font-weight: 900; display: block; margin-bottom: 5px; }
+        .laser-ai-text { font-size: 16px; font-style: italic; color: #DDD; }
+        .laser-btn { background: var(--success); color: black; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 16px; box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); }
+        .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; cursor: pointer; }
+
+        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
         .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
+        .active-routine-view { display: none; flex-direction: column; height: 100%; }
+        .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
+        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
         .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
         .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
@@ -133,7 +142,6 @@
         
         .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
         .action-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
@@ -191,14 +199,14 @@
             </div>
             <div class="header-actions">
                 <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
-                <button id="sound-btn" class="header-btn sound-btn" onclick="togglePinkNoise()"><span>🎧</span> FOCUS</button>
+                <button id="sound-btn" class="header-btn sound-btn" onclick="toggleZenDrone()"><span>🎧</span> FOCUS</button>
                 <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
             </div>
         </div>
-    </div>
-    
-    <div id="monitor-ui" class="monitor-bar-container">
-        <div id="load-bar" class="load-fill"></div>
+        
+        <div id="monitor-ui" class="monitor-bar-container">
+            <div id="load-bar" class="load-fill"></div>
+        </div>
     </div>
 
     <div class="content-area">
@@ -235,6 +243,10 @@
             </div>
             <div id="focus-laser-wrapper" class="laser-container">
                 <div class="laser-task" id="laser-current-task">...</div>
+                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none">
+                    <span class="laser-ai-label">PREMIÈRE ÉTAPE</span>
+                    <span id="laser-micro-text" class="laser-ai-text">...</span>
+                </div>
                 <button class="laser-btn" onclick="completeLaserTask()">C'EST FAIT</button>
                 <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
             </div>
@@ -301,7 +313,7 @@
         let isProcessing = false; isTextMode = false; recognition = null; isRecording = false; finalTranscript = '';
         let timerInterval = null; timeLeft = 25 * 60; isTimerRunning = false;
         let username = "Champion";
-        let audioCtx, pinkNoiseNode, gainNode, isNoisePlaying = false;
+        let audioCtx, activeOscillators = [], gainNode, isNoisePlaying = false;
         let currentFocusTask = null;
         let currentCalDate = new Date();
 
@@ -327,64 +339,38 @@
             document.getElementById('status-text').innerText = titles[viewName];
         }
 
-        // --- NEW AUDIO : PINK NOISE + LOWPASS (RAIN SOUND) ---
-        function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
-        
-        function startPinkNoise() {
+        // --- NEW AUDIO : BINAURAL SINE DRONE (OM SOUND) ---
+        function toggleZenDrone() { if (isNoisePlaying) stopZenDrone(); else startZenDrone(); }
+        function startZenDrone() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 4096;
-            const pinkNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-            
-            // Paul Kellett's Pink Noise Algorithm
-            var b0, b1, b2, b3, b4, b5, b6;
-            b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
-
-            pinkNoise.onaudioprocess = function(e) {
-                var output = e.outputBuffer.getChannelData(0);
-                for (var i = 0; i < bufferSize; i++) {
-                    var white = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + white * 0.0555179;
-                    b1 = 0.99332 * b1 + white * 0.0750759;
-                    b2 = 0.96900 * b2 + white * 0.1538520;
-                    b3 = 0.86650 * b3 + white * 0.3104856;
-                    b4 = 0.55000 * b4 + white * 0.5329522;
-                    b5 = -0.7616 * b5 - white * 0.0168980;
-                    output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    output[i] *= 0.11; // Compensation gain
-                    b6 = white * 0.115926;
-                }
-            };
-
-            // LOW PASS FILTER (The "Softness" magic)
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 400; // 400Hz cutoff (removes hiss)
-
-            gainNode = audioCtx.createGain();
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 2); // 2s Fade in
-
-            pinkNoise.connect(filter);
-            filter.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            pinkNoiseNode = pinkNoise;
+            const masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            masterGain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 2); // Doux
+            masterGain.connect(audioCtx.destination);
+            const freqs = [180, 183, 90]; 
+            freqs.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine'; // Sinusoïde = Son pur (rond)
+                osc.frequency.value = f;
+                osc.connect(masterGain);
+                osc.start();
+                activeOscillators.push(osc);
+            });
+            gainNode = masterGain;
             isNoisePlaying = true;
-            
             const btn = document.getElementById('sound-btn');
             btn.classList.add('active');
             btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`;
         }
-
-        function stopPinkNoise() {
+        function stopZenDrone() {
             if (gainNode) {
-                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); // 1s Fade out
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); // Fade out
                 setTimeout(() => {
-                    if (pinkNoiseNode) { pinkNoiseNode.disconnect(); pinkNoiseNode = null; }
+                    activeOscillators.forEach(o => o.stop());
+                    activeOscillators = [];
                     isNoisePlaying = false;
                 }, 1000);
             }
-            
             const btn = document.getElementById('sound-btn');
             btn.classList.remove('active');
             btn.innerHTML = `<span>🎧</span> FOCUS`;
@@ -457,12 +443,11 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- HELPERS (STRICT IA) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
             let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
-            const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions.`;
+            const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions. INTERDICTION FORMELLE DE PRONONCER LE MOT 'TDAH' OU 'TROUBLE'.`;
             return {
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE (en min).`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
@@ -528,14 +513,14 @@
             isProcessing = true;
             document.getElementById('status-text').innerText = "Préparation du Brief...";
             const btn = document.querySelector('.brief-btn');
-            btn.classList.add('loading'); // Feedback visuel
+            btn.classList.add('loading');
             
             const tasksList = []; 
             document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
             const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             
-            const briefPrompt = `Assistant TDAH pour ${username}. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour ${username} 2. Charge 3. Priorité. JSON Strict: { "text": "...", "actions": [] }`;
+            const briefPrompt = `Assistant Personnel. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour ${username} 2. Charge 3. Priorité. NE DIS PAS TDAH. JSON Strict: { "text": "...", "actions": [] }`;
             
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
