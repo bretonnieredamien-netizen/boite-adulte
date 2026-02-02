@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V44 (CALENDRIER VISUEL) --- */
+        /* --- DESIGN NEURO V45 (AUDIO DOUX) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -27,10 +27,14 @@
         .header-btn { background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
         .mood-btn.zen.active { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
         .mood-btn.boost.active { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
+        
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
+        .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 1s infinite ease-in-out; margin-left:2px; }
+        @keyframes sound { 0%, 100% { height: 4px; opacity: 0.5; } 50% { height: 10px; opacity: 1; } }
+        
         .brief-btn { background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); }
-        .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
-        @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
+        .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
+        @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
         /* MONITOR CHARGE MENTALE */
         .monitor-container { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; position: relative; }
@@ -64,49 +68,40 @@
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        /* CALENDAR - STYLE AMÉLIORÉ */
+        /* CALENDAR */
         #view-calendar { padding: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .month-label { font-size: 16px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 2px; }
         .cal-nav-btn { background: #222; border: 1px solid #444; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
         .day-name { text-align: center; font-size: 10px; color: #666; font-weight: bold; margin-bottom: 5px; }
-        
-        .day-cell { 
-            aspect-ratio: 1; background: #151515; border-radius: 8px; border: 1px solid #333; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative;
-            transition: all 0.2s;
-        }
+        .day-cell { aspect-ratio: 1; background: #151515; border-radius: 8px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative; transition: all 0.2s; }
         .day-cell.today { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
-        
-        /* POINT ROUGE POUR TACHE */
-        .day-cell.has-task { 
-            border-color: rgba(255, 23, 68, 0.3); /* Bordure subtile rouge */
-        }
-        .day-cell.has-task::after { 
-            content: ''; position: absolute; bottom: 5px; 
-            width: 5px; height: 5px; 
-            background: var(--danger); /* Point ROUGE */
-            border-radius: 50%; 
-            box-shadow: 0 0 5px var(--danger); /* Glow */
-        }
-        
+        .day-cell.has-task { border-color: rgba(255, 23, 68, 0.3); }
+        .day-cell.has-task::after { content: ''; position: absolute; bottom: 5px; width: 5px; height: 5px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 5px var(--danger); }
         .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); }
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* FOCUS & ROUTINE & POMO (Simplifiés) */
+        /* FOCUS & ROUTINE & POMO */
         #view-focus, #view-routine, #view-pomo { padding: 15px; }
         .focus-grid, .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .focus-card, .routine-card-item { background: #222; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #333; }
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .laser-task { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         .pomo-timer { font-size: 70px; font-weight: 900; margin: 20px 0; }
         .pomo-controls { display: flex; gap: 20px; }
-        .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; }
+        .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
         .btn-start { background: var(--success); color: black; } .btn-stop { background: #333; color: white; }
+        
+        /* ROUTINE STYLES */
+        .routine-card-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
+        .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
+        .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
 
         /* FOOTER & CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
@@ -301,13 +296,72 @@
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
-            const monitor = document.getElementById('monitor-ui'); // BARRE CHARGE MENTALE
-            if (viewName === 'dump' || viewName === 'focus') monitor.style.opacity = '1'; else monitor.style.opacity = '0'; // CACHÉE SI PAS BESOIN
+            
+            const monitor = document.getElementById('monitor-ui');
+            if (viewName === 'dump' || viewName === 'focus') monitor.style.opacity = '1'; else monitor.style.opacity = '0';
+
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             if (viewName === 'calendar') renderCalendar();
+            
             const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"};
             document.getElementById('status-text').innerText = titles[viewName];
+        }
+
+        // --- AUDIO BROWN NOISE DOUX (LOW PASS) ---
+        function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
+        function startBrownNoise() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // 5 seconds buffer
+            const bufferSize = audioCtx.sampleRate * 5;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1; // White noise
+            }
+
+            brownNoiseNode = audioCtx.createBufferSource();
+            brownNoiseNode.buffer = buffer;
+            brownNoiseNode.loop = true;
+
+            // LowPass Filter for "Soft" sound
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 400; // 400Hz = muffled/soft
+
+            gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 1); // Fade in
+
+            brownNoiseNode.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            brownNoiseNode.start();
+            isNoisePlaying = true;
+            const btn = document.getElementById('sound-btn');
+            btn.classList.add('active');
+            btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`;
+        }
+
+        function stopBrownNoise() {
+            if (gainNode) {
+                // Fade out
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                setTimeout(() => {
+                    if (brownNoiseNode) { brownNoiseNode.stop(); brownNoiseNode.disconnect(); brownNoiseNode = null; }
+                    isNoisePlaying = false;
+                }, 500);
+            } else {
+                if (brownNoiseNode) { brownNoiseNode.stop(); brownNoiseNode.disconnect(); brownNoiseNode = null; }
+                isNoisePlaying = false;
+            }
+            
+            const btn = document.getElementById('sound-btn');
+            btn.classList.remove('active');
+            btn.innerHTML = `<span>🎧</span> FOCUS`;
         }
 
         // --- MICROPHONE MANUEL ---
@@ -318,7 +372,11 @@
             recognition.lang = 'fr-FR'; 
             recognition.continuous = true; 
             recognition.interimResults = true; 
-            recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; 
+            recognition.onresult = (event) => { 
+                for (let i = event.resultIndex; i < event.results.length; ++i) { 
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; 
+                } 
+            }; 
             recognition.onerror = (e) => { if(e.error === 'not-allowed') stopRecordingState(); }; 
         }
 
@@ -364,10 +422,12 @@
             div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
             div.setAttribute('data-duration', duration);
             if(date) div.setAttribute('data-date', date);
-            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : '';
+            const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; 
+            const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : ''; 
             let dateBadge = ''; if(date) { const dObj = new Date(date); dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}</span>`; }
             const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
             let categoryLabel = isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT 🔥' : 'TÂCHE'));
+
             div.innerHTML = `<div class="task-content"><div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div><div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${categoryLabel}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
             if (isHigh) list.prepend(div); else list.appendChild(div);
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
@@ -390,6 +450,7 @@
             const list = document.getElementById('routine-steps-list'); 
             const name = document.getElementById('active-routine-name').innerText;
             const items = list.querySelectorAll('.task-text');
+            
             let narrative = `Ok ${username}, c'est parti pour ta routine ${name}. `;
             items.forEach((item, index) => {
                 const step = item.innerText;
@@ -403,9 +464,6 @@
         function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
         function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn active zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn active boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
         function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
-        function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
-        function startBrownNoise() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const bufferSize = 4096; const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1); brownNoise.onaudioprocess = function(e) { const output = e.outputBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; } }; let lastOut = 0; gainNode = audioCtx.createGain(); gainNode.gain.value = 0.15; brownNoise.connect(gainNode); gainNode.connect(audioCtx.destination); brownNoiseNode = brownNoise; isNoisePlaying = true; const btn = document.getElementById('sound-btn'); btn.classList.add('active'); btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`; }
-        function stopBrownNoise() { if (brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; } isNoisePlaying = false; const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`; }
         function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
@@ -416,11 +474,13 @@
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
         async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
+        
+        // Routines & Cal
+        function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
         function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
         function deleteStepFromRoutine(n, i) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const k = Object.keys(r).find(x => x === n.toLowerCase()); if (k) { r[k].splice(i, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(n); } }
-        function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
-        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); const s=getRoutineStyle(k); d.className='routine-card-item'; d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
+        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); d.className='routine-card-item'; const s=getRoutineStyle(k); d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
         function launchRoutine(n) { const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const s = r[n.toLowerCase()]; if(!s) return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l = document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((step, i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}', ${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0) { playVocalResponse("Terminé !"); exitRoutine(); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
