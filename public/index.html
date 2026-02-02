@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEURO - Assistant Personnel</title>
-
+    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
-
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -183,7 +181,6 @@
                 </svg>
             </div>
             <div class="header-actions">
-                <button class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
                 <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
                 <button id="sound-btn" class="header-btn sound-btn" onclick="togglePinkNoise()"><span>🎧</span> FOCUS</button>
                 <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
@@ -267,56 +264,9 @@
     </div>
 
     <script>
-        // --- CONSTANTES ---
         const API_BASE_URL = "https://boite-adulte.vercel.app";
-        // REMPLACE CES VALEURS PAR LES TIENNES
-        const ONESIGNAL_APP_ID = "web.onesignal.auto.6401d2fc-b951-4213-a02c-03159c046b78"; 
-        const ONESIGNAL_REST_API_KEY = 19c31c7b-d08f-4f7e-8ddb-258a928ae511;
+        const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
 
-        // --- INIT ONESIGNAL (Push & Permissions) ---
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: ONESIGNAL_APP_ID,
-                notifyButton: { enable: false },
-                allowLocalhostAsSecureOrigin: true,
-            });
-        });
-
-        async function requestNotificationPermission() {
-             await OneSignal.User.PushSubscription.optIn();
-             alert("Vérifie les permissions !");
-        }
-
-        // --- FONCTION DE NOTIFICATION GRATUITE (DIRECT API) ---
-        async function scheduleNotification(minutes, message) {
-            if(!OneSignal.User.PushSubscription.id) { console.log("Pas d'ID utilisateur pour la notif"); return; }
-            
-            const now = new Date();
-            const sendTime = new Date(now.getTime() + minutes * 60000);
-            const sendTimeString = sendTime.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
-
-            const options = {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    app_id: ONESIGNAL_APP_ID,
-                    include_player_ids: [OneSignal.User.PushSubscription.id],
-                    contents: { "en": message },
-                    headings: { "en": "NEURO" },
-                    send_after: sendTimeString
-                })
-            };
-
-            try { await fetch('https://onesignal.com/api/v1/notifications', options); console.log("Notif programmée."); } 
-            catch (err) { console.error('Erreur notif:', err); }
-        }
-
-        // --- LOGIQUE PRINCIPALE ---
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
         let isProcessing = false; isTextMode = false; recognition = null; isRecording = false; finalTranscript = '';
@@ -328,7 +278,7 @@
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
-            initSpeech(); loadMood(); 
+            initSpeech(); loadMood(); if ("Notification" in window) Notification.requestPermission();
             switchView('dump', document.querySelector('.mode-card.active'));
         });
 
@@ -389,16 +339,15 @@
                 if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); switchView('routine', document.querySelectorAll('.mode-card')[4]); isProcessing = false; return; }
                 else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { switchView('routine', document.querySelectorAll('.mode-card')[4]); launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Routine inconnue.`); } isProcessing = false; return; }
                 
+                // FALLBACK FOR ACTIONS (Fixes the "Nothing happens" bug)
                 let actionsList = parsed.actions;
-                if (!actionsList && parsed.type) { actionsList = [parsed]; }
+                if (!actionsList && parsed.type) { actionsList = [parsed]; } // Handle single object return
                 
                 if(actionsList) { 
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
                         addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') {
-                            // On pourrait aussi scheduler une notif ici pour les rappels
-                        } 
+                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
                     }); 
                 }
                 playVocalResponse(parsed.text);
@@ -422,14 +371,16 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
+        // --- PROMPTS (ROUTINE + TASK FIX) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
-            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
+            let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
+            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT. NE DIS PAS TDAH.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". Si simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}". Si c'est une tâche simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
-                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
+                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Si l'utilisateur dit "Routine Sport", INVENTE 3-5 étapes logiques. Sortie JSON OBLIGATOIRE: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1", "Etape 2"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
@@ -447,6 +398,7 @@
         function saveUsername() { const i=document.getElementById('username-input'); if(i.value.trim()){username=i.value.trim();localStorage.setItem('neuro_username',username);document.getElementById('onboarding-modal').classList.remove('show');} }
         function cleanTextForSpeech(t) { if(!t)return""; return t.replace(/[*#]/g,'').replace(/^- /g,''); }
         async function playVocalResponse(t) { document.getElementById('status-text').innerText="Prêt."; isProcessing=false; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(cleanTextForSpeech(t)); u.lang='fr-FR'; u.rate=(currentMood==='ZEN')?0.85:1.1; window.speechSynthesis.speak(u); }
+        async function sendToCalendar(d) { try{await fetch(MAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({detail:d,type:'CALENDAR'})});}catch(e){} }
         function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
         function saveRoutine(n,s) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); r[n.toLowerCase()]=s; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
@@ -466,33 +418,19 @@
         function handleEnter(e) { if(e.key==='Enter')sendText(); }
         function sendText() { const i=document.getElementById('user-input'); if(i.value.trim()){processWithAI(i.value);i.value="";} }
         function updateTimerDisplay() { document.getElementById('timer-display').innerText=`${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
-        
-        function toggleTimer() { 
-            const b=document.getElementById('btn-timer-action'); 
-            if(isTimerRunning){
-                clearInterval(timerInterval);
-                isTimerRunning=false;
-                b.innerText="REPRENDRE";
-            } else {
-                timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);
-                isTimerRunning=true;
-                b.innerText="PAUSE";
-                // PROGRAMMER LA NOTIF
-                const mins = Math.ceil(timeLeft / 60);
-                scheduleNotification(mins, "Session terminée !");
-            } 
-        }
-
+        function toggleTimer() { const b=document.getElementById('btn-timer-action'); if(isTimerRunning){clearInterval(timerInterval);isTimerRunning=false;b.innerText="REPRENDRE";}else{timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);isTimerRunning=true;b.innerText="PAUSE";} }
         function resetTimer() { clearInterval(timerInterval);isTimerRunning=false;timeLeft=25*60;updateTimerDisplay(); }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
         async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
         function stopThinkingAnimation() { }
 
-        // --- ENREGISTREMENT PWA ---
+        // --- ENREGISTREMENT PWA (SERVICE WORKER) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('Erreur SW', err));
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker enregistré', reg))
+                    .catch(err => console.log('Erreur Service Worker', err));
             });
         }
     </script>
