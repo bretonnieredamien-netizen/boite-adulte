@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V53 (ANTI-UNDEFINED) --- */
+        /* --- DESIGN NEURO V54 (STABLE) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -36,9 +36,11 @@
         .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
         @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* MONITOR & SIDEBAR */
+        /* MONITOR CHARGE MENTALE */
         .monitor-bar-container { width: 100%; height: 8px; background: #1a1a1a; flex-shrink: 0; position: relative; border-bottom: 1px solid #222; }
         .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
+
+        /* SIDEBAR GAUCHE */
         .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: #0f0f0f; border-right: 1px solid #222; z-index: 40; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
 
@@ -48,7 +50,7 @@
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TASKS */
+        /* TASK LIST */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
         .task-item:active { transform: scale(0.98); }
@@ -62,6 +64,7 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         .priority-icon { color: var(--danger); font-size:12px; margin-left:5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -128,14 +131,13 @@
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
-
         .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
-        /* ONBOARDING */
+        /* ONBOARDING & ZEN */
         .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
         .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
@@ -373,10 +375,10 @@
                 if (currentMode === 'ROUTINE') { if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); isProcessing = false; return; } else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Inconnue.`); } isProcessing = false; return; } }
                 if(parsed.actions) { 
                     parsed.actions.forEach(act => { 
-                        // FALLBACK FOR UNDEFINED (V53 FIX)
-                        const taskText = act.detail || act.task || act.title || "Tâche";
-                        addTaskToUI(taskText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); 
+                        // ANTI-UNDEFINED & FALLBACKS
+                        const validText = act.detail || act.text || act.task || act.title || act.content || act.description || "Nouvelle tâche";
+                        addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
+                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
                     }); 
                 }
                 playVocalResponse(parsed.text);
