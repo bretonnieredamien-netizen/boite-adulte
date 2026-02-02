@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V54 (STABLE) --- */
+        /* --- DESIGN NEURO V55 (ROUTINE ARCHITECT) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -36,11 +36,9 @@
         .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
         @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* MONITOR CHARGE MENTALE */
+        /* MONITOR & SIDEBAR */
         .monitor-bar-container { width: 100%; height: 8px; background: #1a1a1a; flex-shrink: 0; position: relative; border-bottom: 1px solid #222; }
         .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
-
-        /* SIDEBAR GAUCHE */
         .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: #0f0f0f; border-right: 1px solid #222; z-index: 40; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
 
@@ -50,7 +48,7 @@
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TASK LIST */
+        /* TASKS */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
         .task-item:active { transform: scale(0.98); }
@@ -131,13 +129,14 @@
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
+
         .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
-        /* ONBOARDING & ZEN */
+        /* ONBOARDING */
         .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
         .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
@@ -331,10 +330,11 @@
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             if (viewName === 'calendar') renderCalendar();
-            document.getElementById('status-text').innerText = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"}[viewName];
+            const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"};
+            document.getElementById('status-text').innerText = titles[viewName];
         }
 
-        // --- AUDIO : PINK NOISE (PLUIE) ---
+        // --- AUDIO : PINK NOISE ---
         function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
         function startPinkNoise() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -375,10 +375,10 @@
                 if (currentMode === 'ROUTINE') { if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); isProcessing = false; return; } else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Inconnue.`); } isProcessing = false; return; } }
                 if(parsed.actions) { 
                     parsed.actions.forEach(act => { 
-                        // ANTI-UNDEFINED & FALLBACKS
-                        const validText = act.detail || act.text || act.task || act.title || act.content || act.description || "Nouvelle tâche";
-                        addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
+                        // ANTI-UNDEFINED: SCAN SYNONYMS
+                        const text = act.detail || act.text || act.task || act.title || act.description || "Nouvelle tâche";
+                        addTaskToUI(text, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
+                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(text); 
                     }); 
                 }
                 playVocalResponse(parsed.text);
@@ -409,9 +409,9 @@
             let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
             const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions. INTERDICTION FORMELLE DE PRONONCER LE MOT 'TDAH' OU 'TROUBLE'.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
-                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. IMPORTANT: Pour CRÉER une routine, utilise la structure JSON: { "command": "SAVE_ROUTINE", "name": "NomDeLaRoutine", "steps": ["Etape 1", "Etape 2"] }. Pour LIRE: { "command": "GET_ROUTINE", "name": "Nom" }.`,
+                'ROUTINE': `${SYSTEM_INSTRUCTION} Mode : ROUTINE. IMPORTANT: Pour CRÉER une routine, utilise la structure JSON: { "command": "SAVE_ROUTINE", "name": "NomDeLaRoutine", "steps": ["Etape 1", "Etape 2"] }. Pour LIRE: { "command": "GET_ROUTINE", "name": "Nom" }. SI ET SEULEMENT SI L'UTILISATEUR DIT "ROUTINE SPORT", ALORS CRÉE LA ROUTINE "SPORT" AVEC LES ÉTAPES ADÉQUATES.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
