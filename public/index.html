@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V40 (FINAL OPTIMISÉ) --- */
+        /* --- DESIGN NEURO V41 (FINAL STABLE) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -19,36 +19,47 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        .header { padding-top: 15px; padding-bottom: 5px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 15px; }
+        .header { padding-top: 15px; padding-bottom: 5px; background: #121212; z-index: 20; border-bottom: 1px solid #333; position: relative; margin-left: 15px; }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; height: 50px; }
-        .app-logo-svg { width: 90px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        
+        /* LOGO */
         .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .app-logo-svg { width: 90px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
-        /* BOUTONS HEADER */
-        .header-btn { position: absolute; top: 12px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
+        /* BOUTONS */
+        .header-btn { position: absolute; top: 10px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
         .mood-btn { left: 0px; }
-        .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
-        .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
+        .mood-btn.active.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
+        .mood-btn.active.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
+        
         .sound-btn { right: 70px; }
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
-        .brief-btn { position: absolute; top: 12px; right: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
+        
+        .brief-btn { position: absolute; top: 10px; right: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
 
-        /* SIDEBAR GAUCHE (CAPACITÉ) */
+        /* SIDEBAR (GAUCHE) */
         .capacity-sidebar { position: fixed; left: 0; top: 0; bottom: 90px; width: 15px; background: #0f0f0f; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 0; z-index: 40; }
         .capacity-track { width: 100%; height: 100%; background: #0f0f0f; position: relative; overflow: hidden; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); opacity: 0.8; }
 
-        /* MONITOR CHARGE MENTALE (DÉGRADÉ) */
-        .monitor-wrapper { width: 95%; margin: 15px auto 5px auto; transition: opacity 0.3s; height: 6px; border-radius: 3px; background: #222; overflow: hidden; }
-        .monitor-wrapper.hidden { opacity: 0; pointer-events: none; margin:0; height:0; }
+        /* MONITOR CHARGE MENTALE (FIXED VISIBILITY) */
+        .monitor-wrapper { 
+            width: 95%; margin: 10px auto 0 auto; height: 6px; 
+            background: #222; border-radius: 3px; overflow: hidden; 
+            position: relative; z-index: 15; transition: opacity 0.3s;
+        }
+        .monitor-wrapper.hidden { opacity: 0; } /* Cache visuellement mais garde la place ou pointer events */
+        
         .load-fill { 
             height: 100%; width: 0%; 
-            background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%);
-            transition: width 0.6s ease-out; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); 
+            /* Dégradé fixe visible au remplissage */
+            background: linear-gradient(90deg, #00E676 0%, #FFAB00 50%, #FF1744 100%);
+            transition: width 0.6s ease-out; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); 
         }
 
         /* CONTENT */
@@ -62,10 +73,9 @@
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
         .task-item:active { transform: scale(0.98); }
         
-        /* COULEURS DES TACHES */
-        .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); }
-        .task-item.calendar { border-left-color: #FF4081; background: #1F1518; }
-        .task-item.reminder { border-left-color: var(--reminder); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); }
+        .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); order: -2; }
+        .task-item.calendar { border-left-color: #FF4081; background: #1F1518; order: -1; }
+        .task-item.reminder { border-left-color: var(--reminder); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -1; }
         
         .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; }
         .task-sub { font-size: 9px; opacity: 0.7; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
@@ -75,8 +85,8 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         
-        /* FLAMME VISIBLE */
-        .priority-icon { color: var(--danger); font-size:12px; margin-left:5px; }
+        .priority-icon { color: var(--danger); font-size:12px; margin-left:5px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -104,22 +114,25 @@
         .focus-card:active { transform: scale(0.95); background: #222; border-color: var(--accent); }
         .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
         .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
+        
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px; animation: zoomIn 0.3s; }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .laser-task { font-size: 26px; font-weight: 900; color: white; margin-bottom: 30px; text-shadow: 0 0 20px rgba(41, 121, 255, 0.5); }
         .laser-ai-box { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--success); padding: 20px; border-radius: 16px; width: 100%; margin-bottom: 40px; }
         .laser-ai-label { color: var(--success); font-size: 9px; font-weight: 900; display: block; margin-bottom: 5px; }
         .laser-ai-text { font-size: 16px; font-style: italic; color: #DDD; }
-        .laser-btn { background: var(--success); color: black; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 16px; }
+        .laser-btn { background: var(--success); color: black; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 16px; box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); }
         .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; cursor: pointer; }
 
         /* 4. ROUTINES */
         .routine-container { display: flex; flex-direction: column; padding: 20px 10px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .routine-card-item:active { transform: scale(0.95); background: #222; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
+        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        
         .active-routine-view { display: none; flex-direction: column; height: 100%; }
         .routine-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .back-btn { background: transparent; border: none; color: #888; font-size: 12px; cursor: pointer; font-weight: bold; }
@@ -135,7 +148,7 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* CONTROLS (BOTTOM) */
+        /* CONTROLS (FOOTER CENTRÉ) */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
@@ -143,26 +156,26 @@
         .mode-icon { font-size: 18px; display: block; margin-bottom: 2px; }
         .mode-label { font-size: 9px; font-weight: 700; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
-        
         /* FOOTER ACTIONS CENTRÉES */
-        .action-circle { width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
+        .action-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
         
         .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
         .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); }
-        .btn-mic svg { width: 24px; height: 24px; fill: white; }
+        .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
 
-        .text-input-container { position: absolute; bottom: 80px; left: 60px; right: 20px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
+        .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
-        /* ONBOARDING & ZEN */
+        /* ONBOARDING */
         .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
         .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
@@ -188,7 +201,7 @@
 
     <div class="header">
         <div class="header-content">
-            <button id="mood-btn" class="header-btn mood-btn zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
+            <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
             <button id="sound-btn" class="header-btn sound-btn" onclick="toggleBrownNoise()"><span>🎧</span> FOCUS</button>
             <button class="brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
 
@@ -218,6 +231,7 @@
                 <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div>
             </div>
         </div>
+
         <div id="view-calendar" class="view-section">
             <div class="calendar-wrapper">
                 <div class="calendar-header">
@@ -237,6 +251,7 @@
                 </div>
             </div>
         </div>
+
         <div id="view-focus" class="view-section">
             <div id="focus-picker-wrapper">
                 <div class="focus-title">CHOISIS TA CIBLE</div>
@@ -253,6 +268,7 @@
                 <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
             </div>
         </div>
+
         <div id="view-routine" class="view-section">
             <div id="routine-ui" class="routine-container">
                 <div id="routines-grid" class="routine-grid"></div>
@@ -266,6 +282,7 @@
                 </div>
             </div>
         </div>
+
         <div id="view-pomo" class="view-section">
             <div id="pomo-ui" class="pomo-container">
                 <div class="pomo-status" id="pomo-msg">FOCUS SESSION</div>
@@ -290,7 +307,7 @@
         
         <div class="input-area">
             <div class="action-circle btn-keyboard" onclick="toggleInputMode(this)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
             </div>
             
             <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
@@ -328,16 +345,19 @@
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewName}`).classList.add('active');
+            
             const monitor = document.getElementById('monitor-ui');
             if (viewName === 'dump' || viewName === 'focus') monitor.classList.remove('hidden'); else monitor.classList.add('hidden');
+
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             if (viewName === 'calendar') renderCalendar();
+            
             const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"};
             document.getElementById('status-text').innerText = titles[viewName];
         }
 
-        // --- TASKS CORE ---
+        // --- CORE FUNCTIONS ---
         function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
@@ -347,21 +367,46 @@
             div.setAttribute('data-duration', duration);
             if(date) div.setAttribute('data-date', date);
             const syncIcon = isCal ? '<span class="sync-badge">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; 
-            // FLAMME POUR URGENT
-            const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : ''; 
+            const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : '';
             let dateBadge = ''; if(date) { const dObj = new Date(date); dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}</span>`; }
             const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
-            let categoryLabel = isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT' : 'TÂCHE'));
+            
+            let categoryLabel = isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT 🔥' : 'TÂCHE'));
 
             div.innerHTML = `<div class="task-content"><div class="task-text">${text} ${syncIcon} ${remIcon} ${fireIcon}</div><div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${categoryLabel}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
             
-            // LOGIQUE DE TRI : SI URGENT -> EN HAUT, SINON EN BAS
+            // PRIORITY SORTING: High priority items go first
             if (isHigh) list.prepend(div); else list.appendChild(div);
             
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- ROUTINE HUMAN SPEECH ---
+        async function processWithAI(userInput) {
+            isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
+            const currentPrompts = getPrompts(); const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
+            try {
+                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
+                const data = await rep.json();
+                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
+                if (currentMode === 'ROUTINE') { if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); isProcessing = false; return; } else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Inconnue.`); } isProcessing = false; return; } }
+                if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration, act.due_date); if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); }); }
+                playVocalResponse(parsed.text);
+            } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
+        }
+
+        function getPrompts() {
+            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const todayISO = new Date().toISOString().split('T')[0];
+            let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique.";
+            return {
+                'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today} (${todayISO}). JSON Strict. Champ "text": 1 mot court. Actions: [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ]. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
+                'FOCUS': `Coach TDAH. Mission: Dédramatise. JSON Strict: { "text": "...", "actions": [] }`,
+                'ROUTINE': `Expert. ${tone}. Commandes: SAVE_ROUTINE/GET_ROUTINE.`,
+                'POMO': `Coach Pomodoro. ${tone}. JSON Strict: { "text": "Focus ?", "actions": [] }`
+            };
+        }
+
+        // --- AUDIO NARRATION ROUTINE ---
         function readActiveRoutine() { 
             const list = document.getElementById('routine-steps-list'); 
             const name = document.getElementById('active-routine-name').innerText;
@@ -380,26 +425,15 @@
             playVocalResponse(narrative); 
         }
 
-        // --- (STANDARD FUNCTIONS) ---
-        async function processWithAI(userInput) {
-            isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
-            const currentPrompts = getPrompts(); const finalPrompt = `${currentPrompts[currentMode]}\n\nUTILISATEUR : "${userInput}"`;
-            try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
-                const data = await rep.json();
-                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                if (currentMode === 'ROUTINE') { if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); isProcessing = false; return; } else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Inconnue.`); } isProcessing = false; return; } }
-                if(parsed.actions) { parsed.actions.forEach(act => { addTaskToUI(act.detail, act.type, act.priority || 'NORMAL', act.duration, act.due_date); if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(act.detail); }); }
-                playVocalResponse(parsed.text);
-            } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
-        }
-        function getPrompts() { const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); let tone = (currentMood === 'ZEN') ? "Ton: Doux, lent." : "Ton: Dynamique."; return { 'DUMP': `Assistant TDAH pour ${username}. ${tone}. DATE: ${today}. JSON Strict. Champ "text": 1 mot court. Actions: [ { "type": "TODO/CALENDAR/REMINDER", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ]. ESTIME DURÉE.`, 'FOCUS': `Coach TDAH. Mission: Dédramatise. JSON Strict: { "text": "...", "actions": [] }`, 'ROUTINE': `Expert. ${tone}. Commandes: SAVE_ROUTINE/GET_ROUTINE.`, 'POMO': `Coach Pomodoro. ${tone}. JSON Strict: { "text": "Focus ?", "actions": [] }` }; }
-        
+        // --- BUTTONS & ACTIONS ---
         function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
-        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
+        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn active zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn active boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
+        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
         function toggleBrownNoise() { if (isNoisePlaying) stopBrownNoise(); else startBrownNoise(); }
         function startBrownNoise() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const bufferSize = 4096; const brownNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1); brownNoise.onaudioprocess = function(e) { const output = e.outputBuffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { const white = Math.random() * 2 - 1; output[i] = (lastOut + (0.02 * white)) / 1.02; lastOut = output[i]; output[i] *= 3.5; } }; let lastOut = 0; gainNode = audioCtx.createGain(); gainNode.gain.value = 0.15; brownNoise.connect(gainNode); gainNode.connect(audioCtx.destination); brownNoiseNode = brownNoise; isNoisePlaying = true; const btn = document.getElementById('sound-btn'); btn.classList.add('active'); btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`; }
         function stopBrownNoise() { if (brownNoiseNode) { brownNoiseNode.disconnect(); brownNoiseNode = null; } isNoisePlaying = false; const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`; }
+
+        // --- UTILS ---
         function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
         function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
         function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
@@ -409,21 +443,20 @@
         function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('onboarding-modal').classList.remove('show'); } }
         function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
         function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (event) => { for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { stopRecordingState(); }; }
-        function toggleRecording() { if (isProcessing) { isProcessing = false; stopThinkingAnimation(); } if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; document.getElementById('btn-mic').classList.add('recording'); document.getElementById('status-text').innerText = "J'écoute..."; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; document.getElementById('btn-mic').classList.remove('recording'); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); } }
-        function stopRecordingState() { isRecording = false; document.getElementById('btn-mic').classList.remove('recording'); document.getElementById('status-text').innerText = "Erreur Micro"; }
+        function toggleRecording() { if (isProcessing) { isProcessing = false; stopThinkingAnimation(); } if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "J'écoute..."; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Attente fin..."; setTimeout(() => { if(finalTranscript.trim().length > 0) { processWithAI(finalTranscript); } else { document.getElementById('status-text').innerText = "Rien entendu."; } }, 800); } }
+        function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
         function updateMicVisuals(rec) { const w = document.getElementById('mic-wrapper'); const m = document.getElementById('icon-mic'); const s = document.getElementById('icon-stop'); if(rec) { w.classList.add('is-recording'); m.style.display='none'; s.style.display='block'; } else { w.classList.remove('is-recording'); m.style.display='block'; s.style.display='none'; } }
         function startThinkingAnimation() { document.getElementById('mic-wrapper').classList.add('thinking'); }
         function stopThinkingAnimation() { document.getElementById('mic-wrapper').classList.remove('thinking'); }
-        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
+        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
         async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
-        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
         
         // Routines & Cal
         function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
         function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
         function deleteStepFromRoutine(n, i) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const k = Object.keys(r).find(x => x === n.toLowerCase()); if (k) { r[k].splice(i, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(n); } }
-        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); const s = getRoutineStyle(k); d.className='routine-card-item'; d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
+        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; if(Object.keys(r).length===0) { g.innerHTML=`<div style="grid-column:span 2; opacity:0.5; font-size:12px; text-align:center;">Aucune routine.</div>`; return; } for(let k in r) { const d=document.createElement('div'); const s=getRoutineStyle(k); d.className='routine-card-item'; d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
         function launchRoutine(n) { const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const s = r[n.toLowerCase()]; if(!s) return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l = document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((step, i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}', ${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0) { playVocalResponse("Terminé !"); exitRoutine(); } }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
@@ -437,8 +470,9 @@
         function toggleInputMode(btn) { isTextMode = !isTextMode; const ui = document.getElementById('text-input-ui'); if(isTextMode) { ui.classList.add('show'); btn.classList.add('active'); document.getElementById('user-input').focus(); } else { ui.classList.remove('show'); btn.classList.remove('active'); } }
         function handleEnter(e) { if(e.key === 'Enter') sendText(); }
         function sendText() { const i = document.getElementById('user-input'); if(i.value.trim()){ processWithAI(i.value); i.value=""; } }
-        function resetTimer() { clearInterval(timerInterval); isTimerRunning=false; timeLeft=25*60; document.getElementById('timer-display').innerText="25:00"; }
+        function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
         function toggleTimer() { const b=document.getElementById('btn-timer-action'); if(isTimerRunning) { clearInterval(timerInterval); isTimerRunning=false; b.innerText="REPRENDRE"; } else { timerInterval=setInterval(()=>{ timeLeft--; let m=Math.floor(timeLeft/60); let s=timeLeft%60; document.getElementById('timer-display').innerText=`${m}:${s.toString().padStart(2,'0')}`; if(timeLeft<=0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning=true; b.innerText="PAUSE"; } }
+        function resetTimer() { clearInterval(timerInterval); isTimerRunning=false; timeLeft=25*60; document.getElementById('timer-display').innerText="25:00"; }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
         async function startMorningBrief() { if(isProcessing) return; isProcessing = true; const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Assistant TDAH. Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief court.`; try { const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text); } catch(e){isProcessing=false;} }
