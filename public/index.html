@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V37 (FINAL) --- */
+        /* --- DESIGN NEURO V38 (RAFFINÉ) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -19,14 +19,18 @@
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background 0.5s; }
 
         /* HEADER */
-        .header { padding-top: 15px; padding-bottom: 5px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 15px; }
+        .header { padding-top: 10px; padding-bottom: 5px; background: #121212; z-index: 10; border-bottom: 1px solid #333; position: relative; margin-left: 10px; /* Marge réduite car barre gauche fine */ }
         .header-content { display: flex; align-items: center; justify-content: center; position: relative; height: 50px; }
-        .app-logo-svg { width: 140px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        
+        /* LOGO RÉDUIT */
+        .app-logo-svg { width: 90px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
+        .app-logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 0px; }
+        
         .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
         @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
 
         /* BOUTONS HEADER */
-        .header-btn { position: absolute; top: 15px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
+        .header-btn { position: absolute; top: 12px; background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: all 0.2s; }
         .mood-btn { left: 0px; }
         .mood-btn.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .mood-btn.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
@@ -34,22 +38,35 @@
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
         .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 0.5s infinite; margin-left:2px; }
         @keyframes sound { 0%, 100% { height: 4px; } 50% { height: 10px; } }
-        .brief-btn { position: absolute; top: 15px; right: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
+        .brief-btn { position: absolute; top: 12px; right: 0; background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); font-size: 10px; font-weight: bold; padding: 5px 8px; border-radius: 15px; cursor: pointer; z-index: 20; display: flex; align-items: center; gap: 3px; }
 
-        /* SIDEBAR CAPACITÉ (GAUCHE - SANS TEXTE) */
-        .capacity-sidebar { position: fixed; left: 0; top: 0; bottom: 90px; width: 15px; background: #0f0f0f; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 0; z-index: 40; }
+        /* SIDEBAR CAPACITÉ (GAUCHE - ULTRA FINE) */
+        .capacity-sidebar { 
+            position: fixed; left: 0; top: 0; bottom: 90px; width: 8px; /* Réduit à 8px */
+            background: #0f0f0f; border-right: 1px solid #222; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
+            padding-bottom: 0; z-index: 40; 
+        }
         .capacity-track { width: 100%; height: 100%; background: #0f0f0f; position: relative; overflow: hidden; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); opacity: 0.8; }
 
-        /* MONITOR CHARGE MENTALE (SANS TEXTE) */
-        .monitor-wrapper { width: 90%; margin: 10px auto 5px auto; transition: opacity 0.3s; height: 8px; }
+        /* MONITOR CHARGE MENTALE (DÉGRADÉ COMPLET) */
+        .monitor-wrapper { width: 90%; margin: 10px auto 5px auto; transition: opacity 0.3s; height: 6px; }
         .monitor-wrapper.hidden { opacity: 0; pointer-events: none; }
-        /* Plus de titre */
-        .load-track { width: 100%; height: 100%; background: #222; border-radius: 4px; overflow: hidden; position: relative; }
-        .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
+        
+        .load-track { width: 100%; height: 100%; background: #222; border-radius: 3px; overflow: hidden; position: relative; }
+        .load-fill { 
+            height: 100%; width: 0%; 
+            /* Dégradé fixe qui se dévoile : Vert -> Jaune -> Rouge */
+            background: linear-gradient(to right, #00E676 0%, #FFAB00 50%, #FF1744 100%);
+            /* Hack pour que le dégradé semble fixe : background-size large */
+            background-size: 100vw 100%; 
+            transition: width 0.6s ease-out; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); 
+        }
 
         /* CONTENT */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 20px; padding-top: 10px; }
+        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 15px; padding-top: 10px; }
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -72,7 +89,6 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         
-        /* Icone priorité dans le texte */
         .priority-badge { font-weight: 900; color: var(--danger); display: none; margin-left:5px; }
         .task-item.priority-high .priority-badge { display: inline; }
         
@@ -108,10 +124,10 @@
         .laser-ai-box { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--success); padding: 20px; border-radius: 16px; width: 100%; margin-bottom: 40px; }
         .laser-ai-label { color: var(--success); font-size: 9px; font-weight: 900; display: block; margin-bottom: 5px; }
         .laser-ai-text { font-size: 16px; font-style: italic; color: #DDD; }
-        .laser-btn { background: var(--success); color: black; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 16px; }
+        .laser-btn { background: var(--success); color: black; border: none; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 16px; box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); }
         .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; cursor: pointer; }
 
-        /* 4. ROUTINES (RESTYLED CARDS) */
+        /* 4. ROUTINES */
         .routine-container { display: flex; flex-direction: column; padding: 20px 10px; gap: 15px; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -135,7 +151,7 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* CONTROLS (MOBILE FIX) */
+        /* CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 60px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; }
@@ -197,7 +213,6 @@
                     <text x="100" y="130" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="white" text-anchor="middle" letter-spacing="4">NEURO</text>
                     <text x="100" y="145" font-family="'Inter', sans-serif" font-weight="700" font-size="8" fill="#2979FF" text-anchor="middle" letter-spacing="2">ASSISTANT</text>
                 </svg>
-                <div id="user-display" class="user-greeting" style="font-size:10px; color:var(--accent); font-weight:bold; margin-top:2px;"></div>
             </div>
         </div>
         
@@ -367,7 +382,7 @@
             else { list.innerHTML = ""; tasks.forEach(t => { const div = document.createElement('div'); div.innerHTML = t.html; const btn = div.querySelector('.done-btn'); if(btn) btn.style.display='none'; list.appendChild(div.firstChild); }); }
         }
 
-        // --- CORE UI ---
+        // --- CORE UI (FLAMME & BADGES) ---
         function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
@@ -380,7 +395,7 @@
             let dateBadge = ''; if(date) { const dObj = new Date(date); dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}</span>`; }
             const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
             
-            // Catégorie FLAMME
+            // Catégorie FLAMME affichée
             let categoryLabel = 'TÂCHE';
             if (isCal) categoryLabel = 'AGENDA'; else if (isRem) categoryLabel = 'RAPPEL'; else if (isHigh) categoryLabel = 'URGENT 🔥';
 
@@ -413,7 +428,7 @@
             };
         }
 
-        // --- ROUTINES (STYLES RESTAURÉS) ---
+        // --- ROUTINES (RESTYLED & COLORED) ---
         function getRoutineStyle(name) { 
             const n = name.toLowerCase(); 
             if (n.includes('matin') || n.includes('reveil')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; 
@@ -432,7 +447,7 @@
             for (let name in routines) { 
                 const btn = document.createElement('div'); 
                 btn.className = "routine-card-item"; 
-                const style = getRoutineStyle(name); // STYLE RESTORED
+                const style = getRoutineStyle(name); 
                 btn.style.borderLeft = `4px solid ${style.color}`;
                 btn.style.background = `linear-gradient(135deg, ${style.bg}, var(--bg-card))`;
                 btn.innerHTML = `<span class="routine-icon">${style.icon}</span><span class="routine-name">${name}</span><div class="routine-delete-btn" onclick="deleteRoutine('${name}', event)">✕</div>`; 
