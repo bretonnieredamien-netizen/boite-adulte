@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V56 (INTELLIGENT) --- */
+        /* --- DESIGN NEURO V57 (SILENT MIC) --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -50,7 +50,7 @@
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* TASK LIST */
+        /* TASKS */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
         .task-item:active { transform: scale(0.98); }
@@ -64,7 +64,6 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         .priority-icon { color: var(--danger); font-size:12px; margin-left:5px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
@@ -126,11 +125,25 @@
         .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
-        .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
-        .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); animation: pulseRed 1s infinite; }
+        
+        /* MICRO SANS SON, JUSTE VISUEL */
+        .mic-container { position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); z-index: 10; width: 60px; height: 60px; }
+        .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); }
         .btn-mic svg { width: 28px; height: 28px; fill: white; }
         .btn-mic.recording svg { fill: var(--danger); }
-        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
+        
+        /* ONDES VISUELLES LORS DE L'ENREGISTREMENT */
+        .mic-wave { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            border-radius: 50%; border: 1px solid var(--danger);
+            opacity: 0; pointer-events: none;
+        }
+        .is-recording .mic-wave { animation: ripple 2s infinite linear; }
+        .is-recording .mic-wave:nth-child(2) { animation-delay: 0.5s; }
+        .is-recording .mic-wave:nth-child(3) { animation-delay: 1s; }
+        
+        @keyframes ripple { 0% { transform: scale(1); opacity: 0.8; border-width: 2px; } 100% { transform: scale(3); opacity: 0; border-width: 0px; } }
 
         .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
         .text-input-container.show { display: flex; }
@@ -183,7 +196,6 @@
                 <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
             </div>
         </div>
-        
         <div id="monitor-ui" class="monitor-bar-container">
             <div id="load-bar" class="load-fill"></div>
         </div>
@@ -191,11 +203,8 @@
 
     <div class="content-area">
         <div id="view-dump" class="view-section active">
-            <div class="task-container" id="task-list">
-                <div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div>
-            </div>
+            <div class="task-container" id="task-list"><div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div></div>
         </div>
-
         <div id="view-calendar" class="view-section">
             <div class="calendar-wrapper">
                 <div class="calendar-header">
@@ -207,52 +216,31 @@
                     <div class="day-name">L</div><div class="day-name">M</div><div class="day-name">M</div><div class="day-name">J</div><div class="day-name">V</div><div class="day-name">S</div><div class="day-name">D</div>
                     <div id="cal-days-container" style="display:contents"></div>
                 </div>
-                <div class="calendar-tasks-list">
-                    <div class="cal-list-title">TÂCHES DU JOUR</div>
-                    <div id="cal-task-list" class="task-container" style="padding:0;">
-                        <div style="text-align:center; opacity:0.3; font-size:12px;">Sélectionne un jour.</div>
-                    </div>
-                </div>
+                <div class="calendar-tasks-list"><div class="cal-list-title">TÂCHES DU JOUR</div><div id="cal-task-list" class="task-container" style="padding:0;"></div></div>
             </div>
         </div>
-
         <div id="view-focus" class="view-section">
-            <div id="focus-picker-wrapper">
-                <div class="focus-title">CHOISIS TA CIBLE</div>
-                <div id="focus-grid" class="focus-grid"></div>
-            </div>
+            <div id="focus-picker-wrapper"><div class="focus-title">CHOISIS TA CIBLE</div><div id="focus-grid" class="focus-grid"></div></div>
             <div id="focus-laser-wrapper" class="laser-container">
                 <div class="laser-task" id="laser-current-task">...</div>
-                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none">
-                    <span class="laser-ai-label">PREMIÈRE ÉTAPE</span>
-                    <span id="laser-micro-text" class="laser-ai-text">...</span>
-                </div>
+                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none"><span class="laser-ai-label">PREMIÈRE ÉTAPE</span><span id="laser-micro-text" class="laser-ai-text">...</span></div>
                 <button class="laser-btn" onclick="completeLaserTask()">C'EST FAIT</button>
                 <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
             </div>
         </div>
-
         <div id="view-routine" class="view-section">
             <div id="routine-ui" class="routine-container">
                 <div id="routines-grid" class="routine-grid"></div>
                 <div id="active-routine-view" class="active-routine-view">
-                    <div class="routine-header">
-                        <button class="back-btn" onclick="exitRoutine()">← RETOUR</button>
-                        <span id="active-routine-name" style="font-weight:bold; color:var(--success);">...</span>
-                        <button class="read-routine-btn" onclick="readActiveRoutine()">🔊 LIRE</button>
-                    </div>
+                    <div class="routine-header"><button class="back-btn" onclick="exitRoutine()">← RETOUR</button><span id="active-routine-name" style="font-weight:bold; color:var(--success);">...</span><button class="read-routine-btn" onclick="readActiveRoutine()">🔊 LIRE</button></div>
                     <div id="routine-steps-list" class="task-container" style="padding:0;"></div>
                 </div>
             </div>
         </div>
-
         <div id="view-pomo" class="view-section">
             <div class="pomo-container">
                 <div class="pomo-timer" id="timer-display">25:00</div>
-                <div class="pomo-controls">
-                    <button class="pomo-btn btn-stop" onclick="resetTimer()">STOP</button>
-                    <button class="pomo-btn btn-start" onclick="toggleTimer()" id="btn-timer-action">START</button>
-                </div>
+                <div class="pomo-controls"><button class="pomo-btn btn-stop" onclick="resetTimer()">STOP</button><button class="pomo-btn btn-start" onclick="toggleTimer()" id="btn-timer-action">START</button></div>
             </div>
         </div>
     </div>
@@ -261,30 +249,11 @@
         <div id="status-text" class="ai-feedback">Prêt.</div>
         
         <div class="mode-selector">
-            <div class="mode-card active" onclick="switchView('dump', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2v12h20V12z"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
-                <span class="mode-label">Vider</span>
-            </div>
-            
-            <div class="mode-card" onclick="switchView('calendar', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-                <span class="mode-label">Cal</span>
-            </div>
-
-            <div class="mode-card" onclick="switchView('focus', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-                <span class="mode-label">Focus</span>
-            </div>
-
-            <div class="mode-card" onclick="switchView('pomo', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <span class="mode-label">Pomo</span>
-            </div>
-
-            <div class="mode-card" onclick="switchView('routine', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
-                <span class="mode-label">Routine</span>
-            </div>
+            <div class="mode-card active" onclick="switchView('dump', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2v12h20V12z"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><span class="mode-label">Vider</span></div>
+            <div class="mode-card" onclick="switchView('calendar', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="mode-label">Cal</span></div>
+            <div class="mode-card" onclick="switchView('focus', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="mode-label">Focus</span></div>
+            <div class="mode-card" onclick="switchView('pomo', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="mode-label">Pomo</span></div>
+            <div class="mode-card" onclick="switchView('routine', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div><span class="mode-label">Routine</span></div>
         </div>
         
         <div class="input-area">
@@ -292,9 +261,12 @@
                 <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
             </div>
             
-            <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
-                <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
+            <div id="mic-wrapper" class="mic-container">
+                <div class="mic-wave"></div><div class="mic-wave"></div><div class="mic-wave"></div>
+                <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
+                    <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                    <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
+                </div>
             </div>
         </div>
         
@@ -335,7 +307,7 @@
             document.getElementById('status-text').innerText = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"}[viewName];
         }
 
-        // --- AUDIO : PINK NOISE (PLUIE) ---
+        // --- AUDIO ---
         function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
         function startPinkNoise() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -359,49 +331,43 @@
             const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`;
         }
 
-        // --- MICROPHONE MANUEL ---
+        // --- MICROPHONE MANUEL & VISUEL ---
         function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { if(e.error === 'not-allowed') stopRecordingState(); }; }
         function toggleRecording() { if (isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "Enregistrement... (Cliquez pour Stop)"; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Analyse..."; setTimeout(() => { if (finalTranscript.trim().length > 0) processWithAI(finalTranscript); else document.getElementById('status-text').innerText = "Rien entendu."; }, 800); } }
-        function updateMicVisuals(rec) { const btn = document.getElementById('btn-mic'); const micIcon = document.getElementById('icon-mic'); const stopIcon = document.getElementById('icon-stop'); if (rec) { btn.classList.add('recording'); micIcon.style.display = 'none'; stopIcon.style.display = 'block'; } else { btn.classList.remove('recording'); micIcon.style.display = 'block'; stopIcon.style.display = 'none'; } }
+        function updateMicVisuals(rec) { 
+            const btn = document.getElementById('btn-mic'); 
+            const wrapper = document.getElementById('mic-wrapper');
+            const micIcon = document.getElementById('icon-mic'); 
+            const stopIcon = document.getElementById('icon-stop'); 
+            if (rec) { 
+                wrapper.classList.add('is-recording'); 
+                btn.classList.add('recording'); 
+                micIcon.style.display = 'none'; 
+                stopIcon.style.display = 'block'; 
+            } else { 
+                wrapper.classList.remove('is-recording'); 
+                btn.classList.remove('recording'); 
+                micIcon.style.display = 'block'; 
+                stopIcon.style.display = 'none'; 
+            } 
+        }
         function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
 
-        // --- IA PROCESS (V55: GLOBAL ROUTINE DETECTION) ---
+        // --- IA PROCESS ---
         async function processWithAI(userInput) {
             isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
-            
-            // NEW: DETECT ROUTINE INTENT GLOBALLY
             const lowerInput = userInput.toLowerCase();
             let forcedMode = currentMode;
-            if (lowerInput.includes("routine") || lowerInput.includes("crée une routine")) {
-                forcedMode = 'ROUTINE'; // Force Routine Mode instructions even in Dump view
-            }
-
+            if (lowerInput.includes("routine") || lowerInput.includes("crée une routine")) { forcedMode = 'ROUTINE'; }
+            
             const currentPrompts = getPrompts(); 
             const finalPrompt = `${currentPrompts[forcedMode]}\n\nUTILISATEUR : "${userInput}"`;
-            
             try {
                 const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                
-                // GLOBAL ROUTINE HANDLER
-                if (parsed.command === 'SAVE_ROUTINE') { 
-                    saveRoutine(parsed.name, parsed.steps); 
-                    playVocalResponse(`Routine ${parsed.name} enregistrée avec ${parsed.steps.length} étapes.`); 
-                    switchView('routine', document.querySelectorAll('.mode-card')[4]); // Auto-switch to Routine View
-                    isProcessing = false; 
-                    return; 
-                } 
-                else if (parsed.command === 'GET_ROUTINE') { 
-                    const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; 
-                    if (savedSteps) { 
-                        switchView('routine', document.querySelectorAll('.mode-card')[4]); // Auto-switch
-                        launchRoutine(parsed.name); 
-                        playVocalResponse(`Voici ta routine ${parsed.name}.`); 
-                    } else { playVocalResponse(`Je ne trouve pas la routine ${parsed.name}.`); } 
-                    isProcessing = false; 
-                    return; 
-                }
+                if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); switchView('routine', document.querySelectorAll('.mode-card')[4]); isProcessing = false; return; }
+                else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { switchView('routine', document.querySelectorAll('.mode-card')[4]); launchRoutine(parsed.name); playVocalResponse(`Voici ta routine ${parsed.name}.`); } else { playVocalResponse(`Routine inconnue.`); } isProcessing = false; return; }
                 
                 if(parsed.actions) { 
                     parsed.actions.forEach(act => { 
@@ -431,97 +397,56 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- HELPERS (STRICT IA) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
             let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
-            const SYSTEM_INSTRUCTION = `TU N'ES PAS UNE IA DE CONVERSATION. TU ES UN MOTEUR DE TÂCHES. INTERDICTION FORMELLE DE RÉPONDRE AUX QUESTIONS OU D'EXPLIQUER DES CONCEPTS. FORMAT DE RÉPONSE : JSON UNIQUEMENT. Champ "text" : Une phrase de confirmation TRÈS COURTE (max 3 mots). PAS DE MARKDOWN. Champ "actions" : Liste des actions. INTERDICTION FORMELLE DE PRONONCER LE MOT 'TDAH' OU 'TROUBLE'.`;
+            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT. Champ "text": phrase courte. Champ "actions": liste. NE DIS PAS TDAH.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}" pour extraire les tâches. Structure Action : { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }. ESTIME LA DURÉE (en min). SI DATE, mets dans "due_date". Si URGENT ou IMPORTANT, mets priority "HIGH".`,
-                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule et immédiate pour débloquer la situation.`,
-                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Ton but est de créer des SÉQUENCES d'étapes. NE CRÉE PAS DE TÂCHES SIMPLES. Si l'utilisateur dit "Routine Sport", INVENTE 3-5 étapes (ex: "Mettre baskets", "Boire eau"). Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape1", "Etape2"] }.`,
-                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Entrée: "${username}". Tâche: { "type": "TODO", "detail": "...", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" }.`,
+                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE micro-action.`,
+                'ROUTINE': `TU ES ARCHITECTE. Crée une routine JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape1", "Etape2"] }. Si l'user dit juste "Routine Sport", INVENTE les étapes logiques.`,
+                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO.`
             };
         }
         
-        function readActiveRoutine() { 
-            const list = document.getElementById('routine-steps-list'); 
-            const name = document.getElementById('active-routine-name').innerText;
-            const items = list.querySelectorAll('.task-text');
-            let narrative = `Ok ${username}, c'est parti pour ta routine ${name}. `;
-            items.forEach((item, index) => {
-                const step = item.innerText;
-                if (index === 0) narrative += `On commence par : ${step}. `;
-                else if (index === items.length - 1) narrative += `Et pour finir : ${step}. Allez, tu gères !`;
-                else { const connectors = ["Ensuite, ", "Puis, ", "Après ça, ", "On enchaîne avec "]; narrative += connectors[index % connectors.length] + step + ". "; }
-            });
-            playVocalResponse(narrative); 
-        }
-
-        function toggleMood() { currentMood = (currentMood === 'ZEN') ? 'BOOST' : 'ZEN'; localStorage.setItem('neuro_mood', currentMood); updateMoodUI(); playVocalResponse(currentMood === 'ZEN' ? "Mode Zen." : "Mode Boost !"); }
-        function updateMoodUI() { const btn = document.getElementById('mood-btn'); if(currentMood === 'ZEN') { btn.className = "header-btn mood-btn active zen"; btn.innerHTML = "<span>🛡️</span> ZEN"; } else { btn.className = "header-btn mood-btn active boost"; btn.innerHTML = "<span>🚀</span> BOOST"; } }
-        function loadMood() { const saved = localStorage.getItem('neuro_mood'); if(saved) { currentMood = saved; updateMoodUI(); } }
-        function completeTask(btn) { const item = btn.closest('.task-item'); if(item) { item.style.transform="translateX(100%)"; item.style.opacity="0"; setTimeout(()=>{ item.remove(); saveTasks(); updateMentalLoad(); updateDailyCapacity(); }, 300); } }
-        function saveTasks() { localStorage.setItem('neuro_tasks', document.getElementById('task-list').innerHTML); }
-        function loadTasks() { const s = localStorage.getItem('neuro_tasks'); if(s && s.trim()!=="") document.getElementById('task-list').innerHTML = s; }
-        function updateMentalLoad() { const items = document.querySelectorAll('#task-list .task-item'); let score = 0; items.forEach(i => { if(i.classList.contains('priority-high')) score+=3; else score+=1; }); const p = Math.min((score/12)*100, 100); document.getElementById('load-bar').style.width = p+"%"; }
-        function updateDailyCapacity() { const items = document.querySelectorAll('#task-list .task-item'); let mins = 0; items.forEach(i => { mins += parseInt(i.getAttribute('data-duration')) || 15; }); const p = Math.min((mins/360)*100, 100); document.getElementById('capacity-bar').style.height = p+"%"; }
-        function checkOnboarding() { const savedName = localStorage.getItem('neuro_username'); if (savedName) { username = savedName; } else { document.getElementById('onboarding-modal').classList.add('show'); } }
-        function saveUsername() { const input = document.getElementById('username-input'); if (input.value.trim() !== "") { username = input.value.trim(); localStorage.setItem('neuro_username', username); document.getElementById('onboarding-modal').classList.remove('show'); } }
-        function cleanTextForSpeech(text) { if(!text) return ""; return text.replace(/[*#]/g, '').replace(/^- /g, ''); }
-        async function playVocalResponse(txt) { document.getElementById('status-text').innerText = "Prêt."; isProcessing = false; stopThinkingAnimation(); window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(cleanTextForSpeech(txt)); u.lang='fr-FR'; u.rate = (currentMood === 'ZEN') ? 0.85 : 1.1; window.speechSynthesis.speak(u); }
-        async function sendToCalendar(detail) { try { await fetch(MAKE_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ detail: detail, type: 'CALENDAR' }) }); } catch (e) {} }
-        
-        function getRoutineStyle(name) { const n = name.toLowerCase(); if (n.includes('matin')) return { icon: '☀️', color: '#FFD740', bg: 'rgba(255, 215, 64, 0.1)' }; if (n.includes('soir')) return { icon: '🌙', color: '#536DFE', bg: 'rgba(83, 109, 254, 0.1)' }; if (n.includes('sport')) return { icon: '💪', color: '#FF4081', bg: 'rgba(255, 64, 129, 0.1)' }; if (n.includes('maison')) return { icon: '🏠', color: '#00E676', bg: 'rgba(0, 230, 118, 0.1)' }; return { icon: '⚡', color: '#BB86FC', bg: 'rgba(187, 134, 252, 0.1)' }; }
-        function saveRoutine(n, s) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); r[n.toLowerCase()] = s; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); }
-        function deleteRoutine(n, e) { if(e) e.stopPropagation(); if(confirm("Supprimer ?")) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); delete r[n]; localStorage.setItem('neuro_routines', JSON.stringify(r)); renderRoutines(); } }
-        function deleteStepFromRoutine(n, i) { let r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const k = Object.keys(r).find(x => x === n.toLowerCase()); if (k) { r[k].splice(i, 1); localStorage.setItem('neuro_routines', JSON.stringify(r)); launchRoutine(n); } }
-        function renderRoutines() { const g = document.getElementById('routines-grid'); const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); g.innerHTML=""; for(let k in r) { const d=document.createElement('div'); d.className='routine-card-item'; const s=getRoutineStyle(k); d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}', event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
-        function launchRoutine(n) { const r = JSON.parse(localStorage.getItem('neuro_routines') || '{}'); const s = r[n.toLowerCase()]; if(!s) return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l = document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((step, i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text" contenteditable="true">${step}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}', ${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove(); checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
-        function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0) { playVocalResponse("Terminé !"); exitRoutine(); } }
+        function readActiveRoutine() { const l=document.getElementById('routine-steps-list'); let t=`Ok ${username}, routine ${document.getElementById('active-routine-name').innerText}. `; l.querySelectorAll('.task-text').forEach((e,i)=>t+=`Etape ${i+1}: ${e.innerText}. `); playVocalResponse(t); }
+        function toggleMood() { currentMood=(currentMood==='ZEN')?'BOOST':'ZEN'; localStorage.setItem('neuro_mood',currentMood); updateMoodUI(); }
+        function updateMoodUI() { const b=document.getElementById('mood-btn'); b.className=`header-btn mood-btn active ${currentMood.toLowerCase()}`; b.innerHTML=(currentMood==='ZEN')?"<span>🛡️</span> ZEN":"<span>🚀</span> BOOST"; }
+        function loadMood() { const s=localStorage.getItem('neuro_mood'); if(s){currentMood=s;updateMoodUI();} }
+        function completeTask(b) { const i=b.closest('.task-item'); i.style.transform="translateX(100%)"; i.style.opacity="0"; setTimeout(()=>{i.remove();saveTasks();updateMentalLoad();updateDailyCapacity();},300); }
+        function saveTasks() { localStorage.setItem('neuro_tasks',document.getElementById('task-list').innerHTML); }
+        function loadTasks() { const s=localStorage.getItem('neuro_tasks'); if(s&&s.trim()!="")document.getElementById('task-list').innerHTML=s; }
+        function updateMentalLoad() { const i=document.querySelectorAll('#task-list .task-item'); let s=0; i.forEach(e=>s+=(e.classList.contains('priority-high')?3:1)); document.getElementById('load-bar').style.width=Math.min((s/12)*100,100)+"%"; }
+        function updateDailyCapacity() { const i=document.querySelectorAll('#task-list .task-item'); let m=0; i.forEach(e=>m+=parseInt(e.getAttribute('data-duration'))||15); document.getElementById('capacity-bar').style.height=Math.min((m/360)*100,100)+"%"; }
+        function checkOnboarding() { const n=localStorage.getItem('neuro_username'); if(n)username=n; else document.getElementById('onboarding-modal').classList.add('show'); }
+        function saveUsername() { const i=document.getElementById('username-input'); if(i.value.trim()){username=i.value.trim();localStorage.setItem('neuro_username',username);document.getElementById('onboarding-modal').classList.remove('show');} }
+        function cleanTextForSpeech(t) { if(!t)return""; return t.replace(/[*#]/g,'').replace(/^- /g,''); }
+        async function playVocalResponse(t) { document.getElementById('status-text').innerText="Prêt."; isProcessing=false; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(cleanTextForSpeech(t)); u.lang='fr-FR'; u.rate=(currentMood==='ZEN')?0.85:1.1; window.speechSynthesis.speak(u); }
+        async function sendToCalendar(d) { try{await fetch(MAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({detail:d,type:'CALENDAR'})});}catch(e){} }
+        function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
+        function saveRoutine(n,s) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); r[n.toLowerCase()]=s; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); }
+        function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
+        function deleteStepFromRoutine(n,i) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const k=Object.keys(r).find(x=>x===n.toLowerCase()); if(k){r[k].splice(i,1); localStorage.setItem('neuro_routines',JSON.stringify(r)); launchRoutine(n);} }
+        function renderRoutines() { const g=document.getElementById('routines-grid'); const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); g.innerHTML=""; for(let k in r){ const d=document.createElement('div'); d.className='routine-card-item'; const s=getRoutineStyle(k); d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}',event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
+        function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
+        function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0){playVocalResponse("Terminé!");exitRoutine();} }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
-        function renderCalendar() { const c = document.getElementById('cal-days-container'); const m = document.getElementById('cal-month-label'); const y = currentCalDate.getFullYear(); const mo = currentCalDate.getMonth(); m.innerText = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"][mo] + " " + y; c.innerHTML = ""; const f = new Date(y, mo, 1).getDay(); const dim = new Date(y, mo + 1, 0).getDate(); const o = (f===0)?6:f-1; for(let i=0; i<o; i++) c.appendChild(document.createElement('div')); const t = []; document.querySelectorAll('.task-item').forEach(i => { if(i.getAttribute('data-date')) t.push({d:i.getAttribute('data-date'), h:i.outerHTML}); }); for(let d=1; d<=dim; d++) { const dd = document.createElement('div'); dd.className="day-cell"; dd.innerText=d; const ds = `${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; if(new Date().toDateString() === new Date(y,mo,d).toDateString()) dd.classList.add('today'); if(t.some(x=>x.d===ds)) dd.classList.add('has-task'); dd.onclick=()=>{ document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected')); dd.classList.add('selected'); showTasksForDay(t.filter(x=>x.d===ds), d); }; c.appendChild(dd); } }
-        function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth() + d); renderCalendar(); }
-        function showTasksForDay(t, d) { const l = document.getElementById('cal-task-list'); if(t.length===0) l.innerHTML=`<div style="text-align:center; opacity:0.5; font-size:12px;">Rien le ${d}.</div>`; else { l.innerHTML=""; t.forEach(x=>{ const d=document.createElement('div'); d.innerHTML=x.h; if(d.querySelector('.done-btn')) d.querySelector('.done-btn').style.display='none'; l.appendChild(d.firstChild); }); } }
-        function renderFocusGrid() { const g = document.getElementById('focus-grid'); const h = document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")) { g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien à cibler.</div>`; return; } g.innerHTML=""; const t = document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
-        async function activateLaserMode(txt) { currentFocusTask=txt; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=txt; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try { const p=`Coach Productivité. Tâche: "${txt}". Donne UNE micro-étape ridicule.`; const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible verrouillée. ${d.text}`); } catch(e){} }
-        function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo !"); const l=document.getElementById('task-list'); l.querySelectorAll('.task-item').forEach(i=>{ if(i.querySelector('.task-text').innerText.includes(currentFocusTask)) i.remove(); }); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode, 2000); }
+        function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push(i.getAttribute('data-date'));}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.includes(ds))e.classList.add('has-task'); c.appendChild(e); } }
+        function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
+        function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
+        async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
+        function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo!"); const l=document.getElementById('task-list'); l.querySelectorAll('.task-item').forEach(i=>{if(i.querySelector('.task-text').innerText.includes(currentFocusTask))i.remove();}); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode,2000); }
         function exitLaserMode() { document.getElementById('focus-laser-wrapper').style.display='none'; document.getElementById('focus-picker-wrapper').style.display='block'; renderFocusGrid(); }
-        function toggleInputMode(btn) { isTextMode = !isTextMode; const ui = document.getElementById('text-input-ui'); if(isTextMode) { ui.classList.add('show'); btn.classList.add('active'); document.getElementById('user-input').focus(); } else { ui.classList.remove('show'); btn.classList.remove('active'); } }
-        function handleEnter(e) { if(e.key === 'Enter') sendText(); }
-        function sendText() { const i = document.getElementById('user-input'); if(i.value.trim()){ processWithAI(i.value); i.value=""; } }
-        function updateTimerDisplay() { document.getElementById('timer-display').innerText = `${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`; }
-        function toggleTimer() { const b=document.getElementById('btn-timer-action'); if(isTimerRunning) { clearInterval(timerInterval); isTimerRunning=false; b.innerText="REPRENDRE"; } else { timerInterval=setInterval(()=>{ timeLeft--; let m=Math.floor(timeLeft/60); let s=timeLeft%60; document.getElementById('timer-display').innerText=`${m}:${s.toString().padStart(2,'0')}`; if(timeLeft<=0) { clearInterval(timerInterval); playVocalResponse("Fini !"); triggerConfetti(); } }, 1000); isTimerRunning=true; b.innerText="PAUSE"; } }
-        function resetTimer() { clearInterval(timerInterval); isTimerRunning=false; timeLeft=25*60; document.getElementById('timer-display').innerText="25:00"; }
+        function toggleInputMode(b) { isTextMode=!isTextMode; const u=document.getElementById('text-input-ui'); if(isTextMode){u.classList.add('show');b.classList.add('active');document.getElementById('user-input').focus();}else{u.classList.remove('show');b.classList.remove('active');} }
+        function handleEnter(e) { if(e.key==='Enter')sendText(); }
+        function sendText() { const i=document.getElementById('user-input'); if(i.value.trim()){processWithAI(i.value);i.value="";} }
+        function updateTimerDisplay() { document.getElementById('timer-display').innerText=`${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
+        function toggleTimer() { const b=document.getElementById('btn-timer-action'); if(isTimerRunning){clearInterval(timerInterval);isTimerRunning=false;b.innerText="REPRENDRE";}else{timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);isTimerRunning=true;b.innerText="PAUSE";} }
+        function resetTimer() { clearInterval(timerInterval);isTimerRunning=false;timeLeft=25*60;updateTimerDisplay(); }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
-        function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
-        
-        async function startMorningBrief() {
-            if(isProcessing) return; 
-            isProcessing = true;
-            document.getElementById('status-text').innerText = "Préparation du Brief...";
-            const btn = document.querySelector('.brief-btn');
-            btn.classList.add('loading');
-            
-            const tasksList = []; 
-            document.querySelectorAll('#task-list .task-text').forEach(el => tasksList.push(el.innerText));
-            const tasksString = tasksList.length > 0 ? tasksList.join(", ") : "Rien";
-            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            
-            const briefPrompt = `Assistant Personnel. Date: ${today}. Tâches: ${tasksString}. Brief (30s). 1. Bonjour ${username} 2. Charge 3. Priorité. NE DIS PAS TDAH. JSON Strict: { "text": "...", "actions": [] }`;
-            
-            try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: briefPrompt }) });
-                const data = await rep.json();
-                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                playVocalResponse(parsed.text);
-            } catch(e) { console.error(e); }
-            
-            btn.classList.remove('loading');
-            isProcessing = false;
-        }
-        function stopThinkingAnimation() { /* Supprimé car visuel light */ }
+        function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
+        async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
     </script>
 </body>
 </html>
