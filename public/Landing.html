@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURO - Votre Second Cerveau</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neuro: {
+                            dark: '#050505',
+                            card: '#111111',
+                            accent: '#2979FF',
+                            success: '#00E676',
+                            warning: '#FFAB00',
+                            danger: '#FF1744'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #E0E0E0; overflow-x: hidden; }
+        
+        /* Gradients et Effets */
+        .hero-glow { background: radial-gradient(circle at 50% 0%, rgba(41, 121, 255, 0.15) 0%, transparent 60%); }
+        .text-glow { text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
+        
+        /* Cards */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Animations d'apparition */
+        .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+        
+        /* Listes à puces */
+        .check-list li { position: relative; padding-left: 30px; margin-bottom: 12px; color: #BBB; }
+        .check-list li::before {
+            content: '✓'; position: absolute; left: 0; color: #00E676; font-weight: bold;
+        }
+
+        /* Prix barré */
+        .strike-price { position: relative; display: inline-block; }
+        .strike-price::after {
+            content: ''; position: absolute; top: 50%; left: -5%; width: 110%; height: 2px;
+            background: #FF1744; transform: rotate(-10deg);
+        }
+
+        /* TÉLÉPHONE CSS (MOCKUP) */
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            background: #121212;
+            border-radius: 40px;
+            box-shadow: 0 0 0 2px #333, 0 0 0 4px #121212, 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .phone-notch {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 25px; background: #121212;
+            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="fixed w-full z-50 top-0 border-b border-white/5 bg-neuro-dark/80 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="font-black text-xl tracking-widest text-white flex items-center gap-2">
+                <span class="w-3 h-3 bg-neuro-accent rounded-full animate-pulse"></span> NEURO
+            </div>
+            <a href="#pricing" class="hidden md:block text-xs font-bold bg-white/5 border border-white/10 px-4 py-2 rounded-full hover:bg-white/10 transition">
+                ESSAYER GRATUITEMENT
+            </a>
+        </div>
+    </nav>
+
+    <header class="hero-glow min-h-[90vh] flex flex-col lg:flex-row items-center justify-center lg:justify-between px-6 pt-32 lg:pt-20 max-w-7xl mx-auto gap-12 relative overflow-hidden">
+        
+        <div class="flex-1 text-center lg:text-left z-20">
+            <div class="fade-up inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neuro-accent/30 bg-neuro-accent/10 text-neuro-accent text-xs font-bold tracking-widest mb-8">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-neuro-accent opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-neuro-accent"></span>
+                </span>
+                V59 DISPONIBLE
+            </div>
+
+            <h1 class="fade-up delay-100 text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tight">
+                Arrêtez de penser.<br>
+                <span class="text-white text-glow">Commencez à faire.</span>
+            </h1>
+
+            <p class="fade-up delay-200 text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto lg:mx-0 mb-12 font-light">
+                La charge mentale vous épuise. NEURO est l'assistant personnel qui capture, trie et organise votre vie à votre place. <span class="text-white font-medium">Instantanément.</span>
+            </p>
+
+            <div class="fade-up delay-300 flex flex-col sm:flex-row items-center gap-4 lg:justify-start justify-center">
+                <a href="#pricing" class="w-full sm:w-auto bg-neuro-accent hover:bg-blue-600 text-white font-bold py-5 px-8 rounded-2xl text-lg shadow-[0_0_40px_rgba(41,121,255,0.3)] transition-all transform hover:scale-[1.02] flex items-center justify-center gap-3">
+                    <span>Démarrer mon essai gratuit</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+                <p class="text-xs text-gray-500">Aucun paiement aujourd'hui. Annulation en 1 clic.</p>
+            </div>
+        </div>
+
+        <div class="flex-1 relative w-full flex justify-center lg:justify-end fade-up delay-500 py-10">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-neuro-accent/10 rounded-full blur-[100px]"></div>
+            
+            <div class="phone-mockup animate-float">
+                <div class="phone-notch"></div>
+                <div class="bg-[#121212] p-4 pt-10 border-b border-[#333] flex justify-between items-center">
+                    <div class="w-20 h-6 bg-gradient-to-r from-neuro-accent to-neuro-accent/50 rounded-full opacity-80"></div> 
+                    <div class="flex gap-2">
+                        <div class="w-8 h-8 rounded-xl border border-neuro-success/30 text-neuro-success flex items-center justify-center text-[10px] font-bold bg-[#1a1a1a]">ZEN</div>
+                        <div class="w-8 h-8 rounded-xl border border-neuro-accent/30 text-neuro-accent flex items-center justify-center text-[10px] font-bold bg-[#1a1a1a]">ON</div>
+                    </div>
+                </div>
+                <div class="p-4 space-y-3 relative h-full">
+                    <div class="w-full h-1.5 bg-[#222] rounded-full overflow-hidden mb-4">
+                        <div class="h-full w-[40%] bg-gradient-to-r from-neuro-success via-neuro-warning to-neuro-danger"></div>
+                    </div>
+                    <div class="bg-[#1E1E1E] p-3 rounded-xl border-l-4 border-neuro-danger flex justify-between items-center shadow-lg transform translate-x-2">
+                        <div>
+                            <div class="text-white text-sm font-medium">Payer les impôts</div>
+                            <div class="text-[9px] text-gray-500 mt-1 flex gap-2 items-center">
+                                <span class="text-neuro-danger font-bold">URGENT 🔥</span>
+                                <span class="bg-[#333] px-1 rounded">Auj. 14:00</span>
+                            </div>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border border-neuro-success/50 flex items-center justify-center text-neuro-success text-xs">✓</div>
+                    </div>
+                    <div class="bg-[#1E1E1E] p-3 rounded-xl border-l-4 border-neuro-accent flex justify-between items-center opacity-90">
+                        <div>
+                            <div class="text-white text-sm font-medium">Préparer présentation</div>
+                            <div class="text-[9px] text-gray-500 mt-1 flex gap-2 items-center">
+                                <span class="text-neuro-accent font-bold">IMPORTANT</span>
+                                <span class="bg-[#333] px-1 rounded">25min</span>
+                            </div>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border border-neuro-success/50"></div>
+                    </div>
+                    <div class="bg-gradient-to-r from-[#1E1E1E] to-[#252525] p-3 rounded-xl border-l-4 border-purple-500 flex justify-between items-center opacity-60 scale-95 origin-top">
+                        <div>
+                            <div class="text-white text-sm font-medium">Routine Sport</div>
+                            <div class="text-[9px] text-gray-500 mt-1">BIBLIOTHÈQUE</div>
+                        </div>
+                    </div>
+                    <div class="mt-8 mx-auto w-3/4 p-4 bg-[#222] rounded-2xl border border-neuro-accent/20 text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-neuro-accent/5 animate-pulse"></div>
+                        <div class="text-[8px] text-gray-400 mb-2 tracking-widest uppercase">Mode Laser</div>
+                        <div class="text-neuro-accent font-black text-lg mb-2">1 ACTION</div>
+                        <div class="h-1 w-12 bg-neuro-accent mx-auto rounded-full"></div>
+                    </div>
+                    <div class="absolute bottom-16 left-0 w-full flex justify-center pb-6">
+                        <div class="w-16 h-16 rounded-full border-2 border-neuro-accent bg-[#1E1E1E] flex items-center justify-center shadow-[0_0_20px_rgba(41,121,255,0.3)]">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-24 px-4 bg-neuro-card/50 border-t border-white/5">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="fade-up text-3xl md:text-4xl font-bold mb-16">Votre cerveau n'est pas fait pour <span class="text-neuro-warning">stocker</span> des tâches.</h2>
+            <div class="grid md:grid-cols-3 gap-8 text-left">
+                <div class="fade-up glass-panel p-8 rounded-2xl hover:border-neuro-warning/50 transition duration-300">
+                    <div class="text-4xl mb-6">🤯</div>
+                    <h3 class="font-bold text-xl text-white mb-3">La Surchauffe</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Vous avez 15 onglets ouverts dans votre tête. Résultat ? Vous êtes épuisé avant même d'avoir commencé.</p>
+                </div>
+                <div class="fade-up delay-100 glass-panel p-8 rounded-2xl hover:border-neuro-warning/50 transition duration-300">
+                    <div class="text-4xl mb-6">📉</div>
+                    <h3 class="font-bold text-xl text-white mb-3">La Paralysie</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Face à une liste trop longue, votre cerveau bug. Vous finissez par scroller sur votre téléphone.</p>
+                </div>
+                <div class="fade-up delay-200 glass-panel p-8 rounded-2xl hover:border-neuro-warning/50 transition duration-300">
+                    <div class="text-4xl mb-6">🛌</div>
+                    <h3 class="font-bold text-xl text-white mb-3">L'Insomnie</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">"Il faut que je pense à..." C'est toujours à 23h30, quand vous essayez de dormir, que les rappels surgissent.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 border-y border-white/5 bg-[#0a0a0a]">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-3xl font-bold mb-4">Stop aux "Usines à Gaz"</h2>
+                <p class="text-gray-400">Pourquoi vous abandonnez vos agendas après 3 jours.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 fade-up">
+                <div class="glass-panel p-8 rounded-3xl border-l-4 border-gray-700 opacity-60 hover:opacity-100 transition">
+                    <h3 class="text-xl font-bold text-gray-400 mb-6 flex items-center gap-2">❌ Agendas Classiques</h3>
+                    <ul class="space-y-4 text-sm text-gray-500">
+                        <li class="flex gap-3"><span class="text-red-500">x</span> Saisie manuelle longue et fastidieuse</li>
+                        <li class="flex gap-3"><span class="text-red-500">x</span> "Où je range ça ? Projet A ou B ?"</li>
+                        <li class="flex gap-3"><span class="text-red-500">x</span> Listes en retard qui culpabilisent</li>
+                    </ul>
+                    <div class="mt-8 text-center text-xs font-bold text-red-500 uppercase tracking-widest border border-red-900/30 p-2 rounded">Résultat : Abandon</div>
+                </div>
+                <div class="bg-neuro-card p-8 rounded-3xl border border-neuro-accent/30 relative shadow-2xl">
+                    <div class="absolute -top-3 -right-3 bg-neuro-accent text-white text-xs font-bold px-3 py-1 rounded-full">RECOMMANDÉ</div>
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">🧠 NEURO</h3>
+                    <ul class="space-y-4 text-sm text-gray-300">
+                        <li class="flex gap-3"><span class="text-neuro-success font-bold">✓</span> <strong class="text-white">Brain Dump Vocal :</strong> Parlez, c'est noté.</li>
+                        <li class="flex gap-3"><span class="text-neuro-success font-bold">✓</span> <strong class="text-white">Zéro décision :</strong> L'assistant trie et range.</li>
+                        <li class="flex gap-3"><span class="text-neuro-success font-bold">✓</span> <strong class="text-white">1 clic</strong> pour vider votre tête.</li>
+                    </ul>
+                    <div class="mt-8 text-center text-xs font-bold text-neuro-accent uppercase tracking-widest border border-neuro-accent/30 p-2 rounded bg-neuro-accent/10">Résultat : Sérénité</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-4 relative overflow-hidden">
+        <div class="absolute top-1/4 left-0 w-96 h-96 bg-neuro-accent/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-1/4 right-0 w-96 h-96 bg-neuro-success/5 rounded-full blur-[120px]"></div>
+
+        <div class="max-w-6xl mx-auto space-y-32">
+            <div class="fade-up flex flex-col md:flex-row items-center gap-12 md:gap-20">
+                <div class="flex-1 order-2 md:order-1 relative">
+                    <div class="absolute inset-0 bg-neuro-accent/20 blur-[60px]"></div>
+                    <div class="relative bg-neuro-card border border-white/10 p-6 rounded-2xl grid grid-cols-2 gap-4 aspect-square max-w-sm mx-auto shadow-2xl">
+                        <div class="bg-neuro-danger/10 border border-neuro-danger/30 rounded-xl p-4 flex flex-col justify-between hover:bg-neuro-danger/20 transition">
+                            <span class="text-neuro-danger font-bold text-xs uppercase">Urgent & Important</span>
+                            <span class="text-white font-bold text-xl">FAIRE 🔥</span>
+                        </div>
+                        <div class="bg-neuro-accent/10 border border-neuro-accent/30 rounded-xl p-4 flex flex-col justify-between hover:bg-neuro-accent/20 transition">
+                            <span class="text-neuro-accent font-bold text-xs uppercase">Important</span>
+                            <span class="text-white font-bold text-xl">PLANIFIER 📅</span>
+                        </div>
+                        <div class="bg-neuro-warning/10 border border-neuro-warning/30 rounded-xl p-4 flex flex-col justify-between hover:bg-neuro-warning/20 transition">
+                            <span class="text-neuro-warning font-bold text-xs uppercase">Urgent</span>
+                            <span class="text-white font-bold text-xl">AUTO 🤖</span>
+                        </div>
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-4 flex flex-col justify-between opacity-50">
+                            <span class="text-gray-500 font-bold text-xs uppercase">Ni l'un ni l'autre</span>
+                            <span class="text-gray-400 font-bold text-xl">POUBELLE 🗑️</span>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#121212] rounded-full p-3 border border-white/20 shadow-xl">
+                            <span class="text-2xl">🧠</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 order-1 md:order-2">
+                    <div class="text-neuro-accent font-bold tracking-widest text-xs mb-4">LE CERVEAU DE L'APP</div>
+                    <h2 class="text-4xl font-black mb-6">La Matrice d'Eisenhower. Automatisée.</h2>
+                    <p class="text-gray-400 text-lg mb-6 leading-relaxed">
+                        Vous connaissez la méthode, mais vous avez la flemme de l'appliquer. <strong class="text-white">NEURO le fait pour vous.</strong> L'assistant analyse chaque tâche que vous lui donnez et la classe automatiquement.
+                    </p>
+                    <ul class="check-list space-y-3">
+                        <li>Tri automatique sans effort mental</li>
+                        <li>Priorisation visuelle immédiate (couleurs)</li>
+                        <li>Fini les to-do lists "fourre-tout" infinies</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="fade-up flex flex-col md:flex-row items-center gap-12 md:gap-20">
+                <div class="flex-1">
+                    <div class="text-neuro-success font-bold tracking-widest text-xs mb-4">FONCTIONNALITÉ #2</div>
+                    <h2 class="text-4xl font-black mb-6">Parlez. C'est rangé.</h2>
+                    <p class="text-gray-400 text-lg mb-6">Ne tapez plus. Dites ce qui vous passe par la tête, en vrac. Votre assistant comprend le contexte, détecte les dates, évalue l'urgence et range tout au bon endroit. Gain de temps moyen : <strong class="text-white">30 min/jour</strong>.</p>
+                </div>
+                <div class="flex-1 relative group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-neuro-accent to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-500"></div>
+                    <div class="relative bg-neuro-card border border-white/10 p-8 rounded-2xl h-80 flex items-center justify-center text-center">
+                        <div class="space-y-4">
+                            <div class="inline-block bg-[#222] px-4 py-2 rounded-lg text-gray-400 text-sm italic">"Rappeler d'acheter du lait et appeler Marc demain"</div>
+                            <div class="text-2xl">⬇️</div>
+                            <div class="bg-neuro-accent/20 border border-neuro-accent text-neuro-accent px-4 py-3 rounded-lg font-bold text-left text-sm w-full max-w-xs mx-auto">
+                                <span class="block text-[10px] opacity-70 uppercase tracking-wide">Tâche ajoutée</span>
+                                🛒 Acheter lait (Priorité Basse)
+                                <br>
+                                📞 Appeler Marc (Demain)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fade-up flex flex-col md:flex-row items-center gap-12 md:gap-20">
+                <div class="flex-1 order-2 md:order-1">
+                    <div class="relative bg-neuro-card border border-white/10 p-8 rounded-2xl h-80 flex flex-col items-center justify-center text-center">
+                        <div class="text-sm text-gray-500 mb-4 uppercase tracking-widest">CIBLE ACTUELLE</div>
+                        <div class="text-3xl font-black text-white mb-8">ÉCRIRE LE RAPPORT</div>
+                        <button class="bg-neuro-success text-black font-bold py-3 px-8 rounded-full shadow-[0_0_20px_rgba(0,230,118,0.4)] hover:scale-105 transition">C'EST FAIT</button>
+                    </div>
+                </div>
+                <div class="flex-1 order-1 md:order-2">
+                    <div class="text-neuro-success font-bold tracking-widest text-xs mb-4">FONCTIONNALITÉ #3</div>
+                    <h2 class="text-4xl font-black mb-6">Mode Laser Focus.</h2>
+                    <p class="text-gray-400 text-lg mb-6">NEURO cache la montagne de travail. En mode Focus, l'assistant vous présente <strong>une seule tâche</strong> à la fois. Il peut même la découper en micro-étapes ridicules pour contourner votre procrastination.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 bg-white/5 border-y border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="fade-up text-3xl font-bold mb-16 text-center">Conçu pour les cerveaux <span class="text-neuro-accent">Atypiques</span> & Surchargés.</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="fade-up glass-panel p-6 rounded-2xl relative hover:-translate-y-2 transition duration-300">
+                    <div class="absolute -top-4 left-6 bg-[#222] px-3 py-1 rounded text-xs font-bold text-neuro-warning border border-neuro-warning/30">TDAH</div>
+                    <p class="text-gray-300 text-sm italic mb-6 leading-relaxed">"Le problème n'est pas de savoir quoi faire, c'est de s'y mettre. Le mode Focus qui cache tout le reste est la seule chose qui marche pour moi."</p>
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-700"></div><div class="text-xs font-bold text-white">Thomas, Dev</div></div>
+                </div>
+                <div class="fade-up delay-100 glass-panel p-6 rounded-2xl relative hover:-translate-y-2 transition duration-300">
+                    <div class="absolute -top-4 left-6 bg-[#222] px-3 py-1 rounded text-xs font-bold text-neuro-success border border-neuro-success/30">CHARGE MENTALE</div>
+                    <p class="text-gray-300 text-sm italic mb-6 leading-relaxed">"Gérer le pro, les enfants, la maison... J'avais l'impression que ma tête allait exploser. Maintenant je 'décharge' tout dans l'appli."</p>
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-700"></div><div class="text-xs font-bold text-white">Sarah, Freelance</div></div>
+                </div>
+                <div class="fade-up delay-200 glass-panel p-6 rounded-2xl relative hover:-translate-y-2 transition duration-300">
+                    <div class="absolute -top-4 left-6 bg-[#222] px-3 py-1 rounded text-xs font-bold text-neuro-accent border border-neuro-accent/30">CRÉATIF</div>
+                    <p class="text-gray-300 text-sm italic mb-6 leading-relaxed">"J'ai 1000 idées à la minute. Avant je les perdais. Maintenant l'assistant les trie et me les ressort quand j'ai le temps."</p>
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-700"></div><div class="text-xs font-bold text-white">Julien, Designer</div></div>
+                </div>
+                <div class="fade-up delay-300 glass-panel p-6 rounded-2xl relative hover:-translate-y-2 transition duration-300">
+                    <div class="absolute -top-4 left-6 bg-[#222] px-3 py-1 rounded text-xs font-bold text-purple-500 border border-purple-500/30">PERFORMANCE</div>
+                    <p class="text-gray-300 text-sm italic mb-6 leading-relaxed">"Fini le temps perdu à organiser Notion. Je parle, c'est fait. Simple, radical, efficace. Ma productivité a doublé."</p>
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-gray-700"></div><div class="text-xs font-bold text-white">Marc, Entrepreneur</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-32 px-4 relative">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="text-center mb-16 fade-up">
+                <h2 class="text-4xl md:text-5xl font-black mb-6 text-white">Investissez dans votre sérénité.</h2>
+                <p class="text-gray-400">Moins cher qu'un café. Plus puissant qu'un agenda.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center fade-up delay-100">
+                
+                <div class="space-y-8">
+                    <h3 class="text-2xl font-bold text-white mb-6">Pourquoi passer à l'action maintenant ?</h3>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-neuro-success/20 flex items-center justify-center flex-shrink-0 text-neuro-success text-xl">⏱️</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Rentabilité Immédiate</h4>
+                            <p class="text-gray-400 text-sm mt-1">Votre temps vaut de l'argent. Si NEURO vous sauve 15 min dans le mois, il est déjà remboursé.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-neuro-accent/20 flex items-center justify-center flex-shrink-0 text-neuro-accent text-xl">🛡️</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Garantie Totale</h4>
+                            <p class="text-gray-400 text-sm mt-1">Vous ne prenez aucun risque. Testez 7 jours. Si votre esprit n'est pas plus clair, annulez en 1 clic. 0€ dépensé.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-neuro-warning/20 flex items-center justify-center flex-shrink-0 text-neuro-warning text-xl">⚡️</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Zéro Configuration</h4>
+                            <p class="text-gray-400 text-sm mt-1">Pas de système complexe à apprendre. Installez, parlez, c'est réglé. Immédiat.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 text-purple-400 text-xl">🔒</div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Prix Verrouillé</h4>
+                            <p class="text-gray-400 text-sm mt-1">Le tarif va augmenter avec les futures mises à jour. Bloquez ce prix bas à vie aujourd'hui.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-neuro-card border-2 border-neuro-accent rounded-3xl p-8 md:p-10 relative shadow-[0_0_60px_rgba(41,121,255,0.15)] overflow-hidden">
+                    <div class="absolute top-0 right-0">
+                        <div class="bg-neuro-accent text-white text-xs font-bold px-12 py-2 transform rotate-45 translate-x-8 translate-y-4 shadow-lg">OFFRE DE LANCEMENT</div>
+                    </div>
+                    <div class="text-center mb-8">
+                        <div class="text-sm text-gray-500 uppercase tracking-widest mb-2">ABONNEMENT TOUT INCLUS</div>
+                        <div class="flex items-center justify-center gap-4">
+                            <span class="strike-price text-2xl text-gray-500">12.99€</span>
+                            <span class="text-6xl font-black text-white tracking-tighter">5.99€</span>
+                        </div>
+                        <p class="text-gray-400 mt-4 text-sm">/mois • 7 jours d'essai gratuit</p>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center gap-3"><div class="bg-neuro-accent/20 p-1 rounded-full"><svg class="w-4 h-4 text-neuro-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><span class="text-gray-300">Tri Eisenhower Automatique</span></div>
+                        <div class="flex items-center gap-3"><div class="bg-neuro-accent/20 p-1 rounded-full"><svg class="w-4 h-4 text-neuro-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><span class="text-gray-300">Brain Dump Vocal & Textuel</span></div>
+                        <div class="flex items-center gap-3"><div class="bg-neuro-accent/20 p-1 rounded-full"><svg class="w-4 h-4 text-neuro-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><span class="text-gray-300">Synchronisation Calendrier</span></div>
+                        <div class="flex items-center gap-3"><div class="bg-neuro-success/20 p-1 rounded-full"><svg class="w-4 h-4 text-neuro-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M12 12h.01M12 6h.01"></path></svg></div><span class="text-white font-bold">BONUS: Application PWA (Hors-ligne)</span></div>
+                    </div>
+
+                    <a href="https://checkout.stripe.com/c/pay/cs_live_b1u6SlDZF4TUPgEGsmZhXfR1Wprh3RlF2w3649DG7YFiJZEBHopMq2Nk98#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blppbHNgWjA0VnBER2xNY0M8aGhVcFxXNDRmR21fR3dsSmh2ME5na2ZmYnR8RkxmcjFuN01XVWR3S018TXFGXXd1c0kzSjFxfEZWS2JWcE09Z2t3czxPQHxjZEhPajdtNTVyMWsxV3RiQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8naHBpcWxabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl" class="block w-full bg-white text-black font-black text-center py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors mb-4 transform hover:scale-[1.02]">
+                        COMMENCER L'ESSAI DE 7 JOURS
+                    </a>
+                    
+                    <div class="text-center">
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Paiement Sécurisé via Stripe • Annulable à tout moment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 border-t border-white/5 bg-[#080808]">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-2xl font-bold mb-12 text-center">Questions Fréquentes</h2>
+            <div class="space-y-4">
+                <details class="group bg-white/5 rounded-xl">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-6"><span>Est-ce que ça marche sur mon téléphone ?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <div class="text-gray-400 mt-3 px-6 pb-6 text-sm">Oui. NEURO est une PWA (Progressive Web App). Installez-la directement depuis votre navigateur sans passer par l'App Store.</div>
+                </details>
+                <details class="group bg-white/5 rounded-xl">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-6"><span>Comment fonctionne l'essai gratuit ?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <div class="text-gray-400 mt-3 px-6 pb-6 text-sm">Inscription = 7 jours gratuits. Annulation avant 7 jours = 0€. Sinon 5.99€/mois. Simple.</div>
+                </details>
+                <details class="group bg-white/5 rounded-xl">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-6"><span>Confidentialité ?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <div class="text-gray-400 mt-3 px-6 pb-6 text-sm">Vos données sont stockées localement en priorité. Nous ne vendons rien.</div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-gray-600 text-xs bg-black border-t border-white/5">
+        <p class="mb-4">NEURO © 2024. Libérez votre potentiel.</p>
+        <div class="flex justify-center gap-4"><a href="#" class="hover:text-white transition">CGV</a><a href="#" class="hover:text-white transition">Mentions Légales</a><a href="#" class="hover:text-white transition">Contact</a></div>
+    </footer>
+
+    <script>
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
