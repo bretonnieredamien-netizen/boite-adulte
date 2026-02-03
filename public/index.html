@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLARIS v3.3</title>
+    <title>CLARIS v3.4</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN CLARIS V3.3 --- */
+        /* --- DESIGN CLARIS V3.4 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; --bg-input: #222;
             --text-main: #E0E0E0; --text-muted: #888; --border: #333;
@@ -155,14 +155,14 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* TUTO */
+        /* TUTO STYLES */
         #view-tuto { padding: 15px; }
         .tuto-card { background: var(--bg-card); border-left: 4px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
         .tuto-title { font-weight: 900; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
         .tuto-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
         .tuto-instruction { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: var(--accent); font-style: italic; border: 1px solid var(--border); }
 
-        /* FOOTER */
+        /* FOOTER & CONTROLS */
         .bottom-controls { background: var(--gradient-overlay); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); }
@@ -230,7 +230,7 @@
                     <span class="logo-point-solid"></span>
                 </div>
                 <div class="logo-text">CLARIS</div>
-                <div class="version-tag">v3.3</div>
+                <div class="version-tag">v3.4</div>
             </div>
             <div class="header-actions">
                 <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
@@ -302,6 +302,7 @@
         <div id="view-tuto" class="view-section">
             <div style="padding-bottom: 100px;">
                 <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:var(--text-main); text-align:center;">MODE D'EMPLOI</h2>
+                
                 <div class="tuto-card" style="border-left-color: var(--accent);">
                     <div class="tuto-title"><span>📥</span> CAPTURER</div>
                     <div class="tuto-desc">
@@ -321,7 +322,7 @@
                 </div>
                 <div class="tuto-card" style="border-left-color: var(--warning);">
                     <div class="tuto-title"><span>🎯</span> FOCUS</div>
-                    <div class="tuto-desc"><p>Pour arrêter de procrastiner. Sélectionnez une tâche : tout le reste disparaît.</p></div>
+                    <div class="tuto-desc"><p>Pour arrêter de procrastiner. Sélectionnez une tâche : tout le reste disparaît. <strong>L'assistant</strong> vous propose une première micro-étape pour démarrer.</div>
                 </div>
                 <div class="tuto-card" style="border-left-color: var(--success);">
                     <div class="tuto-title"><span>⏱️</span> POMO</div>
@@ -391,7 +392,7 @@
     <script>
         // --- CONSTANTES ---
         const API_BASE_URL = "https://boite-adulte.vercel.app"; 
-        const ONESIGNAL_APP_ID = "19c31c7b-d08f-4f7e-8ddb-258a928ae511"; // Ton ID Spécifique
+        const ONESIGNAL_APP_ID = "19c31c7b-d08f-4f7e-8ddb-258a928ae511"; 
 
         // --- THEME MANAGEMENT ---
         function toggleTheme(btn) {
@@ -414,7 +415,6 @@
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true,
             });
-            console.log("OneSignal Init. ID actuel:", OneSignal.User.PushSubscription.id);
             if(OneSignal.User.PushSubscription.optedIn){
                 document.getElementById('notif-btn').classList.add('bell-active');
                 document.getElementById('notif-btn').innerText = "🔔 ON";
@@ -424,7 +424,6 @@
         async function requestNotificationPermission() {
              await OneSignal.User.PushSubscription.optIn();
              const id = OneSignal.User.PushSubscription.id;
-             console.log("Permission accordée. ID:", id);
              if(id) {
                  document.getElementById('notif-btn').classList.add('bell-active');
                  alert("Notifications activées !");
@@ -537,12 +536,22 @@
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
                         
+                        // LOGIQUE NOTIF AMELIOREE
                         if (act.time && act.due_date) {
                             const targetDateStr = `${act.due_date}T${act.time}:00`;
                             const targetDate = new Date(targetDateStr);
                             const now = new Date();
-                            if (targetDate > now) {
-                                scheduleNotification(targetDate, `Rappel CLARIS : ${validText}`);
+                            
+                            // 30 min avant
+                            const reminderTime = new Date(targetDate.getTime() - 30 * 60000);
+
+                            if (reminderTime > now) {
+                                // Cas normal : On programme 30 min avant
+                                scheduleNotification(reminderTime, `Rappel (dans 30 min) : ${validText} à ${act.time}`);
+                            } else if (targetDate > now) {
+                                // Cas "Urgence" : Le RDV est dans moins de 30 min, on notifie tout de suite (dans 1 min)
+                                const immediate = new Date(now.getTime() + 60000);
+                                scheduleNotification(immediate, `Rappel IMMÉDIAT : ${validText} est prévu à ${act.time}`);
                             }
                         }
 
@@ -632,7 +641,7 @@
         function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
         function deleteStepFromRoutine(n,i) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const k=Object.keys(r).find(x=>x===n.toLowerCase()); if(k){r[k].splice(i,1); localStorage.setItem('neuro_routines',JSON.stringify(r)); launchRoutine(n);} }
         function renderRoutines() { const g=document.getElementById('routines-grid'); const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); g.innerHTML=""; for(let k in r){ const d=document.createElement('div'); d.className='routine-card-item'; const s=getRoutineStyle(k); d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}',event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
-        function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="routine-step-item"; d.innerHTML=`<div class="routine-step-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
+        function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
         function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0){playVocalResponse("Terminé!");exitRoutine();} }
         function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
         function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push({d:i.getAttribute('data-date'),h:i.outerHTML});}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.some(x=>x.d===ds))e.classList.add('has-task'); e.onclick=()=>{document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected'));e.classList.add('selected');showTasksForDay(t.filter(x=>x.d===ds),i);}; c.appendChild(e); } }
