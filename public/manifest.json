@@ -1,7 +1,7 @@
 {
-  "name": "NEURO - Assistant Personnel",
-  "short_name": "NEURO",
-  "start_url": "./index.html",
+  "name": "CLARIS - Assistant Personnel",
+  "short_name": "CLARIS",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#121212",
