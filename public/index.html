@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLARIS - Assistant V3</title>
+    <title>CLARIS v3.0</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN CLARIS V1 --- */
+        /* --- DESIGN CLARIS V3 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; /* Bleu Tâche */
@@ -42,6 +42,7 @@
         .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
         .logo-point-solid { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .logo-text { font-weight: 900; font-size: 20px; color: white; letter-spacing: 3px; font-family: 'Inter', sans-serif; }
+        .version-tag { font-size: 9px; color: #444; font-weight: bold; margin-left: 5px; border: 1px solid #333; padding: 2px 4px; border-radius: 4px; }
         
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
@@ -127,7 +128,7 @@
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* NOUVEAU DESIGN FOCUS (HUD FUTURISTE) */
+        /* DESIGN FOCUS HUD */
         #view-focus { padding: 15px; }
         .focus-title { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
         .focus-grid { display: flex; flex-direction: column; gap: 12px; }
@@ -160,7 +161,6 @@
             display: flex; align-items: center; justify-content: center;
         }
         
-        /* Laser Active Animation */
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; position: relative; }
         .laser-ring-container { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
         .laser-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0.3; animation: ripple 2s infinite; }
@@ -191,7 +191,7 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* TUTO STYLES */
+        /* TUTO STYLES (CORRIGÉS) */
         .tuto-card { background: var(--bg-card); border-left: 3px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
         .tuto-title { font-weight: 900; color: white; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; font-size: 12px; }
         .tuto-desc { font-size: 11px; color: #888; line-height: 1.4; }
@@ -216,7 +216,6 @@
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
 
-        /* INPUT REMONTÉ */
         .text-input-container { 
             position: absolute; 
             bottom: 160px; 
@@ -271,6 +270,7 @@
                     <span class="logo-point-solid"></span>
                 </div>
                 <div class="logo-text">CLARIS</div>
+                <div class="version-tag">v3.0</div>
             </div>
             <div class="header-actions">
                 <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
@@ -314,7 +314,6 @@
                     <div class="laser-ring"></div>
                     <div class="laser-task" id="laser-current-task">...</div>
                 </div>
-                
                 <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none; color:#AAA; font-size:12px; margin-bottom:15px; border:1px solid #333; padding:10px; border-radius:10px;">
                     <span class="laser-ai-label" style="display:block; font-weight:bold; color:var(--accent); margin-bottom:5px;">PREMIÈRE ÉTAPE</span>
                     <span id="laser-micro-text" class="laser-ai-text">...</span>
@@ -341,27 +340,22 @@
         <div id="view-tuto" class="view-section">
             <div style="padding-bottom: 100px;">
                 <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:white; text-align:center;">MODE D'EMPLOI</h2>
-                
                 <div class="tuto-card" style="border-left-color: var(--accent);">
                     <div class="tuto-title"><span>📥</span> CAPTURER</div>
-                    <div class="tuto-desc">C'est votre boîte de réception. Dites ou écrivez tout ce qui vous passe par la tête. <strong>L'assistant</strong> trie et organise pour vous.</div>
+                    <div class="tuto-desc">C'est votre boîte de réception. Dites ou écrivez tout ce qui vous passe par la tête. <strong>CLARIS</strong> trie et organise pour vous.</div>
                 </div>
-
                 <div class="tuto-card" style="border-left-color: var(--calendar);">
                     <div class="tuto-title"><span>📅</span> CALENDRIER</div>
                     <div class="tuto-desc">Retrouvez ici tous vos rendez-vous et tâches avec une date/heure précise. C'est votre agenda intelligent.</div>
                 </div>
-
                 <div class="tuto-card" style="border-left-color: var(--warning);">
                     <div class="tuto-title"><span>🎯</span> FOCUS</div>
                     <div class="tuto-desc">Le remède contre la procrastination. Sélectionnez une tâche : tout le reste disparaît. <strong>L'assistant</strong> vous propose une première micro-étape pour démarrer.</div>
                 </div>
-
                 <div class="tuto-card" style="border-left-color: var(--success);">
                     <div class="tuto-title"><span>⏱️</span> POMO</div>
                     <div class="tuto-desc">Un minuteur de 25 minutes. Travaillez à fond, sans interruption. Quand ça sonne, faites une pause.</div>
                 </div>
-
                 <div class="tuto-card" style="border-left-color: #D500F9;">
                     <div class="tuto-title"><span>🔁</span> ROUTINE</div>
                     <div class="tuto-desc">Créez des listes d'actions répétitives (ex: "Routine Matin"). Dites "Crée une routine matin" pour commencer.</div>
@@ -500,6 +494,7 @@
         let currentCalDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => { 
+            // Anti-Cache Hack : Force Reload if version mismatch (manually handled by user for now)
             checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
             initSpeech(); loadMood(); 
             switchView('dump', document.querySelector('.mode-card.active'));
