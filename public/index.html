@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLARIS - Assistant Personnel</title>
+    <title>CLARIS - Assistant V3</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -127,18 +127,54 @@
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* FOCUS & ROUTINE & POMO & TUTO */
-        #view-focus, #view-routine, #view-pomo, #view-tuto { padding: 15px; }
-        .focus-grid, .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .focus-card { background: #222; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #333; cursor: pointer; }
-        .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
-        .focus-text { font-size: 12px; font-weight: bold; color: #BBB; line-height: 1.3; }
-        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-        .laser-task { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
-        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
-        .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 11px; cursor: pointer; }
-        .active-routine-view { display: none; flex-direction: column; height: 100%; }
+        /* NOUVEAU DESIGN FOCUS (HUD FUTURISTE) */
+        #view-focus { padding: 15px; }
+        .focus-title { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
+        .focus-grid { display: flex; flex-direction: column; gap: 12px; }
         
+        .focus-chip {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            background: linear-gradient(90deg, rgba(41, 121, 255, 0.05), transparent);
+            border: 1px solid rgba(41, 121, 255, 0.2);
+            border-left: 3px solid var(--accent);
+            padding: 18px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .focus-chip:active { transform: scale(0.98); background: rgba(41, 121, 255, 0.15); }
+        .focus-chip::after {
+            content: ''; position: absolute; top:0; left:0; height:100%; width: 3px; 
+            background: var(--accent); box-shadow: 0 0 10px var(--accent); opacity: 0; transition: opacity 0.3s;
+        }
+        .focus-chip:hover::after { opacity: 1; }
+        
+        .focus-chip-text { font-weight: 600; font-size: 14px; color: white; letter-spacing: 0.5px; }
+        .focus-chip-action { 
+            width: 24px; height: 24px; border-radius: 50%; 
+            border: 1px solid var(--accent); color: var(--accent); 
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        /* Laser Active Animation */
+        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; position: relative; }
+        .laser-ring-container { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
+        .laser-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0.3; animation: ripple 2s infinite; }
+        .laser-ring:nth-child(2) { animation-delay: 0.5s; }
+        .laser-ring:nth-child(3) { animation-delay: 1s; }
+        @keyframes ripple { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
+        
+        .laser-task { font-size: 28px; font-weight: 900; line-height: 1.2; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 90%; }
+        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; z-index: 10; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); border:none; font-size: 16px; }
+        .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 12px; cursor: pointer; z-index: 10; }
+
+        /* ROUTINE & POMO & TUTO */
+        #view-routine, #view-pomo, #view-tuto { padding: 15px; }
+        .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
@@ -166,7 +202,7 @@
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
         .mode-icon { margin-bottom: 4px; display: flex; }
-        .mode-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
+        .mode-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; display:block; }
         .mode-label { font-size: 8px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
         
         .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
@@ -180,10 +216,10 @@
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
 
-        /* INPUT REMONTÉ POUR NE PAS CACHER LE MENU */
+        /* INPUT REMONTÉ */
         .text-input-container { 
             position: absolute; 
-            bottom: 160px; /* Remonté pour être au-dessus des icônes */
+            bottom: 160px; 
             left: 20px; 
             right: 20px; 
             background: rgba(30, 30, 30, 0.95); 
@@ -267,10 +303,22 @@
             </div>
         </div>
         <div id="view-focus" class="view-section">
-            <div id="focus-picker-wrapper"><div class="focus-title">CHOISIS TA CIBLE</div><div id="focus-grid" class="focus-grid"></div></div>
+            <div id="focus-picker-wrapper">
+                <div class="focus-title">CHOISIS TA CIBLE</div>
+                <div id="focus-grid" class="focus-grid"></div>
+            </div>
             <div id="focus-laser-wrapper" class="laser-container">
-                <div class="laser-task" id="laser-current-task">...</div>
-                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none"><span class="laser-ai-label">PREMIÈRE ÉTAPE</span><span id="laser-micro-text" class="laser-ai-text">...</span></div>
+                <div class="laser-ring-container">
+                    <div class="laser-ring"></div>
+                    <div class="laser-ring"></div>
+                    <div class="laser-ring"></div>
+                    <div class="laser-task" id="laser-current-task">...</div>
+                </div>
+                
+                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none; color:#AAA; font-size:12px; margin-bottom:15px; border:1px solid #333; padding:10px; border-radius:10px;">
+                    <span class="laser-ai-label" style="display:block; font-weight:bold; color:var(--accent); margin-bottom:5px;">PREMIÈRE ÉTAPE</span>
+                    <span id="laser-micro-text" class="laser-ai-text">...</span>
+                </div>
                 <button class="laser-btn" onclick="completeLaserTask()">C'EST FAIT</button>
                 <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
             </div>
@@ -629,7 +677,7 @@
         function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push({d:i.getAttribute('data-date'),h:i.outerHTML});}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.some(x=>x.d===ds))e.classList.add('has-task'); e.onclick=()=>{document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected'));e.classList.add('selected');showTasksForDay(t.filter(x=>x.d===ds),i);}; c.appendChild(e); } }
         function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
         function showTasksForDay(t,d) { const l=document.getElementById('cal-task-list'); if(t.length===0)l.innerHTML=`<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${d}.</div>`; else { l.innerHTML=""; t.forEach(x=>{const d=document.createElement('div');d.innerHTML=x.h;if(d.querySelector('.done-btn'))d.querySelector('.done-btn').style.display='none';l.appendChild(d.firstChild);}); } }
-        function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
+        function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-chip"; d.innerHTML=`<span class="focus-chip-text">${txt}</span><div class="focus-chip-action">▶</div>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
         async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
         function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo!"); const l=document.getElementById('task-list'); l.querySelectorAll('.task-item').forEach(i=>{if(i.querySelector('.task-text').innerText.includes(currentFocusTask))i.remove();}); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode,2000); }
         function exitLaserMode() { document.getElementById('focus-laser-wrapper').style.display='none'; document.getElementById('focus-picker-wrapper').style.display='block'; renderFocusGrid(); }
