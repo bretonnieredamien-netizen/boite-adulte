@@ -5,29 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLARIS - Votre Second Cerveau</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #050505; color: #E0E0E0; overflow-x: hidden; }
         
-        /* Effets de fond */
-        .bg-gradient-radial { background: radial-gradient(circle at center, #1a1a2e 0%, #050505 70%); }
-        .glow-text { text-shadow: 0 0 40px rgba(41, 121, 255, 0.4); }
-        .gradient-text { background: linear-gradient(90deg, #2979FF, #00E5FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* EFFETS VISUELS PREMIUM */
+        .bg-gradient-radial { background: radial-gradient(circle at top center, #1a1a2e 0%, #050505 60%); }
+        .gradient-text { background: linear-gradient(135deg, #2979FF 0%, #D500F9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glow-effect { box-shadow: 0 0 60px rgba(41, 121, 255, 0.15); }
         
-        /* Bouton Principal */
+        /* BOUTON D'ACTION */
         .btn-primary { 
-            background: #2979FF; color: white; font-weight: 800; padding: 18px 36px; border-radius: 50px; 
-            text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; display: inline-block; 
-            text-decoration: none; box-shadow: 0 0 30px rgba(41, 121, 255, 0.3); border: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(90deg, #2979FF, #2563EB); 
+            color: white; font-weight: 800; padding: 18px 40px; border-radius: 50px; 
+            text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; 
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none; box-shadow: 0 10px 30px rgba(41, 121, 255, 0.3); border: 1px solid rgba(255,255,255,0.1);
         }
-        .btn-primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 50px rgba(41, 121, 255, 0.6); }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 20px 50px rgba(41, 121, 255, 0.5); }
         
-        /* Cartes */
-        .feature-card { background: rgba(30, 30, 30, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); padding: 24px; border-radius: 20px; }
-        
-        /* Lien de connexion discret */
+        /* CARTES EN VERRE (GLASSMORPHISM) */
+        .glass-card { 
+            background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 30px; transition: transform 0.3s;
+        }
+        .glass-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-5px); }
+
+        /* LIEN DE CONNEXION DISCRET */
         .login-link { 
-            margin-top: 15px; font-size: 13px; color: #666; cursor: pointer; text-decoration: underline; 
+            margin-top: 20px; font-size: 13px; color: #555; cursor: pointer; text-decoration: underline; 
             transition: color 0.3s; display: inline-block; padding: 10px;
         }
         .login-link:hover { color: #2979FF; }
@@ -35,92 +41,108 @@
 </head>
 <body class="bg-gradient-radial min-h-screen flex flex-col">
 
-    <nav class="w-full p-6 flex justify-between items-center max-w-6xl mx-auto">
-        <div class="flex items-center gap-2">
-            <div class="w-3 h-3 bg-[#2979FF] rounded-full shadow-[0_0_10px_#2979FF]"></div>
+    <nav class="w-full p-6 flex justify-between items-center max-w-6xl mx-auto z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-[#2979FF] rounded-full shadow-[0_0_15px_#2979FF] animate-pulse"></div>
             <span class="font-black text-xl tracking-[4px] text-white">CLARIS</span>
         </div>
-        <div onclick="restorePurchase()" class="text-xs font-bold text-gray-500 cursor-pointer hover:text-white transition">CONNEXION</div>
+        <div onclick="restorePurchase()" class="text-xs font-bold text-gray-500 cursor-pointer hover:text-white transition border border-[#333] px-4 py-2 rounded-full">
+            DÉJÀ MEMBRE ?
+        </div>
     </nav>
 
-    <main class="flex-1 flex flex-col items-center justify-center text-center px-6 mt-10 mb-20">
+    <main class="flex-1 flex flex-col items-center justify-center text-center px-6 mt-12 mb-24 relative z-10">
         
-        <div class="inline-block px-4 py-1 rounded-full border border-[#333] bg-[#111] text-[#2979FF] text-xs font-bold tracking-widest mb-6 animate-pulse">
-            NOUVELLE VERSION 3.6 DISPONIBLE
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-[#2979FF]/30 bg-[#2979FF]/10 text-[#2979FF] text-[10px] font-bold tracking-widest mb-8">
+            <span>✨</span> VERSION 3.6 DISPONIBLE
         </div>
 
-        <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
-            Libérez votre <br>
-            <span class="gradient-text glow-text">Charge Mentale.</span>
+        <h1 class="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tight text-white">
+            Arrêtez de tout <br>
+            <span class="gradient-text">oublier.</span>
         </h1>
         
         <p class="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Arrêtez d'avoir peur d'oublier. CLARIS capture vos pensées, organise votre agenda et vous aide à passer à l'action. 
-            <span class="text-white">Instantanément.</span>
+            Votre charge mentale vous épuise ? <br>
+            CLARIS est l'assistant personnel qui capture vos pensées, gère votre agenda et vous fait passer à l'action. 
+            <span class="text-white font-bold">Sans effort.</span>
         </p>
 
-        <div class="grid md:grid-cols-3 gap-4 max-w-4xl w-full mb-16 text-left">
-            <div class="feature-card">
-                <div class="text-3xl mb-3">🧠</div>
-                <h3 class="font-bold text-white mb-1">Cerveau Externe</h3>
-                <p class="text-sm text-gray-500">Notez tout en vrac. L'IA trie, classe et priorise pour vous.</p>
+        <div class="grid md:grid-cols-3 gap-6 max-w-5xl w-full mb-20 text-left">
+            <div class="glass-card">
+                <div class="text-4xl mb-4">📥</div>
+                <h3 class="font-bold text-white text-lg mb-2">Cerveau Externe</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">Ne gardez rien en tête. Écrivez ou dictez en vrac. L'IA trie, classe et priorise tout pour vous instantanément.</p>
             </div>
-            <div class="feature-card">
-                <div class="text-3xl mb-3">⚡</div>
-                <h3 class="font-bold text-white mb-1">Mode Focus</h3>
-                <p class="text-sm text-gray-500">Fini la procrastination. Une seule tâche à la fois, sans distraction.</p>
+            <div class="glass-card">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="font-bold text-white text-lg mb-2">Mode Focus</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">Fini la procrastination. Cliquez sur une tâche : tout le reste disparaît pour vous laisser avancer sereinement.</p>
             </div>
-            <div class="feature-card">
-                <div class="text-3xl mb-3">🔔</div>
-                <h3 class="font-bold text-white mb-1">Rappels Intelligents</h3>
-                <p class="text-sm text-gray-500">Notifications au bon moment pour ne plus jamais rien rater.</p>
+            <div class="glass-card">
+                <div class="text-4xl mb-4">🔔</div>
+                <h3 class="font-bold text-white text-lg mb-2">Rappels Intelligents</h3>
+                <p class="text-sm text-gray-500 leading-relaxed">"Rdv dentiste demain 14h". CLARIS comprend, note le RDV et programme la notification tout seul.</p>
             </div>
         </div>
 
-        <div class="relative group">
-            <div class="absolute -inset-1 bg-gradient-to-r from-[#2979FF] to-[#D500F9] rounded-[55px] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+        <div class="relative w-full max-w-lg mx-auto">
+            <div class="absolute -inset-1 bg-gradient-to-r from-[#2979FF] via-[#D500F9] to-[#FF1744] rounded-[40px] blur-xl opacity-30 animate-pulse"></div>
             
-            <div class="relative bg-[#121212] border border-[#333] rounded-[50px] p-8 md:p-12 max-w-xl mx-auto">
-                <div class="text-gray-500 uppercase text-xs font-bold tracking-widest mb-4">ACCÈS COMPLET</div>
-                <div class="flex justify-center items-baseline gap-1 mb-6">
-                    <span class="text-5xl font-black text-white">9,99€</span>
-                    <span class="text-gray-500">/ mois</span>
+            <div class="relative bg-[#0A0A0A] border border-[#333] rounded-[30px] p-8 md:p-12 text-center glow-effect">
+                <div class="text-gray-500 uppercase text-xs font-bold tracking-[3px] mb-6">OFFRE DE LANCEMENT</div>
+                
+                <div class="flex justify-center items-end gap-2 mb-8">
+                    <span class="text-6xl font-black text-white tracking-tighter">9,99€</span>
+                    <span class="text-xl text-gray-500 font-medium mb-2">/ mois</span>
                 </div>
                 
-                <ul class="text-left text-gray-400 text-sm space-y-3 mb-8 mx-auto max-w-xs">
-                    <li class="flex items-center"><span class="text-[#00E676] mr-2">✓</span> Accès illimité à l'IA</li>
-                    <li class="flex items-center"><span class="text-[#00E676] mr-2">✓</span> Synchronisation multi-appareils</li>
-                    <li class="flex items-center"><span class="text-[#00E676] mr-2">✓</span> Mises à jour incluses</li>
-                    <li class="flex items-center"><span class="text-gray-600 mr-2">✕</span> Pas d'engagement</li>
-                </ul>
+                <div class="space-y-4 mb-10 text-left max-w-xs mx-auto">
+                    <div class="flex items-center text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-[#00E676] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Accès illimité à l'Assistant IA
+                    </div>
+                    <div class="flex items-center text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-[#00E676] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Synchronisation & Sauvegarde
+                    </div>
+                    <div class="flex items-center text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-[#00E676] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Mises à jour futures incluses
+                    </div>
+                    <div class="flex items-center text-gray-500 text-sm">
+                        <svg class="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Sans engagement, annulable en 1 clic
+                    </div>
+                </div>
 
-                <a href="https://buy.stripe.com/TON_LIEN_ICI" class="btn-primary w-full md:w-auto">
-                    COMMENCER L'AVENTURE
+                <a href="https://buy.stripe.com/TON_LIEN_ICI" class="btn-primary w-full">
+                    COMMENCER MAINTENANT
                 </a>
 
-                <div class="mt-4">
-                    <div onclick="restorePurchase()" class="login-link">
-                        J'ai déjà un abonnement (Restaurer l'achat)
-                    </div>
+                <div onclick="restorePurchase()" class="login-link">
+                    Problème d'accès ? Restaurer mon achat
                 </div>
             </div>
         </div>
 
     </main>
 
-    <footer class="text-center py-8 text-gray-700 text-xs border-t border-[#1a1a1a]">
+    <footer class="text-center py-10 text-gray-800 text-xs border-t border-[#111]">
         <p>&copy; 2024 CLARIS App. Tous droits réservés.</p>
+        <p class="mt-2 opacity-50">Sécurisé par Stripe • Données Privées</p>
     </footer>
 
     <script>
-        // Si l'utilisateur est déjà identifié, on le redirige direct vers l'app
+        // Si l'utilisateur est déjà identifié (Badge actif), on le redirige direct vers l'app
+        // Cela permet d'éviter de montrer la page de vente à un client connecté
         if(localStorage.getItem('claris_license_active') === 'true') {
             window.location.href = "/app.html";
         }
 
         function restorePurchase() {
             // C'est ici qu'on gère le cas de l'app installée qui a "oublié" le paiement
-            const code = prompt("Veuillez entrer votre Code d'Accès personnel (reçu après paiement sur la page de succès) :");
+            const code = prompt("Veuillez entrer votre Code d'Accès personnel (reçu sur la page de succès après paiement) :");
             
             // LE CODE SECRET (Doit être le même que sur success.html)
             const SECRET_CODE = "CLARIS-GO"; 
