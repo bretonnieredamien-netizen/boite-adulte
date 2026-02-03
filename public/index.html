@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CLARIS - Assistant Personnel</title>
+    <meta name="description" content="CLARIS, votre assistant personnel pour éliminer la charge mentale. Priorisation automatique et focus laser.">
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -31,7 +32,7 @@
         .header { background: #121212; z-index: 50; border-bottom: 1px solid #333; padding: 15px 15px 10px 15px; flex-shrink: 0; }
         .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; }
         
-        /* NOUVEAU LOGO CLARIS (POINT LUMINEUX) */
+        /* LOGO CLARIS (POINT LUMINEUX) */
         .app-logo-container { display: flex; align-items: center; gap: 12px; }
         .logo-point-wrapper { position: relative; width: 12px; height: 12px; display: flex; }
         .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
@@ -428,7 +429,9 @@
             const todayISO = new Date().toISOString().split('T')[0];
             const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". Si simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
+                ACTION: Estime la durée réaliste (5, 15, 30, 45, 60, 90 min). Ex: "Sortir poubelle"=5, "Lire"=45.
+                Si tâche simple, renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "Titre Tâche", "priority": "NORMAL/HIGH", "duration": DUREE_ESTIMEE, "due_date": "YYYY-MM-DD" } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
                 'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
