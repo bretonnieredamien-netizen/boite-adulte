@@ -127,8 +127,8 @@
         .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
         .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
-        /* FOCUS & ROUTINE & POMO */
-        #view-focus, #view-routine, #view-pomo { padding: 15px; }
+        /* FOCUS & ROUTINE & POMO & TUTO */
+        #view-focus, #view-routine, #view-pomo, #view-tuto { padding: 15px; }
         .focus-grid, .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .focus-card { background: #222; padding: 20px; border-radius: 16px; text-align: center; border: 1px solid #333; cursor: pointer; }
         .focus-icon { font-size: 28px; margin-bottom: 10px; filter: grayscale(1); }
@@ -154,6 +154,11 @@
         .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
+
+        /* TUTO STYLES */
+        .tuto-card { background: var(--bg-card); border-left: 3px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .tuto-title { font-weight: 900; color: white; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; font-size: 12px; }
+        .tuto-desc { font-size: 11px; color: #888; line-height: 1.4; }
 
         /* FOOTER & CONTROLS */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
@@ -285,17 +290,66 @@
                 <div class="pomo-controls"><button class="pomo-btn btn-stop" onclick="resetTimer()">STOP</button><button class="pomo-btn btn-start" onclick="toggleTimer()" id="btn-timer-action">START</button></div>
             </div>
         </div>
+        <div id="view-tuto" class="view-section">
+            <div style="padding-bottom: 100px;">
+                <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:white; text-align:center;">MODE D'EMPLOI</h2>
+                
+                <div class="tuto-card" style="border-left-color: var(--accent);">
+                    <div class="tuto-title"><span>📥</span> CAPTURER</div>
+                    <div class="tuto-desc">C'est votre boîte de réception. Dites ou écrivez tout ce qui vous passe par la tête. L'IA trie et organise pour vous.</div>
+                </div>
+
+                <div class="tuto-card" style="border-left-color: var(--calendar);">
+                    <div class="tuto-title"><span>📅</span> CALENDRIER</div>
+                    <div class="tuto-desc">Retrouvez ici tous vos rendez-vous et tâches avec une date/heure précise. C'est votre agenda intelligent.</div>
+                </div>
+
+                <div class="tuto-card" style="border-left-color: var(--warning);">
+                    <div class="tuto-title"><span>🎯</span> FOCUS</div>
+                    <div class="tuto-desc">Le remède contre la procrastination. Sélectionnez une tâche : tout le reste disparaît. L'IA vous donne la première micro-étape pour démarrer.</div>
+                </div>
+
+                <div class="tuto-card" style="border-left-color: var(--success);">
+                    <div class="tuto-title"><span>⏱️</span> POMO</div>
+                    <div class="tuto-desc">Un minuteur de 25 minutes. Travaillez à fond, sans interruption. Quand ça sonne, faites une pause.</div>
+                </div>
+
+                <div class="tuto-card" style="border-left-color: #D500F9;">
+                    <div class="tuto-title"><span>🔁</span> ROUTINE</div>
+                    <div class="tuto-desc">Créez des listes d'actions répétitives (ex: "Routine Matin"). Dites "Crée une routine matin" pour commencer.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="bottom-controls">
         <div id="status-text" class="ai-feedback">Prêt.</div>
         
         <div class="mode-selector">
-            <div class="mode-card active" onclick="switchView('dump', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2v12h20V12z"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div><span class="mode-label">Capturer</span></div>
-            <div class="mode-card" onclick="switchView('calendar', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="mode-label">Calendrier</span></div>
-            <div class="mode-card" onclick="switchView('focus', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="mode-label">Focus</span></div>
-            <div class="mode-card" onclick="switchView('pomo', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><span class="mode-label">Pomo</span></div>
-            <div class="mode-card" onclick="switchView('routine', this)"><div class="mode-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div><span class="mode-label">Routine</span></div>
+            <div class="mode-card active" onclick="switchView('dump', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2v12h20V12z"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+                <span class="mode-label">Capturer</span>
+            </div>
+            <div class="mode-card" onclick="switchView('calendar', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                <span class="mode-label">Calendrier</span>
+            </div>
+            <div class="mode-card" onclick="switchView('focus', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                <span class="mode-label">Focus</span>
+            </div>
+            <div class="mode-card" onclick="switchView('pomo', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <span class="mode-label">Pomo</span>
+            </div>
+            <div class="mode-card" onclick="switchView('routine', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+                <span class="mode-label">Routine</span>
+            </div>
+            <div class="mode-card" onclick="switchView('tuto', this)">
+                <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+                <span class="mode-label">Tuto</span>
+            </div>
         </div>
         
         <div class="input-area">
@@ -413,7 +467,9 @@
             currentMode = viewName.toUpperCase();
             if (viewName === 'focus') renderFocusGrid();
             if (viewName === 'calendar') renderCalendar();
-            document.getElementById('status-text').innerText = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer"}[viewName];
+            // MAJ STATUS
+            const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer", 'tuto': "Aide"};
+            document.getElementById('status-text').innerText = titles[viewName];
         }
 
         function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
