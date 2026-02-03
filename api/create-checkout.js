@@ -1,52 +1,53 @@
-import Stripe from 'stripe';
-
-// Initialisation avec la clé secrète (stockée dans Vercel)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const Stripe = require('stripe');
 
 export default async function handler(req, res) {
-  // 1. GESTION DES CORS (Autoriser ton site à parler au serveur)
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Tu peux remplacer '*' par 'https://claris-app.com' pour plus de sécurité
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
 
-  // Si le navigateur demande "Est-ce que je peux ?", on répond OUI (OPTIONS)
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(500).json({ error: "Clé Stripe manquante." });
   }
 
-  // 2. TRAITEMENT DU PAIEMENT (POST)
-  if (req.method === 'POST') {
-    try {
-      // DÉFINITION DU DOMAINE (Indispensable pour les redirections)
-      const YOUR_DOMAIN = 'https://claris-app.com'; 
-      
-      // Création de la session Stripe
-      const session = await stripe.checkout.sessions.create({
-        line_items: [
-          {
-            // TON ID DE PRIX (Abonnement à 9,99€)
-            price: 'price_1SwokEHfF9mmPuYRrxcWgGn2', 
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription', // Mode abonnement récurrent
-        success_url: `${YOUR_DOMAIN}/success.html`, // Redirection après succès
-        cancel_url: `${YOUR_DOMAIN}/`, // Retour à l'accueil si annulation
-        // On demande juste l'email pour simplifier
-        billing_address_collection: 'auto',
-      });
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const protocol = req.headers['x-forwarded-proto'] || 'http';
+    const host = req.headers.host;
+    const domainUrl = `${protocol}://${host}`;
 
-      // On renvoie l'URL de paiement au site pour qu'il redirige le client
-      res.status(200).json({ url: session.url });
-      
-    } catch (err) {
-      console.error("Erreur Stripe:", err);
-      res.status(err.statusCode || 500).json(err.message);
-    }
-  } else {
-    // Si ce n'est pas une requête POST
-    res.setHeader('Allow', 'POST');
-    res.status(405).end('Method Not Allowed');
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      allow_promotion_codes: true,
+      line_items: [
+        {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Abonnement CLARIS Premium', // Nom plus "Haut de gamme"
+              description: 'Assistant IA Illimité + App Mobile + Mises à jour',
+            },
+            unit_amount: 990, // <--- NOUVEAU PRIX : 9.90€
+            recurring: { interval: 'month' },
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      subscription_data: {
+        trial_period_days: 7, // On garde l'essai gratuit, c'est crucial pour vendre à 9.90€
+      },
+      success_url: `${domainUrl}/index.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${domainUrl}/landing.html`,
+    });
+
+    return res.status(200).json({ url: session.url });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
 }
