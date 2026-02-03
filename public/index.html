@@ -67,7 +67,7 @@
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
 
-        /* --- STYLES DES TÂCHES (MODIFIÉS) --- */
+        /* --- STYLES DES TÂCHES --- */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
         
         .task-item { 
@@ -92,11 +92,11 @@
         /* TACHE CALENDRIER (VIOLET + ICONE) */
         .task-item.calendar { 
             border-left-color: var(--calendar); 
-            background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); /* Fond violet léger */
-            order: -2; /* Juste après les urgences */
+            background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); 
+            order: -2; 
         }
 
-        /* RAPPEL (RESTE VIOLET MAIS SANS FOND SPÉCIAL) */
+        /* RAPPEL */
         .task-item.reminder { 
             border-left-color: var(--reminder); 
             order: -1; 
@@ -430,30 +430,57 @@
                 if(actionsList) { 
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
-                        addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') {
-                            // On pourrait aussi scheduler une notif ici pour les rappels
-                        } 
+                        // ON PASSE MAINTENANT L'HEURE (act.time)
+                        addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date, act.time); 
                     }); 
                 }
                 playVocalResponse(parsed.text);
             } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
         }
 
-        function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null) {
+        function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null, time=null) {
             const list = document.getElementById('task-list');
             if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
             const div = document.createElement('div');
             const isCal = (type === 'CALENDAR'); const isRem = (type === 'REMINDER'); const isHigh = (priority === 'HIGH');
+            
             div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
             div.setAttribute('data-duration', duration);
             if(date) div.setAttribute('data-date', date);
-            const syncIcon = isCal ? '<span style="margin-right:6px; font-size:16px;">📅</span>' : ''; const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : '';
-            let dateBadge = ''; if(date) { const dObj = new Date(date); dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}</span>`; }
+            
+            const syncIcon = isCal ? '<span style="margin-right:6px; font-size:16px;">📅</span>' : ''; 
+            const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; 
+            const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : '';
+            
+            let dateBadge = ''; 
+            if(date) { 
+                const dObj = new Date(date); 
+                // AJOUT DE L'HEURE DANS LE BADGE
+                let timeStr = time ? ` à ${time}` : '';
+                dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}${timeStr}</span>`; 
+            }
+            
             const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
             let categoryLabel = isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT 🔥' : 'TÂCHE'));
+            
             div.innerHTML = `<div class="task-content"><div class="task-text">${syncIcon} ${text} ${remIcon} ${fireIcon}</div><div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${categoryLabel}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
-            if (isHigh) list.prepend(div); else list.appendChild(div);
+            
+            if (isHigh) list.prepend(div); 
+            else if (isCal) {
+                // Insérer après les urgences mais avant les tâches normales
+                let inserted = false;
+                const items = list.children;
+                for (let i = 0; i < items.length; i++) {
+                    if (!items[i].classList.contains('priority-high')) {
+                        list.insertBefore(div, items[i]);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) list.appendChild(div);
+            }
+            else list.appendChild(div);
+            
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
@@ -464,7 +491,8 @@
             return {
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
                 ACTION: Estime la durée réaliste (5, 15, 30, 45, 60, 90 min). Ex: "Sortir poubelle"=5, "Lire"=45.
-                Si tâche simple, renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "Titre Tâche", "priority": "NORMAL/HIGH", "duration": DUREE_ESTIMEE, "due_date": "YYYY-MM-DD" } ] }.`,
+                SI HEURE PRÉCISÉE (ex: "à 9h", "14:00"), AJOUTE LE CHAMP "time": "HH:MM".
+                Si tâche simple, renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "Titre Tâche", "priority": "NORMAL/HIGH", "duration": DUREE_ESTIMEE, "due_date": "YYYY-MM-DD", "time": "HH:MM" (optionnel) } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
                 'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
