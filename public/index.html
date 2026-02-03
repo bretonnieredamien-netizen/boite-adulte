@@ -11,6 +11,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
 
+    <script>
+        (function() {
+            // Vérifie si le jeton de paiement est présent
+            const hasLicense = localStorage.getItem('claris_license_active');
+            
+            // Mode test : on autorise l'accès sur localhost sans licence
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            if (!hasLicense && !isLocal) {
+                // REDIRECTION SI PAS DE LICENCE
+                // REMPLACE CE LIEN PAR TA PAGE DE VENTE :
+                window.location.href = 'https://votre-site-de-vente.com'; 
+            }
+        })();
+    </script>
+
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -230,7 +246,7 @@
                     <span class="logo-point-solid"></span>
                 </div>
                 <div class="logo-text">CLARIS</div>
-                <div class="version-tag">v3.5</div>
+                <div class="version-tag">v3.6</div>
             </div>
             <div class="header-actions">
                 <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
@@ -329,16 +345,11 @@
                 </div>
                 <div class="tuto-card" style="border-left-color: var(--success);">
                     <div class="tuto-title"><span>⏱️</span> POMO</div>
-                    <div class="tuto-desc">
-                        <p>Timer de concentration. Travaillez 25 minutes à fond, puis 5 minutes de pause.</p>
-                    </div>
+                    <div class="tuto-desc"><p>Timer de concentration. Travaillez 25 minutes à fond, puis 5 minutes de pause.</p></div>
                 </div>
                 <div class="tuto-card" style="border-left-color: #D500F9;">
                     <div class="tuto-title"><span>🔁</span> ROUTINE</div>
-                    <div class="tuto-desc">
-                        <p>Listes réutilisables (Matin, Soir...).</p>
-                        <div class="tuto-instruction">🗣️ Dites : "Crée une routine Matin avec : Douche, Café".</div>
-                    </div>
+                    <div class="tuto-desc"><p>Listes réutilisables (Matin, Soir...).</p><div class="tuto-instruction">🗣️ Dites : "Crée une routine Matin avec : Douche, Café".</div></div>
                 </div>
             </div>
         </div>
@@ -423,6 +434,7 @@
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true,
             });
+            console.log("OneSignal Init. ID actuel:", OneSignal.User.PushSubscription.id);
             if(OneSignal.User.PushSubscription.optedIn){
                 document.getElementById('notif-btn').classList.add('bell-active');
                 document.getElementById('notif-btn').innerText = "🔔 ON";
@@ -432,9 +444,12 @@
         async function requestNotificationPermission() {
              await OneSignal.User.PushSubscription.optIn();
              const id = OneSignal.User.PushSubscription.id;
+             console.log("Permission accordée. ID:", id);
              if(id) {
                  document.getElementById('notif-btn').classList.add('bell-active');
                  alert("Notifications activées !");
+             } else {
+                 alert("Erreur : Impossible de récupérer l'ID OneSignal.");
              }
         }
 
@@ -622,9 +637,8 @@
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
                 ACTION: 
                 1. Estime durée (5-90min). 
-                2. Si HEURE précise ou RDV (ex: 'à 14h') : type="CALENDAR", ajoute "time": "HH:MM".
-                3. Si l'utilisateur précise un rappel (ex: "préviens moi 15 min avant"), ajoute "reminder_minutes": 15 (int). Sinon par défaut c'est 60.
-                4. Sinon : type="TODO".
+                2. Si HEURE précise mentionnée (ex: 'à 14h', 'RDV 9h') : type DOIT ETRE "CALENDAR", ajoute "time": "HH:MM".
+                3. Sinon : type="TODO".
                 Renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR", "detail": "Titre", "priority": "NORMAL/HIGH", "duration": N, "due_date": "YYYY-MM-DD", "time": "HH:MM", "reminder_minutes": 60 } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
                 'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
