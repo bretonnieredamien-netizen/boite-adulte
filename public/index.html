@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEURO - Assistant Personnel</title>
+    <title>CLARIS - Assistant Personnel</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -11,11 +11,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN NEURO V59 (STABLE GLOBAL) --- */
+        /* --- DESIGN CLARIS V1 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
             --accent: #2979FF; --text-main: #E0E0E0;
@@ -28,9 +30,15 @@
         /* HEADER */
         .header { background: #121212; z-index: 50; border-bottom: 1px solid #333; padding: 15px 15px 10px 15px; flex-shrink: 0; }
         .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; }
-        .app-logo-svg { width: 90px; height: auto; filter: drop-shadow(0 0 8px rgba(41, 121, 255, 0.4)); }
-        .brain-pulse { animation: brainPulse 3s infinite ease-in-out; transform-origin: center; }
-        @keyframes brainPulse { 0%, 100% { opacity: 0.8; stroke-width: 2px; } 50% { opacity: 1; stroke-width: 3px; filter: drop-shadow(0 0 5px var(--accent)); } }
+        
+        /* NOUVEAU LOGO CLARIS (POINT LUMINEUX) */
+        .app-logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-point-wrapper { position: relative; width: 12px; height: 12px; display: flex; }
+        .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        .logo-point-solid { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .logo-text { font-weight: 900; font-size: 20px; color: white; letter-spacing: 3px; font-family: 'Inter', sans-serif; }
+        
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
         .header-actions { display: flex; gap: 8px; }
         .header-btn { background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
@@ -168,19 +176,14 @@
     <div class="header">
         <div class="header-top">
             <div class="app-logo-container">
-                <svg class="app-logo-svg" viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
-                    <defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-                    <path class="brain-pulse" d="M60 40 Q40 40 35 60 T35 90 Q40 110 60 110 L90 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
-                    <path class="brain-pulse" d="M140 40 Q160 40 165 60 T165 90 Q160 110 140 110 L110 110" stroke="#2979FF" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
-                    <path d="M60 55 L80 55 L90 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
-                    <path d="M140 55 L120 55 L110 70" stroke="#00E676" stroke-width="2" fill="none" opacity="0.8"/>
-                    <circle cx="90" cy="70" r="3" fill="#2979FF"/><circle cx="110" cy="70" r="3" fill="#2979FF"/>
-                    <line x1="90" y1="70" x2="110" y2="70" stroke="#2979FF" stroke-width="2"/>
-                    <text x="100" y="130" font-family="'Inter', sans-serif" font-weight="900" font-size="20" fill="white" text-anchor="middle" letter-spacing="4">NEURO</text>
-                    <text x="100" y="145" font-family="'Inter', sans-serif" font-weight="700" font-size="8" fill="#2979FF" text-anchor="middle" letter-spacing="2">ASSISTANT</text>
-                </svg>
+                <div class="logo-point-wrapper">
+                    <span class="logo-point-ping"></span>
+                    <span class="logo-point-solid"></span>
+                </div>
+                <div class="logo-text">CLARIS</div>
             </div>
             <div class="header-actions">
+                <button class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
                 <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
                 <button id="sound-btn" class="header-btn sound-btn" onclick="togglePinkNoise()"><span>🎧</span> FOCUS</button>
                 <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
@@ -264,9 +267,57 @@
     </div>
 
     <script>
+        // --- CONSTANTES ---
         const API_BASE_URL = "https://boite-adulte.vercel.app";
-        const MAKE_WEBHOOK = "https://hook.eu1.make.com/l3agyq8s6bh1qp5vw4pruulekij94fai";
+        // REMPLACE CES VALEURS PAR LES TIENNES
+        const ONESIGNAL_APP_ID = "REMPLACE_PAR_TON_APP_ID_ICI"; 
+        const ONESIGNAL_REST_API_KEY = "REMPLACE_PAR_TA_REST_API_KEY_ICI";
 
+        // --- INIT ONESIGNAL (Push & Permissions) ---
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+                appId: ONESIGNAL_APP_ID,
+                // safari_web_id: "web.onesignal.auto.xxxxx", // Décommenter si tu as configuré Safari Legacy sur OneSignal
+                notifyButton: { enable: false },
+                allowLocalhostAsSecureOrigin: true,
+            });
+        });
+
+        async function requestNotificationPermission() {
+             await OneSignal.User.PushSubscription.optIn();
+             alert("Vérifie les permissions !");
+        }
+
+        // --- FONCTION DE NOTIFICATION GRATUITE (DIRECT API) ---
+        async function scheduleNotification(minutes, message) {
+            if(!OneSignal.User.PushSubscription.id) { console.log("Pas d'ID utilisateur pour la notif"); return; }
+            
+            const now = new Date();
+            const sendTime = new Date(now.getTime() + minutes * 60000);
+            const sendTimeString = sendTime.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    app_id: ONESIGNAL_APP_ID,
+                    include_player_ids: [OneSignal.User.PushSubscription.id],
+                    contents: { "en": message },
+                    headings: { "en": "CLARIS" },
+                    send_after: sendTimeString
+                })
+            };
+
+            try { await fetch('https://onesignal.com/api/v1/notifications', options); console.log("Notif programmée."); } 
+            catch (err) { console.error('Erreur notif:', err); }
+        }
+
+        // --- LOGIQUE PRINCIPALE ---
         let currentMode = 'DUMP';
         let currentMood = 'ZEN';
         let isProcessing = false; isTextMode = false; recognition = null; isRecording = false; finalTranscript = '';
@@ -278,7 +329,7 @@
 
         document.addEventListener('DOMContentLoaded', () => { 
             checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
-            initSpeech(); loadMood(); if ("Notification" in window) Notification.requestPermission();
+            initSpeech(); loadMood(); 
             switchView('dump', document.querySelector('.mode-card.active'));
         });
 
@@ -339,15 +390,16 @@
                 if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); switchView('routine', document.querySelectorAll('.mode-card')[4]); isProcessing = false; return; }
                 else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { switchView('routine', document.querySelectorAll('.mode-card')[4]); launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Routine inconnue.`); } isProcessing = false; return; }
                 
-                // FALLBACK FOR ACTIONS (Fixes the "Nothing happens" bug)
                 let actionsList = parsed.actions;
-                if (!actionsList && parsed.type) { actionsList = [parsed]; } // Handle single object return
+                if (!actionsList && parsed.type) { actionsList = [parsed]; }
                 
                 if(actionsList) { 
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
                         addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date); 
-                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') sendToCalendar(validText); 
+                        if(act.type === 'CALENDAR' || act.type === 'REMINDER') {
+                            // On pourrait aussi scheduler une notif ici pour les rappels
+                        } 
                     }); 
                 }
                 playVocalResponse(parsed.text);
@@ -371,16 +423,14 @@
             saveTasks(); updateMentalLoad(); updateDailyCapacity();
         }
 
-        // --- PROMPTS (ROUTINE + TASK FIX) ---
         function getPrompts() {
             const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const todayISO = new Date().toISOString().split('T')[0];
-            let tone = (currentMood === 'ZEN') ? "Ton: Doux." : "Ton: Rapide.";
-            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT. NE DIS PAS TDAH.`;
+            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
             return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse l'entrée : "${username}". Si c'est une tâche simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
+                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". Si simple, renvoie: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "La Tâche", "priority": "NORMAL/HIGH", "duration": 15, "due_date": "YYYY-MM-DD" } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
-                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Si l'utilisateur dit "Routine Sport", INVENTE 3-5 étapes logiques. Sortie JSON OBLIGATOIRE: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1", "Etape 2"] }.`,
+                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
             };
         }
@@ -398,7 +448,6 @@
         function saveUsername() { const i=document.getElementById('username-input'); if(i.value.trim()){username=i.value.trim();localStorage.setItem('neuro_username',username);document.getElementById('onboarding-modal').classList.remove('show');} }
         function cleanTextForSpeech(t) { if(!t)return""; return t.replace(/[*#]/g,'').replace(/^- /g,''); }
         async function playVocalResponse(t) { document.getElementById('status-text').innerText="Prêt."; isProcessing=false; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(cleanTextForSpeech(t)); u.lang='fr-FR'; u.rate=(currentMood==='ZEN')?0.85:1.1; window.speechSynthesis.speak(u); }
-        async function sendToCalendar(d) { try{await fetch(MAKE_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({detail:d,type:'CALENDAR'})});}catch(e){} }
         function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
         function saveRoutine(n,s) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); r[n.toLowerCase()]=s; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); }
         function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
@@ -418,7 +467,23 @@
         function handleEnter(e) { if(e.key==='Enter')sendText(); }
         function sendText() { const i=document.getElementById('user-input'); if(i.value.trim()){processWithAI(i.value);i.value="";} }
         function updateTimerDisplay() { document.getElementById('timer-display').innerText=`${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
-        function toggleTimer() { const b=document.getElementById('btn-timer-action'); if(isTimerRunning){clearInterval(timerInterval);isTimerRunning=false;b.innerText="REPRENDRE";}else{timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);isTimerRunning=true;b.innerText="PAUSE";} }
+        
+        function toggleTimer() { 
+            const b=document.getElementById('btn-timer-action'); 
+            if(isTimerRunning){
+                clearInterval(timerInterval);
+                isTimerRunning=false;
+                b.innerText="REPRENDRE";
+            } else {
+                timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);
+                isTimerRunning=true;
+                b.innerText="PAUSE";
+                // PROGRAMMER LA NOTIF
+                const mins = Math.ceil(timeLeft / 60);
+                scheduleNotification(mins, "Session terminée !");
+            } 
+        }
+
         function resetTimer() { clearInterval(timerInterval);isTimerRunning=false;timeLeft=25*60;updateTimerDisplay(); }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
@@ -428,9 +493,9 @@
         // --- ENREGISTREMENT PWA (SERVICE WORKER) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Service Worker enregistré', reg))
-                    .catch(err => console.log('Erreur Service Worker', err));
+                // On enregistre sw.js (qui s'occupe de l'offline)
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('Erreur SW', err));
+                // OneSignal enregistre son propre worker automatiquement via le script OneSignalSDKWorker.js
             });
         }
     </script>
