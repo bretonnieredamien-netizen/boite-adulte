@@ -77,26 +77,23 @@
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            border-left: 3px solid var(--accent); /* BLEU PAR DÉFAUT */
+            border-left: 3px solid var(--accent);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
             transition: all 0.2s; 
         }
 
-        /* TACHE URGENTE (ROUGE + FEU) */
         .task-item.priority-high { 
             border-left-color: var(--danger); 
             background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); 
-            order: -3; /* Tout en haut */
+            order: -3; 
         }
 
-        /* TACHE CALENDRIER (VIOLET + ICONE) */
         .task-item.calendar { 
             border-left-color: var(--calendar); 
             background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); 
             order: -2; 
         }
 
-        /* RAPPEL */
         .task-item.reminder { 
             border-left-color: var(--reminder); 
             order: -1; 
@@ -490,9 +487,11 @@
             const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
             return {
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
-                ACTION: Estime la durée réaliste (5, 15, 30, 45, 60, 90 min). Ex: "Sortir poubelle"=5, "Lire"=45.
-                SI HEURE PRÉCISÉE (ex: "à 9h", "14:00"), AJOUTE LE CHAMP "time": "HH:MM".
-                Si tâche simple, renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO", "detail": "Titre Tâche", "priority": "NORMAL/HIGH", "duration": DUREE_ESTIMEE, "due_date": "YYYY-MM-DD", "time": "HH:MM" (optionnel) } ] }.`,
+                1. Estime la durée (5-90 min).
+                2. Si HEURE précise ou RDV : type="CALENDAR", ajoute "time": "HH:MM".
+                3. Si Rappel : type="REMINDER".
+                4. Sinon : type="TODO".
+                Renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR", "detail": "Titre", "priority": "NORMAL/HIGH", "duration": N, "due_date": "YYYY-MM-DD", "time": "HH:MM" } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
                 'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
                 'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
