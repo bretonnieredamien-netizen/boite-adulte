@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLARIS v3.2</title>
+    <title>CLARIS v3.3</title>
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,11 +17,19 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN CLARIS V3.2 --- */
+        /* --- GESTION DES THÈMES (DARK / LIGHT) --- */
         :root { 
-            --bg-main: #121212; --bg-card: #1E1E1E; 
-            --accent: #2979FF; 
+            /* COULEURS DARK (Défaut) */
+            --bg-main: #121212; 
+            --bg-card: #1E1E1E; 
+            --bg-input: #222;
             --text-main: #E0E0E0;
+            --text-muted: #888;
+            --border: #333;
+            --gradient-overlay: linear-gradient(to top, #121212 90%, transparent);
+            
+            /* ACCENTS (Communs) */
+            --accent: #2979FF; 
             --success: #00E676; 
             --warning: #FFAB00; 
             --danger: #FF1744; 
@@ -29,24 +37,47 @@
             --capacity: #00E5FF; 
             --date-badge: #FF4081;
         }
+
+        /* THÈME CLAIR (Activé via data-theme="light" sur le body) */
+        [data-theme="light"] {
+            --bg-main: #F2F2F7; /* Gris Apple très clair */
+            --bg-card: #FFFFFF; /* Blanc pur */
+            --bg-input: #E5E5EA;
+            --text-main: #1C1C1E; /* Presque noir */
+            --text-muted: #8E8E93;
+            --border: #D1D1D6;
+            --gradient-overlay: linear-gradient(to top, #F2F2F7 90%, transparent);
+        }
         
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            margin: 0; 
+            touch-action: none; 
+            display: flex; 
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
         /* HEADER */
-        .header { background: #121212; z-index: 50; border-bottom: 1px solid #333; padding: 15px 15px 10px 15px; flex-shrink: 0; }
+        .header { background: var(--bg-main); z-index: 50; border-bottom: 1px solid var(--border); padding: 15px 15px 10px 15px; flex-shrink: 0; transition: background 0.3s; }
         .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; }
         
-        /* LOGO */
+        /* LOGO CLARIS */
         .app-logo-container { display: flex; align-items: center; gap: 12px; }
         .logo-point-wrapper { position: relative; width: 12px; height: 12px; display: flex; }
         .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
         .logo-point-solid { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-        .logo-text { font-weight: 900; font-size: 20px; color: white; letter-spacing: 3px; font-family: 'Inter', sans-serif; }
-        .version-tag { font-size: 9px; color: #444; font-weight: bold; margin-left: 5px; border: 1px solid #333; padding: 2px 4px; border-radius: 4px; }
+        .logo-text { font-weight: 900; font-size: 20px; color: var(--text-main); letter-spacing: 3px; font-family: 'Inter', sans-serif; }
+        .version-tag { font-size: 9px; color: var(--text-muted); font-weight: bold; margin-left: 5px; border: 1px solid var(--border); padding: 2px 4px; border-radius: 4px; }
+        
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
         .header-actions { display: flex; gap: 8px; }
-        .header-btn { background: #222; border: 1px solid #444; color: #888; font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
+        .header-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
         .mood-btn.active.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
         .mood-btn.active.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
         .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
@@ -56,61 +87,92 @@
         .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
         @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* MONITOR */
-        .monitor-bar-container { width: 100%; height: 8px; background: #1a1a1a; flex-shrink: 0; position: relative; border-bottom: 1px solid #222; }
+        /* MONITOR & SIDEBAR */
+        .monitor-bar-container { width: 100%; height: 8px; background: var(--bg-input); flex-shrink: 0; position: relative; border-bottom: 1px solid var(--border); }
         .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
-        .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: #0f0f0f; border-right: 1px solid #222; z-index: 40; }
+        .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: var(--bg-main); border-right: 1px solid var(--border); z-index: 40; }
         .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
 
-        /* CONTENT GENERAL */
+        /* CONTENT */
         .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 15px; padding-top: 10px; }
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
 
-        /* TASKS STYLES */
+        /* --- STYLES DES TÂCHES --- */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
-        .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); order: -3; }
-        .task-item.calendar { border-left-color: var(--calendar); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -2; }
-        .task-item.reminder { border-left-color: var(--reminder); order: -1; }
         
-        .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; color: white; display: flex; align-items: center; gap: 6px; }
-        .task-sub { font-size: 9px; opacity: 0.7; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
-        .time-badge, .date-badge { background: #333; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid rgba(255,255,255,0.1); }
-        .time-badge { color: var(--capacity); border-color: rgba(0, 229, 255, 0.2); }
-        .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
+        .task-item { 
+            background: var(--bg-card); 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-left: 3px solid var(--accent);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            transition: all 0.2s; 
+            border: 1px solid transparent;
+        }
+        /* Bordure légère en mode clair pour détacher du fond */
+        [data-theme="light"] .task-item { border: 1px solid #E5E5E5; }
+
+        .task-item.priority-high { 
+            border-left-color: var(--danger); 
+            background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); 
+            order: -3; 
+        }
+
+        .task-item.calendar { 
+            border-left-color: var(--calendar); 
+            background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); 
+            order: -2; 
+        }
+
+        .task-item.reminder { 
+            border-left-color: var(--reminder); 
+            order: -1; 
+        }
+
+        .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+        .task-sub { font-size: 9px; opacity: 0.7; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; color: var(--text-muted); }
+        
+        .time-badge, .date-badge { background: var(--bg-input); padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid var(--border); }
+        .time-badge { color: var(--capacity); border-color: rgba(0, 229, 255, 0.3); }
+        .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.3); }
+        
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         .priority-icon { color: var(--danger); font-size:12px; animation: pulse 2s infinite; }
         .bell-active { color: var(--warning); animation: ring 4s infinite; }
         @keyframes ring { 0% { transform: rotate(0); } 5% { transform: rotate(20deg); } 10% { transform: rotate(-20deg); } 15% { transform: rotate(0); } 100% { transform: rotate(0); } }
+        
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        /* CALENDAR */
+        /* CALENDAR GRID */
         #view-calendar { padding: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .month-label { font-size: 16px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 2px; }
-        .cal-nav-btn { background: #222; border: 1px solid #444; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .month-label { font-size: 16px; font-weight: 900; color: var(--text-main); text-transform: uppercase; letter-spacing: 2px; }
+        .cal-nav-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .day-name { text-align: center; font-size: 10px; color: #666; font-weight: bold; margin-bottom: 5px; }
-        .day-cell { aspect-ratio: 1; background: #151515; border-radius: 8px; border: 1px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #888; cursor: pointer; position: relative; transition: all 0.2s; }
+        .day-name { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .day-cell { aspect-ratio: 1; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: var(--text-muted); cursor: pointer; position: relative; transition: all 0.2s; }
         .day-cell.today { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
         .day-cell.has-task { border-color: rgba(255, 23, 68, 0.3); }
         .day-cell.has-task::after { content: ''; position: absolute; bottom: 5px; width: 5px; height: 5px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 5px var(--danger); }
         .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 15px rgba(41, 121, 255, 0.4); z-index: 10; }
-        .calendar-tasks-list { border-top: 1px solid #333; padding-top: 15px; margin-top: 20px; }
-        .cal-list-title { font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
+        .calendar-tasks-list { border-top: 1px solid var(--border); padding-top: 15px; margin-top: 20px; }
+        .cal-list-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
 
         /* FOCUS HUD */
         #view-focus { padding: 15px; }
-        .focus-title { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
+        .focus-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
         .focus-grid { display: flex; flex-direction: column; gap: 12px; }
-        .focus-chip { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, rgba(41, 121, 255, 0.05), transparent); border: 1px solid rgba(41, 121, 255, 0.2); border-left: 3px solid var(--accent); padding: 18px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; }
+        .focus-chip { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, rgba(41, 121, 255, 0.05), transparent); border: 1px solid rgba(41, 121, 255, 0.2); border-left: 3px solid var(--accent); padding: 18px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; background-color: var(--bg-card); }
         .focus-chip:active { transform: scale(0.98); background: rgba(41, 121, 255, 0.15); }
         .focus-chip::after { content: ''; position: absolute; top:0; left:0; height:100%; width: 3px; background: var(--accent); box-shadow: 0 0 10px var(--accent); opacity: 0; transition: opacity 0.3s; }
         .focus-chip:hover::after { opacity: 1; }
-        .focus-chip-text { font-weight: 600; font-size: 14px; color: white; letter-spacing: 0.5px; }
+        .focus-chip-text { font-weight: 600; font-size: 14px; color: var(--text-main); letter-spacing: 0.5px; }
         .focus-chip-action { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; }
         
         .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; position: relative; }
@@ -119,59 +181,37 @@
         .laser-ring:nth-child(2) { animation-delay: 0.5s; }
         .laser-ring:nth-child(3) { animation-delay: 1s; }
         @keyframes ripple { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
-        .laser-task { font-size: 28px; font-weight: 900; line-height: 1.2; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 90%; }
-        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; z-index: 10; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); border:none; font-size: 16px; }
-        .laser-back { margin-top: 30px; background: transparent; border: none; color: #666; text-decoration: underline; font-size: 12px; cursor: pointer; z-index: 10; }
+        .laser-task { font-size: 28px; font-weight: 900; line-height: 1.2; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 90%; color: var(--text-main); }
+        /* Ajustement ombre texte en light mode */
+        [data-theme="light"] .laser-task { text-shadow: none; color: #000; }
 
-        /* ROUTINE (CORRIGÉ POUR ALIGNEMENT) */
+        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; z-index: 10; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); border:none; font-size: 16px; }
+        .laser-back { margin-top: 30px; background: transparent; border: none; color: var(--text-muted); text-decoration: underline; font-size: 12px; cursor: pointer; z-index: 10; }
+
+        /* ROUTINE */
         #view-routine { padding: 15px; position: relative; height: 100%; }
         .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .routine-card-item { background: var(--bg-card); border: 1px solid #333; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
+        .routine-card-item { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
         .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; }
+        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; color: var(--text-main); }
         
-        /* VUE ROUTINE ACTIVE (MODIFIÉE POUR OVERLAY CLEAN) */
-        .active-routine-view { 
-            display: none; 
-            flex-direction: column; 
-            position: absolute; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-main); 
-            z-index: 50; 
-            padding: 15px;
-        }
-        .routine-header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding-bottom: 20px; 
-            border-bottom: 1px solid #333;
-            margin-bottom: 20px;
-        }
-        .back-btn { background: transparent; border: 1px solid #444; color: #888; padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
+        .active-routine-view { display: none; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-main); z-index: 50; padding: 15px; }
+        .routine-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
         .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
         .routine-list-scroll { flex: 1; overflow-y: auto; }
         
-        /* ALIGNEMENT TACHES DANS ROUTINE */
-        .routine-step-item {
-            background: var(--bg-card); 
-            padding: 15px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; /* Texte à gauche, boutons à droite */
-            margin-bottom: 10px;
-            border-left: 3px solid #666;
-        }
-        .routine-step-text { text-align: left; font-size: 14px; font-weight: 500; color: white; flex: 1; margin-right: 10px; }
-        
+        .routine-step-item { background: var(--bg-card); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-left: 3px solid #666; border: 1px solid transparent; }
+        [data-theme="light"] .routine-step-item { border: 1px solid #ddd; }
+        .routine-step-text { text-align: left; font-size: 14px; font-weight: 500; color: var(--text-main); flex: 1; margin-right: 10px; }
         .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
         
         /* POMO */
         .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
         .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
+        [data-theme="light"] .pomo-timer { text-shadow: none; }
         .pomo-controls { display: flex; gap: 20px; }
         .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
@@ -180,27 +220,27 @@
         /* TUTO STYLES */
         #view-tuto { padding: 15px; }
         .tuto-card { background: var(--bg-card); border-left: 4px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .tuto-title { font-weight: 900; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
-        .tuto-desc { font-size: 12px; color: #BBB; line-height: 1.6; }
-        .tuto-instruction { background: #222; padding: 8px 12px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: var(--accent); font-style: italic; border: 1px solid #333; }
+        .tuto-title { font-weight: 900; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
+        .tuto-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+        .tuto-instruction { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: var(--accent); font-style: italic; border: 1px solid var(--border); }
 
         /* FOOTER & CONTROLS */
-        .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
+        .bottom-controls { background: var(--gradient-overlay); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
-        .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); }
+        .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); }
+        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); color: var(--text-main); }
         .mode-icon { margin-bottom: 4px; display: flex; }
         .mode-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; display:block; }
         .mode-label { font-size: 8px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
         
         .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
         .action-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-keyboard { background: #222; border: 1px solid #444; color: #888; }
+        .btn-keyboard { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); }
         .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
         .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
         .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
         .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); animation: pulseRed 1s infinite; }
-        .btn-mic svg { width: 28px; height: 28px; fill: white; }
+        .btn-mic svg { width: 28px; height: 28px; fill: var(--text-main); }
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
 
@@ -211,10 +251,12 @@
             border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; 
             display: none; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 60; 
         }
+        [data-theme="light"] .text-input-container { background: rgba(255, 255, 255, 0.95); border: 1px solid #ddd; }
         .text-input-container.show { display: flex; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
+        [data-theme="light"] .text-input { color: black; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
 
@@ -250,7 +292,7 @@
                     <span class="logo-point-solid"></span>
                 </div>
                 <div class="logo-text">CLARIS</div>
-                <div class="version-tag">v3.2</div>
+                <div class="version-tag">v3.3</div>
             </div>
             <div class="header-actions">
                 <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
@@ -304,7 +346,6 @@
         </div>
         <div id="view-routine" class="view-section">
             <div id="routines-grid" class="routine-grid"></div>
-            
             <div id="active-routine-view" class="active-routine-view">
                 <div class="routine-header">
                     <button class="back-btn" onclick="exitRoutine()">← RETOUR</button>
@@ -322,7 +363,7 @@
         </div>
         <div id="view-tuto" class="view-section">
             <div style="padding-bottom: 100px;">
-                <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:white; text-align:center;">MODE D'EMPLOI</h2>
+                <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:var(--text-main); text-align:center;">MODE D'EMPLOI</h2>
                 
                 <div class="tuto-card" style="border-left-color: var(--accent);">
                     <div class="tuto-title"><span>📥</span> CAPTURER</div>
@@ -349,9 +390,7 @@
                 <div class="tuto-card" style="border-left-color: var(--warning);">
                     <div class="tuto-title"><span>🎯</span> FOCUS</div>
                     <div class="tuto-desc">
-                        <p>Pour arrêter de procrastiner. Sélectionnez une tâche : tout le reste disparaît.</p>
-                        <div class="tuto-instruction">💡 L'assistant vous proposera une "micro-étape" facile pour démarrer sans effort.</div>
-                    </div>
+                        <p>Pour arrêter de procrastiner. Sélectionnez une tâche : tout le reste disparaît. <strong>L'assistant</strong> vous propose une première micro-étape pour démarrer.</div>
                 </div>
 
                 <div class="tuto-card" style="border-left-color: var(--success);">
@@ -397,8 +436,14 @@
                 <span class="mode-label">Routine</span>
             </div>
             <div class="mode-card" onclick="switchView('tuto', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+                <div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
                 <span class="mode-label">Tuto</span>
+            </div>
+            <div class="mode-card" onclick="toggleTheme(this)">
+                <div class="mode-icon">
+                    <svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:block"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </div>
+                <span class="mode-label">Thème</span>
             </div>
         </div>
         
@@ -424,6 +469,26 @@
         const API_BASE_URL = "https://boite-adulte.vercel.app"; 
         const ONESIGNAL_APP_ID = "REMPLACE_PAR_TON_APP_ID_ICI"; 
 
+        // --- THEME MANAGEMENT ---
+        function toggleTheme(btn) {
+            const current = document.body.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', next);
+            localStorage.setItem('claris_theme', next);
+            // Animation bouton
+            if(btn) {
+                btn.style.transform = "scale(0.9)";
+                setTimeout(() => btn.style.transform = "scale(1)", 150);
+            }
+        }
+
+        function loadTheme() {
+            const saved = localStorage.getItem('claris_theme');
+            if(saved === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+            }
+        }
+
         // --- INIT ONESIGNAL ---
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(async function(OneSignal) {
@@ -432,9 +497,6 @@
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true,
             });
-            
-            console.log("OneSignal Init. ID actuel:", OneSignal.User.PushSubscription.id);
-            
             if(OneSignal.User.PushSubscription.optedIn){
                 document.getElementById('notif-btn').classList.add('bell-active');
                 document.getElementById('notif-btn').innerText = "🔔 ON";
@@ -444,49 +506,31 @@
         async function requestNotificationPermission() {
              await OneSignal.User.PushSubscription.optIn();
              const id = OneSignal.User.PushSubscription.id;
-             console.log("Permission accordée. ID:", id);
              if(id) {
                  document.getElementById('notif-btn').classList.add('bell-active');
                  alert("Notifications activées !");
-             } else {
-                 alert("Erreur : Impossible de récupérer l'ID OneSignal.");
              }
         }
 
         // --- PROGRAMMATION NOTIFICATION ---
         async function scheduleNotification(dateObj, message) {
             const userId = OneSignal.User.PushSubscription.id;
-            if(!userId) { 
-                console.warn("Pas d'ID utilisateur OneSignal trouvé. Abonnez-vous d'abord."); 
-                return; 
-            }
+            if(!userId) return;
             
             const sendTimeISO = dateObj.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
 
-            console.log(`Programmation notif pour : ${sendTimeISO} (UTC)`);
-
             try { 
-                const response = await fetch('/api/schedule-notification', {
+                await fetch('/api/schedule-notification', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        message: message,
-                        sendAfter: sendTimeISO
-                    })
+                    body: JSON.stringify({ userId: userId, message: message, sendAfter: sendTimeISO })
                 });
-                
-                const result = await response.json();
-                if(response.ok) {
-                    console.log("Succès OneSignal:", result);
-                    const status = document.getElementById('status-text');
-                    const oldText = status.innerText;
-                    status.innerText = "🔔 Rappel activé";
-                    status.style.color = "var(--calendar)";
-                    setTimeout(() => { status.innerText = oldText; status.style.color = "var(--text-main)"; }, 3000);
-                } else {
-                    console.error("Erreur API:", result);
-                }
+                // Feedback visuel
+                const status = document.getElementById('status-text');
+                const oldText = status.innerText;
+                status.innerText = "🔔 Rappel activé";
+                status.style.color = "var(--calendar)";
+                setTimeout(() => { status.innerText = oldText; status.style.color = "var(--text-main)"; }, 3000);
             } 
             catch (err) { console.error('Erreur Fetch:', err); }
         }
@@ -502,6 +546,7 @@
         let currentCalDate = new Date();
 
         document.addEventListener('DOMContentLoaded', () => { 
+            loadTheme(); // Charger le thème avant tout
             checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
             initSpeech(); loadMood(); 
             switchView('dump', document.querySelector('.mode-card.active'));
@@ -573,17 +618,12 @@
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
                         
-                        // PROGRAMMATION NOTIFICATION SI HEURE PRÉSENTE
                         if (act.time && act.due_date) {
-                            console.log(`Détection date/heure : ${act.due_date} à ${act.time}`);
                             const targetDateStr = `${act.due_date}T${act.time}:00`;
                             const targetDate = new Date(targetDateStr);
                             const now = new Date();
-                            
                             if (targetDate > now) {
                                 scheduleNotification(targetDate, `Rappel CLARIS : ${validText}`);
-                            } else {
-                                console.warn("Date passée, pas de notification.");
                             }
                         }
 
