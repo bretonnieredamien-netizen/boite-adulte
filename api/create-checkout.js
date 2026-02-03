@@ -40,8 +40,8 @@ export default async function handler(req, res) {
       subscription_data: {
         trial_period_days: 7, // On garde l'essai gratuit, c'est crucial pour vendre à 9.90€
       },
-      success_url: `${domainUrl}/index.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domainUrl}/landing.html`,
+      success_url: `${YOUR_DOMAIN}/success.html`, // Reste inchangé
+    cancel_url: `${YOUR_DOMAIN}/`, // Renvoie vers l'accueil (index.html)
     });
 
     return res.status(200).json({ url: session.url });
