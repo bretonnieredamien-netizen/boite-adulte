@@ -7,162 +7,95 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script>
-        // --- ACTIVATION IMMÉDIATE DE LA LICENCE ---
-        // Dès que l'utilisateur arrive ici après Stripe, on active son accès.
+        // --- ACTIVATION DE LA LICENCE ---
+        // Dès que cette page charge (après paiement), on active l'accès
         localStorage.setItem('claris_license_active', 'true');
+        // On enregistre aussi la date d'achat
         localStorage.setItem('claris_purchase_date', new Date().toISOString());
         console.log("Licence CLARIS activée avec succès.");
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0F0F0F; color: #E0E0E0; overflow-x: hidden; }
-        
-        /* Effets visuels */
         .glow-text { text-shadow: 0 0 30px rgba(41, 121, 255, 0.5); }
         .gradient-border { position: relative; background: #1E1E1E; border-radius: 16px; z-index: 1; }
-        .gradient-border::before {
-            content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 18px;
-            background: linear-gradient(45deg, #2979FF, #1E1E1E, #D500F9); opacity: 0.3;
-        }
-        
-        /* Sections */
+        .gradient-border::before { content: ""; position: absolute; inset: -2px; z-index: -1; border-radius: 18px; background: linear-gradient(45deg, #2979FF, #1E1E1E, #D500F9); opacity: 0.3; }
         .step-card { background: #181818; padding: 24px; border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-right: 5px; }
-        
-        /* Code Secret Box */
-        .secret-box { background: rgba(41, 121, 255, 0.1); border: 1px solid #2979FF; padding: 20px; border-radius: 12px; margin-bottom: 40px; text-align: left; }
-
-        /* Bouton */
-        .btn-access {
-            background: #2979FF; color: white; padding: 18px 40px; border-radius: 50px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(41, 121, 255, 0.3); transition: all 0.3s; text-decoration: none; display: inline-block;
-        }
+        .btn-access { background: #2979FF; color: white; padding: 18px 40px; border-radius: 50px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 30px rgba(41, 121, 255, 0.3); transition: all 0.3s; text-decoration: none; display: inline-block; }
         .btn-access:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(41, 121, 255, 0.6); }
+        /* Tuto Styles */
+        .tuto-card { background: #1a1a1a; border-left: 4px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+        .tuto-title { font-weight: 900; color: white; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
+        .tuto-desc { font-size: 13px; color: #BBB; line-height: 1.6; }
+        .tuto-instruction { background: #222; padding: 8px 12px; border-radius: 8px; margin-top: 10px; font-size: 12px; color: #2979FF; font-style: italic; border: 1px solid #333; }
     </style>
 </head>
 <body class="flex flex-col items-center p-6 md:p-12">
 
-    <header class="max-w-4xl w-full text-center mt-8 mb-10">
+    <header class="max-w-4xl w-full text-center mt-8 mb-16">
         <div class="inline-flex items-center gap-3 mb-6 bg-[#1a1a1a] px-4 py-2 rounded-full border border-[#333]">
             <div class="w-3 h-3 bg-[#2979FF] rounded-full animate-pulse"></div>
             <span class="font-bold text-sm tracking-widest text-gray-300">ACCÈS CONFIRMÉ</span>
         </div>
-
-        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            Bienvenue dans votre <br><span class="text-[#2979FF] glow-text">Esprit Libre.</span>
-        </h1>
-
-        <p class="text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto mb-10">
-            Vous avez pris une excellente décision. En déléguant votre charge mentale à CLARIS, 
-            vous ne gagnez pas seulement une application, vous regagnez votre <strong>temps</strong> et votre <strong>sérénité</strong>.
-        </p>
+        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">Bienvenue dans votre <br><span class="text-[#2979FF] glow-text">Esprit Libre.</span></h1>
+        <p class="text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">Vous avez pris une excellente décision. En déléguant votre charge mentale à CLARIS, vous regagnez votre temps et votre sérénité.</p>
     </header>
 
-    <div class="max-w-xl w-full secret-box">
-        <div class="flex items-center gap-3 mb-2">
-            <span class="text-2xl">🔑</span>
-            <h3 class="font-bold text-white text-lg">CODE D'ACCÈS DE SECOURS</h3>
-        </div>
-        <p class="text-gray-300 text-sm mb-4">
-            Conservez ce code précieusement. Si l'application vous demande de payer à nouveau après l'installation, 
-            cliquez sur <strong>"J'ai déjà un abonnement"</strong> et entrez ce code :
-        </p>
-        <div class="bg-black p-4 rounded-lg text-center border border-[#333]">
-            <span class="text-2xl font-mono font-black text-white tracking-widest select-all">CLARIS-GO</span>
-        </div>
-    </div>
-
-    <section class="max-w-3xl w-full mb-16">
-        <div class="flex items-center gap-4 mb-8">
-            <div class="w-10 h-10 rounded-full bg-[#2979FF] flex items-center justify-center font-bold text-white">1</div>
-            <h2 class="text-2xl font-bold text-white">INSTALLATION</h2>
-        </div>
-
+    <section class="max-w-3xl w-full mb-20">
+        <div class="flex items-center gap-4 mb-8"><div class="w-10 h-10 rounded-full bg-[#2979FF] flex items-center justify-center font-bold text-white">1</div><h2 class="text-2xl font-bold text-white">INSTALLATION</h2></div>
         <div class="grid md:grid-cols-2 gap-6">
             <div class="step-card hover:border-[#2979FF] transition-colors">
-                <div class="flex items-center mb-4 text-white">
-                    <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.23-3.14-2.47-1.71-2.48-2.99-7.03-1.26-10.02 1.76-3.03 5.37-3.48 7.37-1.34 2-2.14 5.92-2.31 7.82.9 3.4 1.25 4.58 3.53 4.29 8.25zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-                    <h3 class="font-bold">Sur iPhone (Safari)</h3>
-                </div>
+                <div class="flex items-center mb-4 text-white"><h3 class="font-bold">Sur iPhone (Safari)</h3></div>
                 <ul class="space-y-3 text-sm text-gray-400">
                     <li>1. Cliquez sur le bouton "Lancer CLARIS" ci-dessous.</li>
-                    <li>2. Touchez l'icône <strong>Partager</strong> <span class="inline-block border border-gray-600 rounded px-1 text-xs">⎋</span> en bas.</li>
+                    <li>2. Touchez l'icône <strong>Partager</strong> en bas.</li>
                     <li>3. Choisissez <strong>"Sur l'écran d'accueil"</strong>.</li>
                 </ul>
             </div>
-
             <div class="step-card hover:border-[#2979FF] transition-colors">
-                <div class="flex items-center mb-4 text-white">
-                    <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8449 12 7.8449c-1.8532 0-3.5898.399-5.1367 1.1049l-2.0223-3.503a.416.416 0 00-.5676-.1521.416.416 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.1185-9.4396"/></svg>
-                    <h3 class="font-bold">Sur Android (Chrome)</h3>
-                </div>
+                <div class="flex items-center mb-4 text-white"><h3 class="font-bold">Sur Android (Chrome)</h3></div>
                 <ul class="space-y-3 text-sm text-gray-400">
                     <li>1. Cliquez sur le bouton "Lancer CLARIS" ci-dessous.</li>
-                    <li>2. Touchez les <strong>3 petits points (⋮)</strong> en haut à droite.</li>
+                    <li>2. Touchez les <strong>3 petits points</strong> en haut à droite.</li>
                     <li>3. Sélectionnez <strong>"Installer l'application"</strong>.</li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <section class="max-w-3xl w-full mb-20">
-        <div class="flex items-center gap-4 mb-8">
-            <div class="w-10 h-10 rounded-full bg-[#D500F9] flex items-center justify-center font-bold text-white">2</div>
-            <h2 class="text-2xl font-bold text-white">GUIDE D'UTILISATION</h2>
-        </div>
-
+    <section class="max-w-3xl w-full mb-16">
+        <div class="flex items-center gap-4 mb-8"><div class="w-10 h-10 rounded-full bg-[#D500F9] flex items-center justify-center font-bold text-white">2</div><h2 class="text-2xl font-bold text-white">GUIDE D'UTILISATION</h2></div>
         <div class="space-y-6">
-            
             <div class="step-card">
-                <h3 class="text-lg font-bold text-white mb-2 flex items-center"><span class="text-2xl mr-3">📥</span> CAPTURER (Le Cerveau)</h3>
-                <p class="text-gray-400 mb-4 text-sm">C'est ici que la magie opère. Ne réfléchissez pas, videz votre tête. L'Assistant analyse et classe.</p>
-                <div class="bg-[#222] p-4 rounded-lg border border-[#333]">
-                    <p class="text-xs font-bold text-gray-500 uppercase mb-2">Essayez de dire :</p>
-                    <ul class="space-y-2 text-sm text-gray-300">
-                        <li>• "Acheter du pain" <span class="text-[#2979FF] ml-2">→ Tâche Bleu</span></li>
-                        <li>• "Rdv dentiste demain à 14h" <span class="text-[#D500F9] ml-2">→ RDV Violet (+ Rappel)</span></li>
-                        <li>• "URGENT payer la facture" <span class="text-[#FF1744] ml-2">→ Priorité Rouge</span></li>
-                    </ul>
-                </div>
+                <h3 class="text-lg font-bold text-white mb-2">📥 CAPTURER (Le Cerveau)</h3>
+                <p class="text-gray-400 mb-4 text-sm">Votre boîte de réception intelligente. Code couleur automatique :</p>
+                <div class="flex gap-3 text-xs font-bold mb-3"><span class="text-[#2979FF]">🔵 Tâche</span><span class="text-[#FF1744]">🔴 Urgent</span><span class="text-[#D500F9]">🟣 RDV</span></div>
+                <div class="tuto-instruction">💡 Astuce : Dites "Rappeler d'appeler Marc" ou "Urgent : Payer impôts".</div>
             </div>
-
             <div class="step-card">
-                <h3 class="text-lg font-bold text-white mb-2 flex items-center"><span class="text-2xl mr-3">🎯</span> FOCUS (Anti-Procrastination)</h3>
-                <p class="text-gray-400 mb-3 text-sm">Vous ne savez pas par où commencer ?</p>
-                <ol class="list-decimal pl-5 text-sm text-gray-400 space-y-1">
-                    <li>Allez dans l'onglet <strong>FOCUS</strong>.</li>
-                    <li>Cliquez sur une tâche.</li>
-                    <li>L'assistant vous donne une <strong>micro-étape</strong> très facile pour démarrer.</li>
-                </ol>
+                <h3 class="text-lg font-bold text-white mb-2">📅 CALENDRIER</h3>
+                <p class="text-gray-400 mb-2 text-sm">Les RDV avec heure précise vont ici. Rappel automatique 1h avant.</p>
+                <div class="tuto-instruction">💡 Dites : "Dentiste demain à 14h".</div>
             </div>
-
             <div class="step-card">
-                <h3 class="text-lg font-bold text-white mb-2 flex items-center"><span class="text-2xl mr-3">🔁</span> ROUTINE (Bibliothèque)</h3>
-                <p class="text-gray-400 mb-3 text-sm">Pour vos listes récurrentes (Matin, Soir, Sport...).</p>
-                <div class="bg-[#222] p-3 rounded-lg border border-[#333] text-sm text-gray-300 italic">
-                    "Crée une routine Matin avec : Boire de l'eau, Méditer 10 min, Sport."
-                </div>
+                <h3 class="text-lg font-bold text-white mb-2">🎯 FOCUS</h3>
+                <p class="text-gray-400 text-sm">Cliquez sur une tâche pour masquer le reste et obtenir la première micro-étape.</p>
             </div>
-
+            <div class="step-card">
+                <h3 class="text-lg font-bold text-white mb-2">🔁 ROUTINE</h3>
+                <p class="text-gray-400 text-sm">Créez des checklists réutilisables.</p>
+                <div class="tuto-instruction">💡 Dites : "Crée une routine Matin avec : Café, Sport, Douche".</div>
+            </div>
         </div>
     </section>
 
     <div class="max-w-3xl w-full mb-16 text-center">
         <h2 class="text-xl font-bold text-gray-500 mb-4 uppercase tracking-widest">Et la suite ?</h2>
-        <div class="gradient-border p-8">
-            <p class="text-gray-300 text-sm leading-relaxed">
-                Ce n'est que le début de l'aventure CLARIS. <br>
-                Nous travaillons déjà en coulisses sur de nouvelles fonctionnalités pour rendre l'assistant encore plus intelligent et connecté à votre vie.<br><br>
-                Votre application se mettra à jour automatiquement, sans frais supplémentaires.
-            </p>
-        </div>
+        <div class="gradient-border p-8"><p class="text-gray-300 text-sm leading-relaxed">Ce n'est que le début. Nous travaillons déjà sur de nouvelles fonctionnalités pour rendre CLARIS encore plus intelligent. Votre application se mettra à jour automatiquement.</p></div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-[#121212]/90 backdrop-blur-md p-6 border-t border-[#333] text-center z-50">
-        <a href="/app.html" class="btn-access">
-            Lancer CLARIS
-        </a>
+        <a href="/" class="btn-access">Lancer CLARIS</a>
     </div>
-    
     <div class="h-24"></div>
 
 </body>

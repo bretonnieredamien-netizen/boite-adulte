@@ -1,713 +1,913 @@
 <!DOCTYPE html>
 <html lang="fr">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6366f1">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CLARIS v3.6</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#121212">
-
-    <script>
-        (function() {
-            // Vérifie si le jeton de paiement est présent dans le navigateur
-            const hasLicense = localStorage.getItem('claris_license_active');
-            
-            // Mode test : on autorise l'accès sur localhost sans licence pour tes tests
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-            if (!hasLicense && !isLocal) {
-                // REDIRECTION SI PAS DE LICENCE
-                // On renvoie vers la racine du site (la page de vente index.html)
-                window.location.replace("/"); 
-            }
-        })();
-    </script>
-
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-
+    <title>Ta boite magique ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800;900&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN CLARIS V3.6 --- */
-        :root { 
-            --bg-main: #121212; --bg-card: #1E1E1E; --bg-input: #222;
-            --text-main: #E0E0E0; --text-muted: #888; --border: #333;
-            --gradient-overlay: linear-gradient(to top, #121212 90%, transparent);
-            --accent: #2979FF; --success: #00E676; --warning: #FFAB00; 
-            --danger: #FF1744; --calendar: #D500F9; --capacity: #00E5FF; --date-badge: #FF4081;
+        /* --- VARIABLES --- */
+        :root { --bg-1: #fff7ed; --bg-2: #fef9c3; --bg-3: #ede9fe; --bg-4: #fae8ff; --accent-color: #6366f1; --vis-1: #4f46e5; --vis-2: #9333ea; --vis-3: #db2777; }
+        
+        /* FOND ANIMÉ */
+        body { font-family: 'Lexend', sans-serif; background: linear-gradient(-45deg, var(--bg-1), var(--bg-2), var(--bg-3), var(--bg-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; touch-action: none; overflow: hidden; min-height: 100vh; margin: 0; transition: background 3s ease; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* MODE HISTOIRE (BACKGROUND SOMBRE PERSISTANT) */
+        body.story-mode {
+            background: linear-gradient(180deg, #020617 0%, #1e1b4b 40%, #312e81 100%) !important;
+            background-size: 100% 100%;
+        }
+        body.story-mode #starfield { opacity: 0.8; }
+        body.story-mode .status-box { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+        body.story-mode #status { color: #e0e7ff; opacity: 0.9; }
+        body.story-mode .nav-home-btn { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.1); }
+        body.story-mode .nav-home-btn svg { fill: #a5b4fc; }
+        body.story-mode .logo-container svg { filter: drop-shadow(0 0 25px rgba(165, 180, 252, 0.6)); }
+
+        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; transition: opacity 3s ease; }
+        .hidden { display: none !important; }
+        .content-layer { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 1s ease-in; }
+        .content-visible { opacity: 1 !important; }
+
+        /* --- BOUTON MAISON --- */
+        .nav-home-btn { position: absolute; top: 1.5rem; left: 1.5rem; z-index: 9999; width: 52px; height: 52px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(15px); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1); transition: all 0.3s; }
+        .nav-home-btn:hover { transform: scale(1.15) rotate(-10deg); background: rgba(255, 255, 255, 0.7); }
+        .nav-home-btn svg { width: 26px; height: 26px; fill: var(--accent-color); }
+
+        /* --- HEADER --- */
+        #main-header { transition: opacity 1s ease, transform 1s ease; opacity: 1; transform: translateY(0); z-index: 50; }
+        .cinema-mode { transform: translateY(-20px); }
+        .logo-container { width: 180px; height: 180px; display: flex; justify-content: center; align-items: center; opacity: 0; animation: introFade 2s ease-out forwards; filter: drop-shadow(0 10px 25px rgba(129, 140, 248, 0.5)); transition: all 3s ease; }
+        @keyframes introFade { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* --- VAGUES DE RÉFLEXION --- */
+        .thinking-waves { display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px; }
+        .wave-bar { width: 6px; height: 100%; border-radius: 99px; animation: waveAnim 1s infinite ease-in-out; }
+        .wave-bar:nth-child(1) { background: #a855f7; animation-delay: 0.0s; }
+        .wave-bar:nth-child(2) { background: #6366f1; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { background: #3b82f6; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { background: #06b6d4; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { background: #14b8a6; animation-delay: 0.4s; }
+        @keyframes waveAnim { 0%, 100% { height: 20%; opacity: 0.5; } 50% { height: 100%; opacity: 1; transform: scaleY(1.1); } }
+
+        /* --- ARDOISE & COLORIAGE --- */
+        #slate-layer, #coloring-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 150; background: #0f172a; display: none; }
+        #coloring-layer { background: #ffffff; }
+        #slate-canvas, #color-canvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; position: absolute; top:0; left:0; z-index: 5; }
+        
+        #generated-coloring-image {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; object-fit: contain;
+            pointer-events: none; mix-blend-mode: multiply; z-index: 10; opacity: 1;
         }
 
-        [data-theme="light"] {
-            --bg-main: #F2F2F7; --bg-card: #FFFFFF; --bg-input: #E5E5EA;
-            --text-main: #1C1C1E; --text-muted: #8E8E93; --border: #D1D1D6;
-            --gradient-overlay: linear-gradient(to top, #F2F2F7 90%, transparent);
-        }
+        .slate-controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 800px; display: flex; gap: 12px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 12px 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center; z-index: 160; overflow-x: auto; justify-content: flex-start; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+        #coloring-controls { background: rgba(255, 255, 255, 0.95); border: 1px solid #cbd5e1; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
+        .slate-controls::-webkit-scrollbar { display: none; } 
         
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; }
-
-        /* HEADER */
-        .header { background: var(--bg-main); z-index: 50; border-bottom: 1px solid var(--border); padding: 15px 15px 10px 15px; flex-shrink: 0; transition: background 0.3s; }
-        .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; }
-        .app-logo-container { display: flex; align-items: center; gap: 12px; }
-        .logo-point-wrapper { position: relative; width: 12px; height: 12px; display: flex; }
-        .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
-        .logo-point-solid { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
-        .logo-text { font-weight: 900; font-size: 20px; color: var(--text-main); letter-spacing: 3px; font-family: 'Inter', sans-serif; }
-        .version-tag { font-size: 9px; color: var(--text-muted); font-weight: bold; margin-left: 5px; border: 1px solid var(--border); padding: 2px 4px; border-radius: 4px; }
-        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
-
-        .header-actions { display: flex; gap: 8px; }
-        .header-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); font-size: 10px; font-weight: bold; padding: 6px 10px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s; }
-        .mood-btn.active.zen { border-color: var(--success); color: var(--success); background: rgba(0, 230, 118, 0.1); }
-        .mood-btn.active.boost { border-color: var(--danger); color: var(--danger); background: rgba(255, 23, 68, 0.1); }
-        .sound-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); box-shadow: 0 0 10px rgba(41, 121, 255, 0.2); }
-        .sound-wave { display: inline-block; height: 10px; width: 2px; background: currentColor; animation: sound 1.5s infinite ease-in-out; margin-left:2px; }
-        @keyframes sound { 0%, 100% { height: 3px; opacity:0.6; } 50% { height: 10px; opacity:1; } }
-        .brief-btn { background: rgba(255, 171, 0, 0.1); border: 1px solid var(--warning); color: var(--warning); }
-        .brief-btn.loading { background: var(--warning); color: black; box-shadow: 0 0 15px rgba(255, 171, 0, 0.4); animation: pulseWarning 1s infinite; }
-        @keyframes pulseWarning { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-
-        /* MONITOR & SIDEBAR */
-        .monitor-bar-container { width: 100%; height: 8px; background: var(--bg-input); flex-shrink: 0; position: relative; border-bottom: 1px solid var(--border); }
-        .load-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00E676 0%, #FFAB00 60%, #FF1744 100%); transition: width 0.6s ease-out; box-shadow: 0 0 15px rgba(0, 230, 118, 0.2); }
-        .capacity-sidebar { position: fixed; left: 0; top: 80px; bottom: 90px; width: 10px; background: var(--bg-main); border-right: 1px solid var(--border); z-index: 40; }
-        .capacity-fill { width: 100%; height: 0%; background: var(--capacity); position: absolute; bottom: 0; left: 0; transition: height 0.6s; opacity: 0.8; }
-
-        /* CONTENT */
-        .content-area { flex: 1; overflow-y: auto; position: relative; scrollbar-width: none; padding-left: 15px; padding-top: 10px; }
-        .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
-        .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
-
-        /* TASKS */
-        .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
-        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.2s; border: 1px solid transparent; }
-        [data-theme="light"] .task-item { border: 1px solid #E5E5E5; }
-        .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.1), var(--bg-card)); order: -3; }
-        .task-item.calendar { border-left-color: var(--calendar); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -2; }
-        .task-item.reminder { border-left-color: var(--reminder); order: -1; }
+        .brush-btn { flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: 0.2s; background: rgba(255,255,255,0.1); color: white; }
+        #coloring-controls .brush-btn { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+        .brush-btn.active { border-color: #6366f1; transform: scale(1.1); background: white; color: #1e293b; box-shadow: 0 0 15px rgba(99,102,241,0.5); }
         
-        .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-        .task-sub { font-size: 9px; opacity: 0.7; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; color: var(--text-muted); }
-        .time-badge, .date-badge { background: var(--bg-input); padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid var(--border); }
-        .time-badge { color: var(--capacity); border-color: rgba(0, 229, 255, 0.3); }
-        .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.3); }
-        .badge-icon { width: 9px; height: 9px; fill: currentColor; }
-        .priority-icon { color: var(--danger); font-size:12px; animation: pulse 2s infinite; }
-        .bell-active { color: var(--warning); animation: ring 4s infinite; }
-        @keyframes ring { 0% { transform: rotate(0); } 5% { transform: rotate(20deg); } 10% { transform: rotate(-20deg); } 15% { transform: rotate(0); } 100% { transform: rotate(0); } }
+        .color-picker { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; transition: 0.2s; }
+        #coloring-controls .color-picker { border: 2px solid #cbd5e1; }
+        .color-picker.active { transform: scale(1.3); border-color: white; box-shadow: 0 0 10px white; }
+        #coloring-controls .color-picker.active { border-color: #6366f1; box-shadow: 0 0 10px #6366f1; }
+
+        .slate-action { flex-shrink: 0; padding: 0.6rem 1.2rem; border-radius: 12px; font-weight: 800; font-size: 0.75rem; color: white; text-transform: uppercase; letter-spacing: 0.05em; background: rgba(255,255,255,0.1); white-space: nowrap; }
+        #coloring-controls .slate-action { background: #fee2e2; color: #ef4444; }
+
+        /* --- UI ELEMENTS --- */
+        .status-box { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); padding: 0.6rem 1.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.5); margin-top: 1rem; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .understood-flash { animation: success-pulse 0.8s ease-out !important; background: rgba(16, 185, 129, 0.2) !important; border-color: #10b981 !important; }
+        @keyframes success-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); box-shadow: 0 0 60px #10b981; } 100% { transform: scale(1); } }
         
-        .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
-        .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
-
-        /* CALENDAR */
-        #view-calendar { padding: 15px; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .month-label { font-size: 16px; font-weight: 900; color: var(--text-main); text-transform: uppercase; letter-spacing: 2px; }
-        .cal-nav-btn { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .day-name { text-align: center; font-size: 10px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
-        .day-cell { aspect-ratio: 1; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: var(--text-muted); cursor: pointer; position: relative; transition: all 0.2s; }
-        .day-cell.today { border-color: var(--accent); color: var(--accent); background: rgba(41, 121, 255, 0.1); }
-        .day-cell.has-task { border-color: rgba(255, 23, 68, 0.3); }
-        .day-cell.has-task::after { content: ''; position: absolute; bottom: 5px; width: 5px; height: 5px; background: var(--danger); border-radius: 50%; box-shadow: 0 0 5px var(--danger); }
-        .day-cell.selected { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.1); box-shadow: 0 0 15px rgba(41, 121, 255, 0.4); z-index: 10; }
-        .calendar-tasks-list { border-top: 1px solid var(--border); padding-top: 15px; margin-top: 20px; }
-        .cal-list-title { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px; }
-
-        /* FOCUS HUD */
-        #view-focus { padding: 15px; }
-        .focus-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
-        .focus-grid { display: flex; flex-direction: column; gap: 12px; }
-        .focus-chip { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, rgba(41, 121, 255, 0.05), transparent); border: 1px solid rgba(41, 121, 255, 0.2); border-left: 3px solid var(--accent); padding: 18px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; background-color: var(--bg-card); }
-        .focus-chip:active { transform: scale(0.98); background: rgba(41, 121, 255, 0.15); }
-        .focus-chip::after { content: ''; position: absolute; top:0; left:0; height:100%; width: 3px; background: var(--accent); box-shadow: 0 0 10px var(--accent); opacity: 0; transition: opacity 0.3s; }
-        .focus-chip:hover::after { opacity: 1; }
-        .focus-chip-text { font-weight: 600; font-size: 14px; color: var(--text-main); letter-spacing: 0.5px; }
-        .focus-chip-action { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; }
+        /* STORY CARD AVEC CADENAS */
+        #story-card { background: transparent; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 100%; max-width: 320px; height: 100px; filter: drop-shadow(0 4px 6px rgba(129, 140, 248, 0.3)); position: relative; z-index: 50; }
+        #visualizer-canvas { width: 100%; height: 100%; }
         
-        .laser-container { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; position: relative; }
-        .laser-ring-container { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
-        .laser-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent); opacity: 0.3; animation: ripple 2s infinite; }
-        .laser-ring:nth-child(2) { animation-delay: 0.5s; }
-        .laser-ring:nth-child(3) { animation-delay: 1s; }
-        @keyframes ripple { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.5); opacity: 0; } }
-        .laser-task { font-size: 28px; font-weight: 900; line-height: 1.2; z-index: 10; text-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 90%; color: var(--text-main); }
-        [data-theme="light"] .laser-task { text-shadow: none; color: #000; }
-        .laser-btn { background: var(--success); color: black; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; z-index: 10; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); border:none; font-size: 16px; }
-        .laser-back { margin-top: 30px; background: transparent; border: none; color: var(--text-muted); text-decoration: underline; font-size: 12px; cursor: pointer; z-index: 10; }
+        .orbe-base { position: relative; width: 120px; height: 120px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; z-index: 50; }
+        .orbe-base svg { width: 45px; height: 45px; fill: var(--accent-color); transition: fill 1s; }
+        .mic-listening { background: rgba(255, 255, 255, 0.3) !important; box-shadow: 0 0 50px var(--accent-color) !important; transform: scale(1.1); }
+        #btn-stop svg { fill: #f87171; }
+        #stop-container.opacity-100 #btn-stop { background: rgba(248, 113, 113, 0.15); border-color: #f87171; box-shadow: 0 0 30px rgba(248, 113, 113, 0.4); }
 
-        /* ROUTINE */
-        #view-routine { padding: 15px; position: relative; height: 100%; }
-        .routine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .routine-card-item { background: var(--bg-card); border: 1px solid var(--border); padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; transition: all 0.2s; }
-        .routine-delete-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; background: rgba(0,0,0,0.3); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .routine-icon { font-size: 32px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        .routine-name { font-weight: 800; font-size: 14px; text-transform: uppercase; color: var(--text-main); }
-        
-        .active-routine-view { display: none; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-main); z-index: 50; padding: 15px; }
-        .routine-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-        .back-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
-        .read-routine-btn { background: rgba(41, 121, 255, 0.1); color: var(--accent); border: 1px solid var(--accent); padding: 5px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
-        .routine-list-scroll { flex: 1; overflow-y: auto; }
-        
-        .routine-step-item { background: var(--bg-card); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-left: 3px solid #666; border: 1px solid transparent; }
-        [data-theme="light"] .routine-step-item { border: 1px solid #ddd; }
-        .routine-step-text { text-align: left; font-size: 14px; font-weight: 500; color: var(--text-main); flex: 1; margin-right: 10px; }
-        .delete-step-btn { background: rgba(255, 23, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .delete-step-btn svg { width: 14px; height: 14px; fill: currentColor; }
-        
-        /* POMO */
-        .pomo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; }
-        .pomo-timer { font-size: 80px; font-weight: 900; color: var(--text-main); font-variant-numeric: tabular-nums; margin: 20px 0; text-shadow: 0 0 30px rgba(41, 121, 255, 0.3); }
-        [data-theme="light"] .pomo-timer { text-shadow: none; }
-        .pomo-controls { display: flex; gap: 20px; }
-        .pomo-btn { padding: 15px 30px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer; font-size: 18px; }
-        .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
-        .btn-stop { background: #333; color: white; }
+        /* --- ACCUEIL --- */
+        #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
+        .mode-selector { display: flex; gap: 1.5rem; align-items: center; justify-content: center; width: 100%; flex-wrap: wrap; padding: 0 20px; max-width: 900px; }
+        .mode-card { display: flex; flex-direction: column; align-items: center; gap: 0.8rem; cursor: pointer; transition: transform 0.3s ease; margin-bottom: 1rem; }
+        .mode-card:hover { transform: scale(1.1); }
+        .mode-icon-box { width: 90px; height: 90px; border-radius: 20px; background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(20px); border: 2px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; justify-content: center; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .mode-label { font-weight: 800; color: rgba(79, 70, 229, 0.6); text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; }
+        .god-rays { position: absolute; width: 180%; height: 180%; background: conic-gradient(from 0deg, transparent 0deg, rgba(251, 191, 36, 0.2) 20deg, transparent 40deg, rgba(139, 92, 246, 0.2) 60deg, transparent 80deg); border-radius: 50%; z-index: -1; opacity: 1; animation: spinRays 20s linear infinite; top: 50%; left: 50%; transform: translate(-50%, -50%); mix-blend-mode: overlay; pointer-events: none; }
+        @keyframes spinRays { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        .intro-fade-out { opacity: 0; pointer-events: none; }
+        .white-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 90; opacity: 0; pointer-events: none; }
+        .flash-active { animation: flashAnim 1.5s ease-out forwards; }
+        @keyframes flashAnim { 0% { opacity: 0; } 15% { opacity: 0.95; } 100% { opacity: 0; } }
 
-        /* TUTO STYLES */
-        #view-tuto { padding: 15px; }
-        .tuto-card { background: var(--bg-card); border-left: 4px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .tuto-title { font-weight: 900; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
-        .tuto-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-        .tuto-instruction { background: var(--bg-input); padding: 8px 12px; border-radius: 8px; margin-top: 10px; font-size: 11px; color: var(--accent); font-style: italic; border: 1px solid var(--border); }
-
-        /* FOOTER & CONTROLS */
-        .bottom-controls { background: var(--gradient-overlay); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
-        .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
-        .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); }
-        .mode-card.active { opacity: 1; border-color: var(--accent); background: rgba(41, 121, 255, 0.1); transform: translateY(-3px); color: var(--text-main); }
-        .mode-icon { margin-bottom: 4px; display: flex; }
-        .mode-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; display:block; }
-        .mode-label { font-size: 8px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-        
-        .input-area { position: relative; width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; gap: 30px; }
-        .action-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-keyboard { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-muted); }
-        .btn-keyboard.active { background: var(--accent); color: white; border-color: var(--accent); }
-        .btn-keyboard svg { width: 24px; height: 24px; fill: currentColor; }
-        .btn-mic { background: var(--bg-card); border: 2px solid var(--accent); }
-        .btn-mic.recording { border-color: var(--danger); background: #330000; box-shadow: 0 0 20px var(--danger); animation: pulseRed 1s infinite; }
-        .btn-mic svg { width: 28px; height: 28px; fill: var(--text-main); }
-        .btn-mic.recording svg { fill: var(--danger); }
-        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
-
-        /* INPUT REMONTÉ */
-        .text-input-container { 
-            position: absolute; bottom: 160px; left: 20px; right: 20px; 
-            background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px);
-            border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; 
-            display: none; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 60; 
-        }
-        [data-theme="light"] .text-input-container { background: rgba(255, 255, 255, 0.95); border: 1px solid #ddd; }
-        .text-input-container.show { display: flex; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
-        [data-theme="light"] .text-input { color: black; }
-        .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
-        .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
-
-        /* ONBOARDING */
-        .onboarding-overlay, .zen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .onboarding-overlay.show, .zen-overlay.show { display: flex; animation: fadeIn 0.5s; }
-        .name-input { background: #222; border: 2px solid #444; color: white; padding: 15px; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 20px; outline: none; width: 80%; }
-        .save-name-btn { background: var(--accent); color: white; padding: 15px 40px; border-radius: 30px; font-weight: bold; border: none; font-size: 16px; }
-        .zen-circle { width: 100px; height: 100px; border-radius: 50%; background: var(--success); box-shadow: 0 0 50px var(--success); margin-bottom: 20px; animation: breathe 4s infinite ease-in-out; }
+        /* --- SPOTIFY PLAYER --- */
+        #spotify-container { width: 100%; max-width: 400px; height: 0; overflow: hidden; transition: height 0.5s ease; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        #spotify-container.active { height: 152px; margin-top: 20px; }
+        iframe { border-radius: 12px; }
     </style>
 </head>
-<body>
+<body class="p-6">
 
-    <div id="onboarding-modal" class="onboarding-overlay">
-        <div style="font-size:24px; font-weight:900; margin-bottom:20px; color:var(--accent);">Comment t'appelles-tu ?</div>
-        <input type="text" id="username-input" class="name-input" placeholder="Ton prénom...">
-        <button class="save-name-btn" onclick="saveUsername()">C'est parti !</button>
+    <canvas id="starfield"></canvas>
+
+    <div id="sleep-overlay" class="fixed top-0 left-0 w-full h-full bg-black z-[9999] hidden flex flex-col items-center justify-center text-white/20 select-none touch-none" ondblclick="desactiverModeSommeil()">
+        <div class="text-4xl mb-4 opacity-50">🌙</div>
+        <p class="text-xs font-medium uppercase tracking-widest">Double-tap pour réveiller</p>
     </div>
 
-    <div id="zen-popup" class="zen-overlay" onclick="closeZen()">
-        <div class="zen-circle"></div><div class="zen-text">ESPRIT LIBRE</div>
-    </div>
-
-    <div class="capacity-sidebar">
-        <div class="capacity-track"><div id="capacity-bar" class="capacity-fill"></div></div>
-    </div>
-
-    <div class="header">
-        <div class="header-top">
-            <div class="app-logo-container">
-                <div class="logo-point-wrapper">
-                    <span class="logo-point-ping"></span>
-                    <span class="logo-point-solid"></span>
-                </div>
-                <div class="logo-text">CLARIS</div>
-                <div class="version-tag">v3.6</div>
+    <div id="slate-layer">
+        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+        <canvas id="slate-canvas"></canvas>
+        <div class="slate-controls">
+            <div id="base-colors" class="flex gap-3 mr-2 border-r border-white/20 pr-4 flex-shrink-0">
+                <div class="color-picker active" style="background:white" onclick="setBaseColor('white', this)"></div>
+                <div class="color-picker" style="background:#ef4444" onclick="setBaseColor('#ef4444', this)"></div>
+                <div class="color-picker" style="background:#3b82f6" onclick="setBaseColor('#3b82f6', this)"></div>
+                <div class="color-picker" style="background:#22c55e" onclick="setBaseColor('#22c55e', this)"></div>
             </div>
-            <div class="header-actions">
-                <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
-                <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
-                <button id="sound-btn" class="header-btn sound-btn" onclick="togglePinkNoise()"><span>🎧</span> FOCUS</button>
-                <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
-            </div>
-        </div>
-        <div id="monitor-ui" class="monitor-bar-container">
-            <div id="load-bar" class="load-fill"></div>
+            <button class="brush-btn active" onclick="setBrush('base', this)">✏️</button>
+            <button class="brush-btn" onclick="setBrush('neon', this)">💡</button>
+            <button class="brush-btn" onclick="setBrush('rainbow', this)">🌈</button>
+            <button class="brush-btn" onclick="setBrush('fire', this)">🔥</button>
+            <button class="brush-btn" onclick="setBrush('ice', this)">❄️</button>
+            <button class="brush-btn" onclick="setBrush('electric', this)">⚡</button>
+            <button class="brush-btn" onclick="setBrush('galaxy', this)">🌌</button>
+            <button class="brush-btn" onclick="setBrush('gold', this)">✨</button>
+            <div class="w-px h-8 bg-white/20 mx-2 flex-shrink-0"></div>
+            <button class="brush-btn" onclick="setBrush('eraser', this)">🧽</button>
+            <button onclick="clearSlate()" class="slate-action">Effacer</button>
         </div>
     </div>
 
-    <div class="content-area">
-        <div id="view-dump" class="view-section active">
-            <div class="task-container" id="task-list"><div style="text-align:center; margin-top:50px; opacity:0.3; font-size:12px;"><p>Mémoire vide.</p></div></div>
-        </div>
-        <div id="view-calendar" class="view-section">
-            <div class="calendar-wrapper">
-                <div class="calendar-header">
-                    <button class="cal-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
-                    <span id="cal-month-label" class="month-label">...</span>
-                    <button class="cal-nav-btn" onclick="changeMonth(1)">&#8250;</button>
-                </div>
-                <div class="calendar-grid">
-                    <div class="day-name">L</div><div class="day-name">M</div><div class="day-name">M</div><div class="day-name">J</div><div class="day-name">V</div><div class="day-name">S</div><div class="day-name">D</div>
-                    <div id="cal-days-container" style="display:contents"></div>
-                </div>
-                <div class="calendar-tasks-list"><div class="cal-list-title">TÂCHES DU JOUR</div><div id="cal-task-list" class="task-container" style="padding:0;"></div></div>
+    <div id="coloring-layer">
+        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+        <img id="generated-coloring-image" src="" alt="" style="display:none;">
+        <canvas id="color-canvas"></canvas>
+        <div id="coloring-controls" class="slate-controls">
+            <div class="flex gap-3 mr-4 flex-shrink-0">
+                <div class="color-picker active" style="background:#ef4444" onclick="setColoringColor('#ef4444', this)"></div>
+                <div class="color-picker" style="background:#f97316" onclick="setColoringColor('#f97316', this)"></div>
+                <div class="color-picker" style="background:#eab308" onclick="setColoringColor('#eab308', this)"></div>
+                <div class="color-picker" style="background:#22c55e" onclick="setColoringColor('#22c55e', this)"></div>
+                <div class="color-picker" style="background:#3b82f6" onclick="setColoringColor('#3b82f6', this)"></div>
+                <div class="color-picker" style="background:#a855f7" onclick="setColoringColor('#a855f7', this)"></div>
+                <div class="color-picker" style="background:#ec4899" onclick="setColoringColor('#ec4899', this)"></div>
+                <div class="color-picker" style="background:#78350f" onclick="setColoringColor('#78350f', this)"></div>
+                <div class="color-picker" style="background:#000000" onclick="setColoringColor('#000000', this)"></div>
             </div>
-        </div>
-        <div id="view-focus" class="view-section">
-            <div id="focus-picker-wrapper">
-                <div class="focus-title">CHOISIS TA CIBLE</div>
-                <div id="focus-grid" class="focus-grid"></div>
-            </div>
-            <div id="focus-laser-wrapper" class="laser-container">
-                <div class="laser-ring-container">
-                    <div class="laser-ring"></div>
-                    <div class="laser-ring"></div>
-                    <div class="laser-ring"></div>
-                    <div class="laser-task" id="laser-current-task">...</div>
-                </div>
-                <div id="laser-ai-suggestion" class="laser-ai-box" style="display:none; color:#AAA; font-size:12px; margin-bottom:15px; border:1px solid #333; padding:10px; border-radius:10px;">
-                    <span class="laser-ai-label" style="display:block; font-weight:bold; color:var(--accent); margin-bottom:5px;">PREMIÈRE ÉTAPE</span>
-                    <span id="laser-micro-text" class="laser-ai-text">...</span>
-                </div>
-                <button class="laser-btn" onclick="completeLaserTask()">C'EST FAIT</button>
-                <button class="laser-back" onclick="exitLaserMode()">Changer de cible</button>
-            </div>
-        </div>
-        <div id="view-routine" class="view-section">
-            <div id="routines-grid" class="routine-grid"></div>
-            <div id="active-routine-view" class="active-routine-view">
-                <div class="routine-header">
-                    <button class="back-btn" onclick="exitRoutine()">← RETOUR</button>
-                    <span id="active-routine-name" style="font-weight:bold; color:var(--success); text-transform: uppercase;">...</span>
-                    <button class="read-routine-btn" onclick="readActiveRoutine()">🔊 LIRE</button>
-                </div>
-                <div id="routine-steps-list" class="routine-list-scroll"></div>
-            </div>
-        </div>
-        <div id="view-pomo" class="view-section">
-            <div class="pomo-container">
-                <div class="pomo-timer" id="timer-display">25:00</div>
-                <div class="pomo-controls"><button class="pomo-btn btn-stop" onclick="resetTimer()">STOP</button><button class="pomo-btn btn-start" onclick="toggleTimer()" id="btn-timer-action">START</button></div>
-            </div>
-        </div>
-        <div id="view-tuto" class="view-section">
-            <div style="padding-bottom: 100px;">
-                <h2 style="font-size: 20px; font-weight: 900; margin-bottom: 20px; color:var(--text-main); text-align:center;">MODE D'EMPLOI</h2>
-                
-                <div class="tuto-card" style="border-left-color: var(--accent);">
-                    <div class="tuto-title"><span>📥</span> CAPTURER</div>
-                    <div class="tuto-desc">
-                        <p style="margin-bottom:10px;">C'est votre "cerveau externe". Écrivez ou dictez tout ce qui vous passe par la tête. L'assistant trie automatiquement.</p>
-                        <p><strong>Code Couleur :</strong></p>
-                        <ul style="padding-left:10px; margin-top:5px; font-weight:600;">
-                            <li style="color:var(--accent);">🔵 Bleu : Tâche standard</li>
-                            <li style="color:var(--danger);">🔴 Rouge : Tâche Urgente</li>
-                            <li style="color:var(--calendar);">🟣 Violet : Rendez-vous (Agenda)</li>
-                        </ul>
-                        <div class="tuto-instruction">💡 Astuce : Dites "Rappeler d'appeler Marc" ou "Urgent : Payer impôts".</div>
-                    </div>
-                </div>
-                <div class="tuto-card" style="border-left-color: var(--calendar);">
-                    <div class="tuto-title"><span>📅</span> CALENDRIER</div>
-                    <div class="tuto-desc">
-                        <p>Vos rendez-vous avec une heure précise apparaissent ici et déclenchent des rappels (par défaut 1h avant).</p>
-                        <div class="tuto-instruction">🗣️ Dites : "Dentiste demain à 14h00, préviens-moi 15 min avant".</div>
-                    </div>
-                </div>
-                <div class="tuto-card" style="border-left-color: var(--warning);">
-                    <div class="tuto-title"><span>🎯</span> FOCUS</div>
-                    <div class="tuto-desc"><p>Pour arrêter de procrastiner. Sélectionnez une tâche : tout le reste disparaît. <strong>L'assistant</strong> vous propose une première micro-étape pour démarrer.</div>
-                </div>
-                <div class="tuto-card" style="border-left-color: var(--success);">
-                    <div class="tuto-title"><span>⏱️</span> POMO</div>
-                    <div class="tuto-desc"><p>Timer de concentration. Travaillez 25 minutes à fond, puis 5 minutes de pause.</p></div>
-                </div>
-                <div class="tuto-card" style="border-left-color: #D500F9;">
-                    <div class="tuto-title"><span>🔁</span> ROUTINE</div>
-                    <div class="tuto-desc"><p>Listes réutilisables (Matin, Soir...).</p><div class="tuto-instruction">🗣️ Dites : "Crée une routine Matin avec : Douche, Café".</div></div>
-                </div>
-            </div>
+            <button class="brush-btn active" onclick="setColoringBrush('marker', this)" title="Feutre">🖍️</button>
+            <button class="brush-btn" onclick="setColoringBrush('crayon', this)" title="Crayon">✏️</button>
+            <div class="w-px h-8 bg-gray-300 mx-2 flex-shrink-0"></div>
+            <button class="brush-btn" onclick="setColoringBrush('eraser', this)">🧽</button>
+            <button onclick="clearColoring()" class="slate-action">Nouveau</button>
         </div>
     </div>
 
-    <div class="bottom-controls">
-        <div id="status-text" class="ai-feedback">Prêt.</div>
+    <div id="intro-overlay">
+        <div class="god-rays"></div>
         
+        <div class="flex flex-col items-center gap-2 mb-10 transform scale-125">
+            <svg class="h-16 w-16 drop-shadow-md" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="5" width="90" height="90" rx="25" fill="url(#logo_grad_intro)" />
+                <path d="M30 50 Q30 30 50 30 Q70 30 70 50 Q70 70 50 70 L35 80 L35 70 Q30 70 30 50" fill="white"/>
+                <path d="M65 35 L70 25 L75 35 L85 40 L75 45 L70 55 L65 45 L55 40 Z" fill="#fcd34d"/>
+                <defs>
+                    <linearGradient id="logo_grad_intro" x1="0" y1="0" x2="100" y2="100">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="flex flex-col items-center">
+                <span class="font-black text-lg tracking-tight text-slate-900 leading-none">Mes petites boites</span>
+                <span class="font-black text-xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-pink-500 leading-none">magiques</span>
+            </div>
+        </div>
+
         <div class="mode-selector">
-            <div class="mode-card active" onclick="switchView('dump', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2v12h20V12z"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
-                <span class="mode-label">Capturer</span>
+            <div class="mode-card" onclick="selectMode('STORY')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#6366f1"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+                <span class="mode-label">Histoires</span>
             </div>
-            <div class="mode-card" onclick="switchView('calendar', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-                <span class="mode-label">Calendrier</span>
+            <div class="mode-card" onclick="selectMode('QUESTION')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#ec4899"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg></div>
+                <span class="mode-label">Questions</span>
             </div>
-            <div class="mode-card" onclick="switchView('focus', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-                <span class="mode-label">Focus</span>
+            <div class="mode-card" onclick="selectMode('CHAT')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#f59e0b"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+                <span class="mode-label">Discussion</span>
             </div>
-            <div class="mode-card" onclick="switchView('pomo', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <span class="mode-label">Pomo</span>
-            </div>
-            <div class="mode-card" onclick="switchView('routine', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
-                <span class="mode-label">Routine</span>
-            </div>
-            <div class="mode-card" onclick="switchView('tuto', this)">
-                <div class="mode-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
-                <span class="mode-label">Tuto</span>
-            </div>
-            <div class="mode-card" onclick="toggleTheme(this)">
-                <div class="mode-icon">
-                    <svg class="theme-icon-sun" viewBox="0 0 24 24" style="display:block"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                </div>
-                <span class="mode-label">Thème</span>
-            </div>
-        </div>
-        
-        <div class="input-area">
-            <div class="action-circle btn-keyboard" onclick="toggleInputMode(this)">
-                <svg viewBox="0 0 24 24"><path d="M20 5H4c-1.1 0-1.99.9-1.99 2L2 17c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-9 3h2v2h-2V8zm0 3h2v2h-2v-2zM8 8h2v2H8V8zm0 3h2v2H8v-2zm-1 2H5v-2h2v2zm0-3H5V8h2v2zm9 7H8v-2h8v2zm0-4h-2v-2h2v2zm0-3h-2V8h2v2zm3 3h-2v-2h2v2zm0-3h-2V8h2v2z"/></svg>
+            <div class="mode-card" onclick="selectMode('DRAW')">
+                <div class="mode-icon-box"><svg width="40" height="40" viewBox="0 0 24 24" fill="#10b981"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/></svg></div>
+                <span class="mode-label">Dessin</span>
             </div>
             
-            <div id="btn-mic" class="action-circle btn-mic" onclick="toggleRecording()">
-                <svg id="icon-mic" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                <svg id="icon-stop" viewBox="0 0 24 24" style="display:none"><path d="M6 6h12v12H6z"/></svg>
             </div>
-        </div>
-        
-        <div id="text-input-ui" class="text-input-container">
-            <input type="text" id="user-input" class="text-input" placeholder="Quel est ton objectif ?" onkeypress="handleEnter(event)">
-            <button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
-        </div>
+        <button onclick="oublierTout()" class="mt-8 text-indigo-900/40 text-xs font-bold uppercase tracking-widest hover:text-indigo-600 transition-colors">Redéfinir mon profil</button>
+    </div>
+
+    <div id="white-flash" class="white-flash"></div>
+
+    <div id="main-interface" class="content-layer min-h-screen">
+        <button class="nav-home-btn" onclick="returnToMenu()"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+
+        <header id="main-header" class="text-center flex flex-col items-center mt-6">
+            <div class="logo-container">
+                <svg id="main-logo-story" class="hidden" viewBox="0 0 24 24" fill="#6366f1" width="100" height="100"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                <svg id="main-logo-question" class="hidden" viewBox="0 0 24 24" fill="#ec4899" width="100" height="100"><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+                <svg id="main-logo-chat" class="hidden" viewBox="0 0 24 24" fill="#f59e0b" width="100" height="100"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                <svg id="main-logo-coloring" class="hidden" viewBox="0 0 24 24" fill="#8b5cf6" width="100" height="100"><path d="M17.75 7L14 3.25l-10 10V17h3.75l10-10zm2.96-2.96c.39-.39.39-1.02 0-1.41L18.37.29c-.39-.39-1.02-.39-1.41 0L15.5 1.75l2.75 2.75 1.46-1.46z"/></svg>
+                <svg id="main-logo-music" class="hidden" viewBox="0 0 24 24" fill="#06b6d4" width="100" height="100"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            </div>
+            <div class="status-box">
+                <p id="status" class="text-indigo-900/60 font-semibold italic text-sm">Prêt...</p>
+                <div id="ai-thinking" class="hidden thinking-waves">
+                    <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="w-full max-w-md flex flex-col items-center gap-14 mt-8">
+            <div class="flex items-center justify-center gap-12 w-full">
+                <button id="btn-mic" class="orbe-base shadow-2xl">
+                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </button>
+                <div id="stop-container" class="opacity-20 pointer-events-none transition-all duration-500">
+                    <button id="btn-stop" class="orbe-base shadow-xl"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg></button>
+                </div>
+            </div>
+            
+            <div id="story-card" class="hidden transition-all duration-500 relative">
+                <button onclick="activerModeSommeil()" class="absolute top-2 right-2 z-50 p-2 opacity-60 hover:opacity-100 transition-opacity" title="Éteindre l'écran (Mode Sommeil)">
+                    <svg class="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </button>
+                <canvas id="visualizer-canvas"></canvas>
+            </div>
+
+            <div id="spotify-container" class=""><iframe id="spotify-frame" style="border-radius:12px" src="" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
+            <input type="text" id="manualInput" class="hidden">
+        </main>
     </div>
 
     <script>
-        // --- CONSTANTES ---
-        const API_BASE_URL = "https://boite-adulte.vercel.app"; 
-        const ONESIGNAL_APP_ID = "19c31c7b-d08f-4f7e-8ddb-258a928ae511"; 
+        // --- 1. SÉCURITÉ ABONNEMENT ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasSessionId = urlParams.has('session_id');
+        const isAlreadySubscribed = localStorage.getItem('BOITE_ABONNEMENT_ACTIF') === 'true';
 
-        // --- THEME MANAGEMENT ---
-        function toggleTheme(btn) {
-            const current = document.body.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
-            document.body.setAttribute('data-theme', next);
-            localStorage.setItem('claris_theme', next);
-            if(btn) { btn.style.transform = "scale(0.9)"; setTimeout(() => btn.style.transform = "scale(1)", 150); }
-        }
-        function loadTheme() {
-            const saved = localStorage.getItem('claris_theme');
-            if(saved === 'light') document.body.setAttribute('data-theme', 'light');
+        if (hasSessionId) {
+            localStorage.setItem('BOITE_ABONNEMENT_ACTIF', 'true');
+            window.history.replaceState({}, document.title, "/app.html");
+        } else if (!isAlreadySubscribed) {
+            window.location.href = "/";
         }
 
-        // --- INIT ONESIGNAL ---
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: ONESIGNAL_APP_ID,
-                notifyButton: { enable: false },
-                allowLocalhostAsSecureOrigin: true,
-            });
-            if(OneSignal.User.PushSubscription.optedIn){
-                document.getElementById('notif-btn').classList.add('bell-active');
-                document.getElementById('notif-btn').innerText = "🔔 ON";
-            }
-        });
+        let userPrenom = localStorage.getItem('BOITE_PRENOM');
+        let userAge = localStorage.getItem('BOITE_AGE');
+        let userGenre = localStorage.getItem('BOITE_GENRE'); 
+        let userColor = localStorage.getItem('BOITE_COLOR'); 
+        let userDoudou = localStorage.getItem('BOITE_DOUDOU');
+        let userPet = localStorage.getItem('BOITE_ANIMAL'); 
+        
+        let currentAppMode = null; 
+        let interactionMode = 'INIT'; 
+        let chatHistory = []; 
+        let isWaitingForResponse = false;
+        
+        // NOUVEAU : Gestion des sous-modes de discussion
+        let currentChatActivity = 'TALK'; // 'TALK', 'JOKE', 'RIDDLE'
 
-        async function requestNotificationPermission() {
-             await OneSignal.User.PushSubscription.optIn();
-             const id = OneSignal.User.PushSubscription.id;
-             if(id) {
-                 document.getElementById('notif-btn').classList.add('bell-active');
-                 alert("Notifications activées !");
-             }
-        }
+        /* --- GESTION DU MODE SOMMEIL (AMÉLIORÉ) --- */
+        let wakeLock = null;
 
-        // --- PROGRAMMATION NOTIFICATION ---
-        async function scheduleNotification(dateObj, message) {
-            const userId = OneSignal.User.PushSubscription.id;
-            if(!userId) { console.warn("Pas d'ID utilisateur OneSignal trouvé."); return; }
-            const sendTimeISO = dateObj.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
+        async function activerModeSommeil() {
+            const overlay = document.getElementById('sleep-overlay');
+            overlay.classList.remove('hidden');
+            
+            // 1. On empêche le téléphone de s'éteindre (WakeLock)
             try { 
-                const response = await fetch('/api/schedule-notification', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: userId, message: message, sendAfter: sendTimeISO })
-                });
-                const result = await response.json();
-                if(response.ok) {
-                    console.log("Succès OneSignal:", result);
-                    const status = document.getElementById('status-text');
-                    const oldText = status.innerText;
-                    status.innerText = "🔔 Rappel activé";
-                    status.style.color = "var(--calendar)";
-                    setTimeout(() => { status.innerText = oldText; status.style.color = "var(--text-main)"; }, 3000);
-                } else { console.error("Erreur API:", result); }
-            } 
-            catch (err) { console.error('Erreur Fetch:', err); }
-        }
-
-        // --- LOGIQUE PRINCIPALE ---
-        let currentMode = 'DUMP';
-        let currentMood = 'ZEN';
-        let isProcessing = false; isTextMode = false; recognition = null; isRecording = false; finalTranscript = '';
-        let timerInterval = null; timeLeft = 25 * 60; isTimerRunning = false;
-        let username = "Champion";
-        let audioCtx, pinkNoiseNode, gainNode, isNoisePlaying = false;
-        let currentFocusTask = null;
-        let currentCalDate = new Date();
-
-        document.addEventListener('DOMContentLoaded', () => { 
-            loadTheme();
-            checkOnboarding(); loadTasks(); updateMentalLoad(); updateDailyCapacity(); renderRoutines(); 
-            initSpeech(); loadMood(); 
-            switchView('dump', document.querySelector('.mode-card.active'));
-        });
-
-        function switchView(viewName, btn) {
-            document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active');
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            const monitor = document.getElementById('monitor-ui');
-            if (viewName === 'dump' || viewName === 'focus') monitor.style.opacity = '1'; else monitor.style.opacity = '0';
-            currentMode = viewName.toUpperCase();
-            if (viewName === 'focus') renderFocusGrid();
-            if (viewName === 'calendar') renderCalendar();
-            const titles = {'dump': "Je note...", 'calendar': "Agenda", 'focus': "Mode Laser", 'routine': "Bibliothèque", 'pomo': "Timer", 'tuto': "Aide"};
-            document.getElementById('status-text').innerText = titles[viewName];
-        }
-
-        function togglePinkNoise() { if (isNoisePlaying) stopPinkNoise(); else startPinkNoise(); }
-        function startPinkNoise() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const bufferSize = 4096; const pinkNoise = audioCtx.createScriptProcessor(bufferSize, 1, 1);
-            var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-            pinkNoise.onaudioprocess = function(e) {
-                var output = e.outputBuffer.getChannelData(0);
-                for (var i = 0; i < bufferSize; i++) {
-                    var white = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759; b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856; b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980; output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362; output[i] *= 0.11; b6 = white * 0.115926;
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
                 }
-            };
-            const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 400;
-            gainNode = audioCtx.createGain(); gainNode.gain.setValueAtTime(0, audioCtx.currentTime); gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 2);
-            pinkNoise.connect(filter); filter.connect(gainNode); gainNode.connect(audioCtx.destination);
-            pinkNoiseNode = pinkNoise; isNoisePlaying = true;
-            const btn = document.getElementById('sound-btn'); btn.classList.add('active'); btn.innerHTML = `<span>🎧</span> FOCUS <span class="sound-wave"></span>`;
-        }
-        function stopPinkNoise() {
-            if (gainNode) { gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); setTimeout(() => { if (pinkNoiseNode) { pinkNoiseNode.disconnect(); pinkNoiseNode = null; } isNoisePlaying = false; }, 1000); }
-            const btn = document.getElementById('sound-btn'); btn.classList.remove('active'); btn.innerHTML = `<span>🎧</span> FOCUS`;
-        }
+            } catch (err) { console.log("WakeLock non supporté"); }
 
-        function initSpeech() { const Speech = window.SpeechRecognition || window.webkitSpeechRecognition; if (!Speech) return; recognition = new Speech(); recognition.lang = 'fr-FR'; recognition.continuous = true; recognition.interimResults = true; recognition.onresult = (e) => { for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' '; } }; recognition.onerror = (e) => { if(e.error === 'not-allowed') stopRecordingState(); }; }
-        function toggleRecording() { if (isProcessing) return; if (!isRecording) { finalTranscript = ''; try { recognition.start(); isRecording = true; updateMicVisuals(true); document.getElementById('status-text').innerText = "Enregistrement... (Cliquez pour Stop)"; } catch(e) { recognition.stop(); isRecording = false; } } else { recognition.stop(); isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Analyse..."; setTimeout(() => { if (finalTranscript.trim().length > 0) processWithAI(finalTranscript); else document.getElementById('status-text').innerText = "Rien entendu."; }, 800); } }
-        function updateMicVisuals(rec) { const btn = document.getElementById('btn-mic'); const micIcon = document.getElementById('icon-mic'); const stopIcon = document.getElementById('icon-stop'); if (rec) { btn.classList.add('recording'); micIcon.style.display = 'none'; stopIcon.style.display = 'block'; } else { btn.classList.remove('recording'); micIcon.style.display = 'block'; stopIcon.style.display = 'none'; } }
-        function stopRecordingState() { isRecording = false; updateMicVisuals(false); document.getElementById('status-text').innerText = "Erreur Micro"; }
-
-        // --- IA PROCESS ---
-        async function processWithAI(userInput) {
-            isProcessing = true; document.getElementById('status-text').innerText = "Réfléchit..."; 
-            const lowerInput = userInput.toLowerCase();
-            let forcedMode = currentMode;
-            if (lowerInput.includes("routine") || lowerInput.includes("crée une routine")) { forcedMode = 'ROUTINE'; }
-            
-            const currentPrompts = getPrompts(); 
-            const finalPrompt = `${currentPrompts[forcedMode]}\n\nUTILISATEUR : "${userInput}"`;
+            // 2. On passe en PLEIN ÉCRAN pour cacher l'heure et les boutons
             try {
-                const rep = await fetch('/api/gemini', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
-                const data = await rep.json();
-                let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
-                
-                if (parsed.command === 'SAVE_ROUTINE') { saveRoutine(parsed.name, parsed.steps); playVocalResponse(`Routine ${parsed.name} enregistrée.`); switchView('routine', document.querySelectorAll('.mode-card')[4]); isProcessing = false; return; }
-                else if (parsed.command === 'GET_ROUTINE') { const savedSteps = JSON.parse(localStorage.getItem('neuro_routines') || '{}')[parsed.name.toLowerCase()]; if (savedSteps) { switchView('routine', document.querySelectorAll('.mode-card')[4]); launchRoutine(parsed.name); playVocalResponse(`Voici ta routine.`); } else { playVocalResponse(`Routine inconnue.`); } isProcessing = false; return; }
-                
-                let actionsList = parsed.actions;
-                if (!actionsList && parsed.type) { actionsList = [parsed]; }
-                
-                if(actionsList) { 
-                    actionsList.forEach(act => { 
-                        const validText = act.detail || act.text || act.task || act.title || "Tâche";
-                        
-                        // LOGIQUE NOTIF AMELIOREE
-                        if (act.time && act.due_date) {
-                            const targetDateStr = `${act.due_date}T${act.time}:00`;
-                            const targetDate = new Date(targetDateStr);
-                            const now = new Date();
-                            
-                            // CALCUL DU DELAI DE RAPPEL (Défaut 60 min au lieu de 30)
-                            let offset = act.reminder_minutes || 60; 
-                            const reminderTime = new Date(targetDate.getTime() - offset * 60000);
-
-                            if (reminderTime > now) {
-                                scheduleNotification(reminderTime, `Rappel : ${validText} à ${act.time}`);
-                            } else if (targetDate > now) {
-                                // Cas "Urgence" : Le RDV est imminent (moins que le délai demandé), on notifie tout de suite
-                                const immediate = new Date(now.getTime() + 60000);
-                                scheduleNotification(immediate, `Rappel IMMÉDIAT : ${validText} est prévu à ${act.time}`);
-                            }
-                        }
-
-                        addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date, act.time); 
-                    }); 
+                if (document.documentElement.requestFullscreen) {
+                    await document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                    await document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+                    await document.documentElement.msRequestFullscreen();
                 }
-                playVocalResponse(parsed.text);
-            } catch (e) { console.error(e); document.getElementById('status-text').innerText = "Erreur"; isProcessing = false; }
+            } catch (err) { console.log("Plein écran refusé"); }
         }
 
-        function addTaskToUI(text, type, priority='NORMAL', duration=15, date=null, time=null) {
-            const list = document.getElementById('task-list');
-            if(list.innerText.includes("Mémoire vide")) list.innerHTML = "";
-            const div = document.createElement('div');
-            const isCal = (type === 'CALENDAR'); const isRem = (type === 'REMINDER'); const isHigh = (priority === 'HIGH');
-            
-            div.className = `task-item ${isCal ? 'calendar' : ''} ${isRem ? 'reminder' : ''} ${isHigh ? 'priority-high' : ''}`;
-            div.setAttribute('data-duration', duration);
-            if(date) div.setAttribute('data-date', date);
-            
-            const syncIcon = isCal ? '<span style="margin-right:6px; font-size:16px;">📅</span>' : ''; 
-            const remIcon = isRem ? '<span class="reminder-badge">🔔</span>' : ''; 
-            const fireIcon = isHigh ? '<span class="priority-icon">🔥</span>' : '';
-            
-            let dateBadge = ''; 
-            if(date) { 
-                const dObj = new Date(date); 
-                let timeStr = time ? ` à ${time}` : '';
-                dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}${timeStr}</span>`; 
+        async function desactiverModeSommeil() {
+            const overlay = document.getElementById('sleep-overlay');
+            overlay.classList.add('hidden');
+
+            // 1. On relâche le WakeLock
+            if (wakeLock !== null) { 
+                wakeLock.release().then(() => { wakeLock = null; }).catch(e => {}); 
             }
-            
-            const timeBadge = `<span class="time-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg> ${duration}m</span>`;
-            let categoryLabel = isCal ? 'AGENDA' : (isRem ? 'RAPPEL' : (isHigh ? 'URGENT 🔥' : 'TÂCHE'));
-            
-            div.innerHTML = `<div class="task-content"><div class="task-text">${syncIcon} ${text} ${remIcon} ${fireIcon}</div><div class="task-sub">${dateBadge} ${timeBadge} <span style="color:${(isCal||isRem) ? '#FF8A80' : '#888'}">${categoryLabel}</span></div></div><div class="actions-group"><button class="done-btn" onclick="completeTask(this)"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></button></div>`;
-            
-            if (isHigh) list.prepend(div); 
-            else if (isCal) {
-                let inserted = false;
-                const items = list.children;
-                for (let i = 0; i < items.length; i++) {
-                    if (!items[i].classList.contains('priority-high')) {
-                        list.insertBefore(div, items[i]);
-                        inserted = true;
-                        break;
-                    }
+
+            // 2. On quitte le plein écran pour retrouver l'interface normale
+            try {
+                if (document.exitFullscreen) {
+                    await document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { 
+                    await document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { 
+                    await document.msExitFullscreen();
                 }
-                if (!inserted) list.appendChild(div);
-            }
-            else list.appendChild(div);
-            
-            saveTasks(); updateMentalLoad(); updateDailyCapacity();
+            } catch (err) { console.log("Erreur sortie plein écran"); }
         }
 
-        function getPrompts() {
-            const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            const todayISO = new Date().toISOString().split('T')[0];
-            const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
-            return {
-                'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
-                ACTION: 
-                1. Estime durée (5-90min). 
-                2. Si HEURE précise mentionnée (ex: 'à 14h', 'RDV 9h') : type DOIT ETRE "CALENDAR", ajoute "time": "HH:MM".
-                3. Sinon : type="TODO".
-                Renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR", "detail": "Titre", "priority": "NORMAL/HIGH", "duration": N, "due_date": "YYYY-MM-DD", "time": "HH:MM", "reminder_minutes": 60 } ] }.`,
-                'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
-                'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
-                'POMO': `${SYSTEM_INSTRUCTION} Mode : POMODORO. Demande juste "Prêt ?" ou lance le timer.`
+        // PHRASES MAGIQUES (Bienveillantes et sans "Chut")
+        const MAGIC_PHRASES = [
+            "Attends un tout petit instant, je suis en train de traverser la forêt des rêves pour trouver la fin de ton histoire...",
+            "Patiente un tout petit peu... Je demande aux étoiles de me souffler la suite de ton aventure...",
+            "Hop là ! Ouvre grand tes oreilles, je mélange de la poussière de fée avec tes jolis mots...",
+            "Un petit moment s'il te plaît... Je cherche dans mon grand livre magique les mots les plus doux pour toi...",
+            "Attends... Je suis en train de réveiller doucement les personnages de ton histoire, ils arrivent...",
+            "Je demande doucement à la lune de m'éclairer pour inventer la plus belle des aventures...",
+            "Juste une seconde... Je suis en train de peindre le ciel de ton histoire avec mes crayons de lumière...",
+            "Patiente encore un peu... Je suis partie chercher une idée merveilleuse tout là-haut dans les nuages...",
+            "Attends, ne bouge pas... Je capture un rayon de soleil pour illuminer ton histoire...",
+            "Hop ! Je suis en train de tricoter la suite de ton aventure avec des fils d'or et d'argent...",
+            "Un instant... Je souffle sur les nuages pour voir apparaître ton histoire...",
+            "Écoute bien... Je suis en train de chuchoter à l'oreille des lutins pour qu'ils m'aident...",
+            "Attends un peu... Je gonfle les voiles du bateau imaginaire pour nous emmener loin...",
+            "Patiente... J'ouvre mon grand coffre aux trésors pour y trouver ton histoire...",
+            "Hop là ! Je saute de nuage en nuage pour attraper la suite de l'aventure...",
+            "Juste un moment... Je plante une petite graine magique qui va devenir une grande histoire...",
+            "Attends... Je mets mon chapeau de magicienne pour inventer quelque chose d'extraordinaire...",
+            "Regarde... Je suis en train de rattraper une idée qui vole très vite dans le ciel...",
+            "Un petit instant... Je prépare une surprise incroyable rien que pour toi...",
+            "Patiente... Je cherche la clé dorée qui ouvre la porte de ton histoire..."
+        ];
+
+        // PHRASES DE DÉBUT D'HISTOIRE (Remplaçant "Je te réponds")
+        const STORY_START_PHRASES = [
+            "Ouvre grand tes oreilles, c'est parti !",
+            "C'est parti pour l'aventure...",
+            "Il était une fois...",
+            "Le rideau se lève, écoute bien...",
+            "Plongeons ensemble dans cette histoire...",
+            "Voici ce que le livre magique me raconte...",
+            "Tu es prêt ? Alors on y va !",
+            "Chut, l'histoire commence...",
+            "Laisse-toi emporter par la magie...",
+            "Regarde, le monde imaginaire s'ouvre à toi...",
+            "C'est l'heure du conte...",
+            "Tout commence maintenant...",
+            "Une nouvelle aventure t'attend...",
+            "Écoute le murmure de la magie...",
+            "C'est le début d'une belle histoire...",
+            "Installe-toi bien, on décolle !",
+            "La magie des mots commence ici...",
+            "Voici l'histoire que j'ai inventée pour toi...",
+            "Ferme les yeux et imagine...",
+            "Le voyage commence maintenant...",
+            "C'est une histoire très spéciale...",
+            "Prêt pour le voyage ? C'est parti !"
+        ];
+
+        /* --- DISCOTHÈQUE GÉANTE SPOTIFY (PLAYLISTS & GENRES) --- */
+        const SPOTIFY_DB = {
+            'POP': '37i9dQZF1DXcBWIGoYBM5M',     'DISNEY': '37i9dQZF1DX8C9xQcOrE6T',  'FILM': '37i9dQZF1DX8C9xQcOrE6T',    'VOITURE': '37i9dQZF1DWWHQM6sW8kDQ',
+            'GUITARE': '37i9dQZF1DWZK4p8GZlQhW', 'GUITARE_ELEC': '37i9dQZF1DWWzBc3TOlaAV', 'PIANO': '37i9dQZF1DWUvHZA1zLcjW',   'VIOLON': '37i9dQZF1DWV7EzJMK2FUI',  'BATTERIE': '37i9dQZF1DWXJKyK5MgDWz', 'TROMPETTE': '37i9dQZF1DX6f3J34J8j5p',
+            'ROCK': '37i9dQZF1DWWzBc3TOlaAV',    'METAL': '37i9dQZF1DX9qNs32fujYe',   'RAP': '37i9dQZF1DX0XUsuxWHRQd',     'JAZZ': '37i9dQZF1DXbITWG1ZJKYt',    'CLASSIQUE': '37i9dQZF1DWUvHZA1zLcjW', 'COUNTRY': '37i9dQZF1DX1lVhptIYRda', 'DISCO': '37i9dQZF1DX4UtSsGT1Sbe',
+            'DODO': '37i9dQZF1DWZd79rJ6a7lp',    'CALME': '37i9dQZF1DWZd79rJ6a7lp',   'FETE': '37i9dQZF1DX2sUQqwWQbJn',    'DANSE': '37i9dQZF1DX2sUQqwWQbJn',   'TRISTE': '37i9dQZF1DX3YSRoSdA634',  'HEUREUX': '37i9dQZF1DXdPec7aLTmlC', 'SPORT': '37i9dQZF1DX76Wlfdnj7AP',
+            'DINOSAURE': '37i9dQZF1DWWHQX5fP7a70', 'SUPERHEROS': '37i9dQZF1DXu2W0Mf8a55a', 'JEUXVIDEO': '37i9dQZF1DXdfOcg1fm0VG',  'HALLOWEEN': '37i9dQZF1EIdR77n0lqY6P',  'NOEL': '37i9dQZF1DX0A8zVl7p82B',
+            'PLUIE': '37i9dQZF1DX8gym7ONOGCa',    'OCEAN': '37i9dQZF1DX4PP3kddpbma',    'FORET': '37i9dQZF1DWX83CujKHHbD',    'ANIMAUX': '37i9dQZF1DWWHQX5fP7a70',  'JUNGLE': '37i9dQZF1DWWHQX5fP7a70'
+        };
+
+        /* --- ARDOISE NOIRE --- */
+        const sCanvas = document.getElementById('slate-canvas'); const sCtx = sCanvas.getContext('2d');
+        let drawing = false, currentBrush = 'base', hue = 0, baseColor = 'white';
+        function initSlate() { sCanvas.width = window.innerWidth; sCanvas.height = window.innerHeight; sCtx.lineCap = 'round'; sCtx.lineJoin = 'round'; }
+        function setBrush(b, btn) { currentBrush = b; document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
+        function setBaseColor(c, btn) { baseColor = c; currentBrush = 'base'; document.querySelectorAll('.color-picker').forEach(el => el.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.brush-btn').forEach(el => el.classList.remove('active')); document.querySelector('.brush-btn[onclick*="base"]').classList.add('active'); }
+        function draw(e) { if (!drawing) return; const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY; hue = (hue + 2) % 360; sCtx.lineWidth = currentBrush === 'galaxy' ? 1.5 : (currentBrush === 'neon' ? 3 : (currentBrush === 'eraser' ? 20 : 2.5)); sCtx.globalCompositeOperation = 'source-over'; 
+            if (currentBrush === 'base') { sCtx.strokeStyle = baseColor; sCtx.shadowBlur = 0; } else if (currentBrush === 'eraser') { sCtx.globalCompositeOperation = 'destination-out'; sCtx.strokeStyle = 'rgba(0,0,0,1)'; sCtx.shadowBlur = 0; } else if (currentBrush === 'neon') { sCtx.strokeStyle = `hsl(${hue}, 100%, 70%)`; sCtx.shadowBlur = 15; sCtx.shadowColor = sCtx.strokeStyle; } else if (currentBrush === 'rainbow') { sCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`; sCtx.shadowBlur = 0; } else if (currentBrush === 'lava') { sCtx.strokeStyle = `hsl(${Math.random() * 40}, 100%, 60%)`; sCtx.shadowBlur = 15; sCtx.shadowColor = '#ff4500'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y - Math.random() * 25; sCtx.fillStyle = `rgba(255, ${Math.floor(Math.random()*150)}, 0, 0.7)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'ice') { sCtx.strokeStyle = `rgba(224, 242, 254, 0.9)`; sCtx.shadowBlur = 10; sCtx.shadowColor = '#0ea5e9'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y + Math.random() * 25; sCtx.fillStyle = `rgba(255, 255, 255, 0.8)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*1.5, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'electric') { sCtx.strokeStyle = '#fef08a'; sCtx.shadowBlur = 20; sCtx.shadowColor = '#facc15'; const jitterX = x + (Math.random()-0.5) * 10; const jitterY = y + (Math.random()-0.5) * 10; sCtx.lineTo(jitterX, jitterY); } else if (currentBrush === 'galaxy') { sCtx.strokeStyle = 'rgba(255,255,255,0.8)'; sCtx.shadowBlur = 8; sCtx.shadowColor = `hsl(${hue}, 100%, 80%)`; for(let i=0; i<3; i++) { sCtx.beginPath(); sCtx.arc(x + (Math.random()-0.5)*20, y + (Math.random()-0.5)*20, Math.random()*1.5, 0, Math.PI*2); sCtx.fillStyle = 'white'; sCtx.fill(); } } else if (currentBrush === 'nature') { sCtx.strokeStyle = `hsl(120, 60%, 40%)`; sCtx.shadowBlur = 5; sCtx.shadowColor = '#166534'; for(let i=0; i<1; i++) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = `rgba(34, 197, 94, 0.8)`; sCtx.beginPath(); sCtx.ellipse(pX, pY, 3, 6, Math.random()*Math.PI, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'ocean') { sCtx.strokeStyle = `hsl(200, 80%, 50%)`; sCtx.shadowBlur = 10; sCtx.shadowColor = '#0284c7'; for(let i=0; i<1; i++) { const pX = x + (Math.random()-0.5) * 15; const pY = y - Math.random() * 20; sCtx.strokeStyle = `rgba(255, 255, 255, 0.6)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*3, 0, Math.PI*2); sCtx.stroke(); } sCtx.strokeStyle = `hsl(200, 80%, 50%)`; } else if (currentBrush === 'gold') { sCtx.strokeStyle = '#fbbf24'; sCtx.shadowBlur = 20; sCtx.shadowColor = '#f59e0b'; if(Math.random() > 0.8) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = '#fffbeb'; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2, 0, Math.PI*2); sCtx.fill(); } } else if (currentBrush === 'candy') { sCtx.strokeStyle = '#f472b6'; sCtx.shadowBlur = 5; sCtx.shadowColor = '#ec4899'; for(let i=0; i<2; i++) { const pX = x + (Math.random()-0.5) * 20; const pY = y + (Math.random()-0.5) * 20; sCtx.fillStyle = `hsl(${Math.random()*360}, 100%, 75%)`; sCtx.beginPath(); sCtx.arc(pX, pY, Math.random()*2.5, 0, Math.PI*2); sCtx.fill(); } }
+            if (currentBrush !== 'electric') sCtx.lineTo(x, y); sCtx.stroke(); sCtx.beginPath(); sCtx.moveTo(x, y);
+        }
+        sCanvas.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); sCtx.moveTo(e.clientX, e.clientY); }); sCanvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', () => drawing = false); sCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; sCtx.beginPath(); sCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); sCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); window.addEventListener('touchend', () => drawing = false);
+        function clearSlate() { sCtx.clearRect(0,0,sCanvas.width, sCanvas.height); }
+
+        /* --- COLORIAGE --- */
+        const cCanvas = document.getElementById('color-canvas'); const cCtx = cCanvas.getContext('2d');
+        let coloring = false, cColor = '#ef4444', cBrush = 'marker';
+        function initColoring() { cCanvas.width = window.innerWidth; cCanvas.height = window.innerHeight; cCtx.lineCap = 'round'; cCtx.lineJoin = 'round'; }
+        function setColoringColor(c, btn) { cColor = c; cBrush = 'marker'; document.querySelectorAll('#coloring-controls .color-picker').forEach(el => el.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('#coloring-controls .brush-btn').forEach(el => el.classList.remove('active')); document.querySelector('#coloring-controls .brush-btn[onclick*="marker"]').classList.add('active'); }
+        function setColoringBrush(b, btn) { cBrush = b; document.querySelectorAll('#coloring-controls .brush-btn').forEach(el => el.classList.remove('active')); btn.classList.add('active'); }
+        function drawColor(e) { if (!coloring) return; const x = e.clientX || e.touches[0].clientX; const y = e.clientY || e.touches[0].clientY; 
+            cCtx.strokeStyle = cColor; cCtx.globalCompositeOperation = 'source-over';
+            if (cBrush === 'marker') { cCtx.lineWidth = 15; cCtx.globalAlpha = 0.5; } 
+            else if (cBrush === 'crayon') { cCtx.lineWidth = 5; cCtx.globalAlpha = 1; }
+            else if (cBrush === 'eraser') { cCtx.globalCompositeOperation = 'destination-out'; cCtx.lineWidth = 30; cCtx.globalAlpha = 1; }
+            cCtx.lineTo(x, y); cCtx.stroke(); cCtx.beginPath(); cCtx.moveTo(x, y);
+        }
+        cCanvas.addEventListener('mousedown', (e) => { coloring = true; cCtx.beginPath(); cCtx.moveTo(e.clientX, e.clientY); }); cCanvas.addEventListener('mousemove', drawColor); window.addEventListener('mouseup', () => coloring = false); cCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); coloring = true; cCtx.beginPath(); cCtx.moveTo(e.touches[0].clientX, e.touches[0].clientY); }); cCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawColor(e); }); window.addEventListener('touchend', () => coloring = false);
+        
+        function clearColoring() { 
+            cCtx.clearRect(0,0,cCanvas.width, cCanvas.height); 
+            document.getElementById('generated-coloring-image').style.display = 'none';
+            document.getElementById('coloring-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.add('content-visible');
+            interactionMode = 'COLORING_INPUT'; 
+            document.getElementById('status').innerText = "Une autre idée ?";
+            speechQueue.push("D'accord, on change ! Que veux-tu colorier maintenant ?"); 
+            parler();
+        }
+
+        async function genererColoriage(sujet) {
+            const encoded = encodeURIComponent(`coloring page for kids, simple line art, black and white, white background, high contrast, ${sujet}`);
+            const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*9999)}`;
+            
+            const img = document.getElementById('generated-coloring-image');
+            img.onload = () => {
+                document.getElementById('ai-thinking').classList.add('hidden');
+                document.getElementById('status').innerText = "À tes crayons !";
+                img.style.display = 'block';
+                speechQueue.push("Et voilà ton coloriage ! Tu peux dessiner dessus maintenant."); parler();
             };
+            img.src = url;
         }
-        
-        function readActiveRoutine() { const l=document.getElementById('routine-steps-list'); let t=`Ok ${username}, routine ${document.getElementById('active-routine-name').innerText}. `; l.querySelectorAll('.task-text').forEach((e,i)=>t+=`Etape ${i+1}: ${e.innerText}. `); playVocalResponse(t); }
-        function toggleMood() { currentMood=(currentMood==='ZEN')?'BOOST':'ZEN'; localStorage.setItem('neuro_mood',currentMood); updateMoodUI(); }
-        function updateMoodUI() { const b=document.getElementById('mood-btn'); b.className=`header-btn mood-btn active ${currentMood.toLowerCase()}`; b.innerHTML=(currentMood==='ZEN')?"<span>🛡️</span> ZEN":"<span>🚀</span> BOOST"; }
-        function loadMood() { const s=localStorage.getItem('neuro_mood'); if(s){currentMood=s;updateMoodUI();} }
-        function completeTask(b) { const i=b.closest('.task-item'); i.style.transform="translateX(100%)"; i.style.opacity="0"; setTimeout(()=>{i.remove();saveTasks();updateMentalLoad();updateDailyCapacity();},300); }
-        function saveTasks() { localStorage.setItem('neuro_tasks',document.getElementById('task-list').innerHTML); }
-        function loadTasks() { const s=localStorage.getItem('neuro_tasks'); if(s&&s.trim()!="")document.getElementById('task-list').innerHTML=s; }
-        function updateMentalLoad() { const i=document.querySelectorAll('#task-list .task-item'); let s=0; i.forEach(e=>s+=(e.classList.contains('priority-high')?3:1)); document.getElementById('load-bar').style.width=Math.min((s/12)*100,100)+"%"; }
-        function updateDailyCapacity() { const i=document.querySelectorAll('#task-list .task-item'); let m=0; i.forEach(e=>m+=parseInt(e.getAttribute('data-duration'))||15); document.getElementById('capacity-bar').style.height=Math.min((m/360)*100,100)+"%"; }
-        function checkOnboarding() { const n=localStorage.getItem('neuro_username'); if(n)username=n; else document.getElementById('onboarding-modal').classList.add('show'); }
-        function saveUsername() { const i=document.getElementById('username-input'); if(i.value.trim()){username=i.value.trim();localStorage.setItem('neuro_username',username);document.getElementById('onboarding-modal').classList.remove('show');} }
-        function cleanTextForSpeech(t) { if(!t)return""; return t.replace(/[*#]/g,'').replace(/^- /g,''); }
-        async function playVocalResponse(t) { document.getElementById('status-text').innerText="Prêt."; isProcessing=false; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(cleanTextForSpeech(t)); u.lang='fr-FR'; u.rate=(currentMood==='ZEN')?0.85:1.1; window.speechSynthesis.speak(u); }
-        function getRoutineStyle(n) { const x=n.toLowerCase(); if(x.includes('matin'))return{icon:'☀️',color:'#FFD740',bg:'rgba(255,215,64,0.1)'}; if(x.includes('soir'))return{icon:'🌙',color:'#536DFE',bg:'rgba(83,109,254,0.1)'}; if(x.includes('sport'))return{icon:'💪',color:'#FF4081',bg:'rgba(255,64,129,0.1)'}; return{icon:'⚡',color:'#BB86FC',bg:'rgba(187,134,252,0.1)'}; }
-        function saveRoutine(n,s) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); r[n.toLowerCase()]=s; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); }
-        function deleteRoutine(n,e) { e.stopPropagation(); if(confirm("Supprimer?")){ let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); delete r[n]; localStorage.setItem('neuro_routines',JSON.stringify(r)); renderRoutines(); } }
-        function deleteStepFromRoutine(n,i) { let r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const k=Object.keys(r).find(x=>x===n.toLowerCase()); if(k){r[k].splice(i,1); localStorage.setItem('neuro_routines',JSON.stringify(r)); launchRoutine(n);} }
-        function renderRoutines() { const g=document.getElementById('routines-grid'); const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); g.innerHTML=""; for(let k in r){ const d=document.createElement('div'); d.className='routine-card-item'; const s=getRoutineStyle(k); d.style.borderLeft=`4px solid ${s.color}`; d.style.background=`linear-gradient(135deg, ${s.bg}, var(--bg-card))`; d.innerHTML=`<span class='routine-icon'>${s.icon}</span><span class='routine-name'>${k}</span><div class="routine-delete-btn" onclick="deleteRoutine('${k}',event)">✕</div>`; d.onclick=()=>launchRoutine(k); g.appendChild(d); } }
-        function launchRoutine(n) { const r=JSON.parse(localStorage.getItem('neuro_routines')||'{}'); const s=r[n.toLowerCase()]; if(!s)return; document.getElementById('routines-grid').style.display='none'; document.getElementById('active-routine-view').style.display='flex'; document.getElementById('active-routine-name').innerText=n; const l=document.getElementById('routine-steps-list'); l.innerHTML=""; s.forEach((x,i)=>{ const d=document.createElement('div'); d.className="task-item"; d.innerHTML=`<div class="task-text">${x}</div><div class="actions-group"><button class="delete-step-btn" onclick="deleteStepFromRoutine('${n}',${i})">X</button><button class="done-btn" onclick="this.parentElement.parentElement.remove();checkRoutineFinish()">V</button></div>`; l.appendChild(d); }); }
-        function checkRoutineFinish() { if(document.getElementById('routine-steps-list').children.length===0){playVocalResponse("Terminé!");exitRoutine();} }
-        function exitRoutine() { document.getElementById('routines-grid').style.display='grid'; document.getElementById('active-routine-view').style.display='none'; }
-        function renderCalendar() { const c=document.getElementById('cal-days-container'); const m=document.getElementById('cal-month-label'); const y=currentCalDate.getFullYear(); const mo=currentCalDate.getMonth(); m.innerText=["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc"][mo]+" "+y; c.innerHTML=""; const f=new Date(y,mo,1).getDay(); const d=new Date(y,mo+1,0).getDate(); const o=(f===0)?6:f-1; for(let i=0;i<o;i++)c.appendChild(document.createElement('div')); const t=[]; document.querySelectorAll('.task-item').forEach(i=>{if(i.getAttribute('data-date'))t.push({d:i.getAttribute('data-date'),h:i.outerHTML});}); for(let i=1;i<=d;i++){ const e=document.createElement('div'); e.className="day-cell"; e.innerText=i; const ds=`${y}-${String(mo+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; if(new Date().toDateString()===new Date(y,mo,i).toDateString())e.classList.add('today'); if(t.some(x=>x.d===ds))e.classList.add('has-task'); e.onclick=()=>{document.querySelectorAll('.day-cell').forEach(x=>x.classList.remove('selected'));e.classList.add('selected');showTasksForDay(t.filter(x=>x.d===ds),i);}; c.appendChild(e); } }
-        function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
-        function showTasksForDay(t,d) { const l=document.getElementById('cal-task-list'); if(t.length===0)l.innerHTML=`<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${d}.</div>`; else { l.innerHTML=""; t.forEach(x=>{const d=document.createElement('div');d.innerHTML=x.h;if(d.querySelector('.done-btn'))d.querySelector('.done-btn').style.display='none';l.appendChild(d.firstChild);}); } }
-        function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-chip"; d.innerHTML=`<span class="focus-chip-text">${txt}</span><div class="focus-chip-action">▶</div>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
-        async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
-        function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo!"); const l=document.getElementById('task-list'); l.querySelectorAll('.task-item').forEach(i=>{if(i.querySelector('.task-text').innerText.includes(currentFocusTask))i.remove();}); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode,2000); }
-        function exitLaserMode() { document.getElementById('focus-laser-wrapper').style.display='none'; document.getElementById('focus-picker-wrapper').style.display='block'; renderFocusGrid(); }
-        function toggleInputMode(b) { isTextMode=!isTextMode; const u=document.getElementById('text-input-ui'); if(isTextMode){u.classList.add('show');b.classList.add('active');document.getElementById('user-input').focus();}else{u.classList.remove('show');b.classList.remove('active');} }
-        function handleEnter(e) { if(e.key==='Enter')sendText(); }
-        function sendText() { const i=document.getElementById('user-input'); if(i.value.trim()){processWithAI(i.value);i.value="";} }
-        function updateTimerDisplay() { document.getElementById('timer-display').innerText=`${Math.floor(timeLeft/60).toString().padStart(2,'0')}:${(timeLeft%60).toString().padStart(2,'0')}`; }
-        
-        function toggleTimer() { 
-            const b=document.getElementById('btn-timer-action'); 
-            if(isTimerRunning){
-                clearInterval(timerInterval);
-                isTimerRunning=false;
-                b.innerText="REPRENDRE";
-            } else {
-                timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);playVocalResponse("Fini!");triggerConfetti();}},1000);
-                isTimerRunning=true;
-                b.innerText="PAUSE";
-                // PROGRAMMER LA NOTIF
-                const mins = Math.ceil(timeLeft / 60);
-                // Calculer la date de fin pour l'envoyer au backend
-                const endDate = new Date();
-                endDate.setMinutes(endDate.getMinutes() + mins);
-                scheduleNotification(endDate, "Session terminée !");
+
+        function returnToMenu() {
+            stopAudio();
+            document.body.classList.remove('story-mode'); // DÉSACTIVE LE MODE SOMMEIL
+            document.getElementById('slate-layer').style.display = 'none';
+            document.getElementById('coloring-layer').style.display = 'none';
+            document.getElementById('main-interface').classList.remove('content-visible');
+            document.getElementById('main-logo-story').classList.add('hidden');
+            document.getElementById('main-logo-question').classList.add('hidden');
+            document.getElementById('main-logo-chat').classList.add('hidden');
+            document.getElementById('main-logo-coloring').classList.add('hidden');
+            document.getElementById('main-logo-music').classList.add('hidden');
+            document.getElementById('intro-overlay').style.display = 'flex';
+            document.getElementById('spotify-container').classList.remove('active');
+            document.getElementById('spotify-frame').src = "";
+            setTimeout(() => { document.getElementById('intro-overlay').classList.remove('intro-fade-out'); }, 50);
+        }
+
+        /* --- THEMES --- */
+        const THEMES = { 'defaut': { bg: ['#fff7ed', '#fef9c3', '#ede9fe', '#fae8ff'], star: '251, 191, 36', accent: '#6366f1', vis: ['#4f46e5', '#9333ea', '#db2777'] }, 'bleu': { bg: ['#eff6ff', '#dbeafe', '#bfdbfe', '#93c5fd'], star: '96, 165, 250', accent: '#2563eb', vis: ['#1e40af', '#3b82f6', '#93c5fd'] }, 'rose': { bg: ['#fff1f2', '#ffe4e6', '#fecdd3', '#fda4af'], star: '244, 114, 182', accent: '#db2777', vis: ['#9d174d', '#db2777', '#f472b6'] }, 'rouge': { bg: ['#fef2f2', '#fee2e2', '#fecaca', '#fca5a5'], star: '248, 113, 113', accent: '#dc2626', vis: ['#991b1b', '#ef4444', '#f87171'] }, 'vert': { bg: ['#f0fdf4', '#dcfce7', '#bbf7d0', '#86efac'], star: '74, 222, 128', accent: '#16a34a', vis: ['#166534', '#22c55e', '#86efac'] }, 'violet': { bg: ['#f5f3ff', '#ede9fe', '#ddd6fe', '#c4b5fd'], star: '167, 139, 250', accent: '#7c3aed', vis: ['#5b21b6', '#8b5cf6', '#c4b5fd'] }, 'jaune': { bg: ['#fefce8', '#fef9c3', '#fef08a', '#fde047'], star: '234, 179, 8', accent: '#ca8a04', vis: ['#854d0e', '#eab308', '#fef08a'] }, 'sombre': { bg: ['#1e1b4b', '#312e81', '#4338ca', '#3730a3'], star: '255, 255, 255', accent: '#818cf8', vis: ['#4338ca', '#6366f1', '#a5b4fc'] } };
+        const KEYWORDS = { 'bleu': 'bleu', 'mer': 'bleu', 'ciel': 'bleu', 'azur': 'bleu', 'rose': 'rose', 'fée': 'rose', 'princesse': 'rose', 'rouge': 'rouge', 'feu': 'rouge', 'pompier': 'rouge', 'vert': 'vert', 'nature': 'vert', 'foret': 'vert', 'herbe': 'vert', 'violet': 'violet', 'lilas': 'violet', 'mauve': 'violet', 'jaune': 'jaune', 'soleil': 'jaune', 'or': 'jaune', 'noir': 'sombre', 'sombre': 'sombre', 'nuit': 'sombre', 'espace': 'sombre' };
+        let currentTheme = THEMES['defaut'], speechQueue = [], isSpeaking = false, audioCtx = null, currentAudio = null;
+        function applyMixedTheme(inputText) { if (!inputText) return; const text = inputText.toLowerCase(); const detectedKeys = new Set(); for (const [key, val] of Object.entries(KEYWORDS)) { if (text.includes(key)) detectedKeys.add(val); } const themes = Array.from(detectedKeys).map(k => THEMES[k]); if (themes.length === 0) return; else if (themes.length === 1) currentTheme = themes[0]; else { const t1 = themes[0]; const t2 = themes[themes.length - 1]; currentTheme = { bg: [t1.bg[0], t2.bg[1], t1.bg[2], t2.bg[3]], star: t1.star, accent: t2.accent, vis: [t1.vis[0], t2.vis[1], t1.vis[2]] }; } const r = document.querySelector(':root'); r.style.setProperty('--bg-1', currentTheme.bg[0]); r.style.setProperty('--bg-2', currentTheme.bg[1]); r.style.setProperty('--bg-3', currentTheme.bg[2]); r.style.setProperty('--bg-4', currentTheme.bg[3]); r.style.setProperty('--accent-color', currentTheme.accent); r.style.setProperty('--vis-1', currentTheme.vis[0]); r.style.setProperty('--vis-2', currentTheme.vis[1]); r.style.setProperty('--vis-3', currentTheme.vis[2]); particles.forEach(p => { if (themes.length > 1) p.color = Math.random() > 0.5 ? themes[0].star : themes[1].star; else p.color = currentTheme.star; }); }
+
+        const canvas = document.getElementById('starfield'); const ctx = canvas.getContext('2d'); let particles = []; let burstParticles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2.5 + 0.5; this.speed = Math.random() * 0.02 + 0.01; this.opacity = Math.random() * 0.9; this.color = currentTheme.star; } update() { this.y -= this.speed; this.x += Math.sin(this.y * 0.01) * 0.2; if (this.y < 0) this.reset(); } draw() { ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); } }
+        class BurstParticle { constructor(x, y) { this.x = x; this.y = y; const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 15 + 5; this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed; this.life = 1.0; this.decay = Math.random() * 0.015 + 0.005; this.color = Math.random() > 0.5 ? "#fbbf24" : "#ffffff"; this.size = Math.random() * 5 + 2; } update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.vx *= 0.96; this.vy *= 0.96; this.life -= this.decay; } draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1.0; } }
+        function initParticles() { particles = []; for (let i = 0; i < 300; i++) particles.push(new Particle()); }
+        function triggerBurst() { const centerX = window.innerWidth / 2; const centerY = window.innerHeight / 2; for (let i = 0; i < 300; i++) burstParticles.push(new BurstParticle(centerX, centerY)); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); for (let i = burstParticles.length - 1; i >= 0; i--) { const p = burstParticles[i]; p.update(); p.draw(); if (p.life <= 0) burstParticles.splice(i, 1); } requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); initParticles(); animate();
+
+        const vizCanvas = document.getElementById('visualizer-canvas'); const vizCtx = vizCanvas.getContext('2d'); let analyser = null; let dataArray = null; let visualizerAnimationId = null;
+        function resizeViz() { if(vizCanvas.parentElement) { vizCanvas.width = vizCanvas.parentElement.offsetWidth; vizCanvas.height = vizCanvas.parentElement.offsetHeight; } }
+        window.addEventListener('resize', resizeViz);
+        function startVisualizer(audioSource, context) { resizeViz(); if (!analyser) { analyser = context.createAnalyser(); analyser.fftSize = 64; } audioSource.connect(analyser); analyser.connect(context.destination); const bufferLength = analyser.frequencyBinCount; dataArray = new Uint8Array(bufferLength); drawVisualizer(); }
+        function drawVisualizer() { visualizerAnimationId = requestAnimationFrame(drawVisualizer); analyser.getByteFrequencyData(dataArray); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); const bufferLength = analyser.frequencyBinCount; const gap = 6; const barWidth = (vizCanvas.width / bufferLength) - gap; let barHeight; let x = gap / 2; let gradient = vizCtx.createLinearGradient(0, vizCanvas.height, 0, 0); gradient.addColorStop(0, currentTheme.vis[0]); gradient.addColorStop(0.5, currentTheme.vis[1]); gradient.addColorStop(1, currentTheme.vis[2]); vizCtx.fillStyle = gradient; for (let i = 0; i < bufferLength; i++) { barHeight = (dataArray[i] / 255) * vizCanvas.height; if (barHeight < 5) barHeight = 5; const y = (vizCanvas.height - barHeight) / 2; roundRect(vizCtx, x, y, barWidth, barHeight, 50); x += barWidth + gap; } }
+        function roundRect(ctx, x, y, width, height, radius) { if (width < 2 * radius) radius = width / 2; if (height < 2 * radius) radius = height / 2; ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.arcTo(x + width, y, x + width, y + height, radius); ctx.arcTo(x + width, y + height, x, y + height, radius); ctx.arcTo(x, y + height, x, y, radius); ctx.arcTo(x, y, x + width, y, radius); ctx.closePath(); ctx.fill(); }
+        function stopVisualizer() { if (visualizerAnimationId) cancelAnimationFrame(visualizerAnimationId); vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height); }
+
+        function playSimpleWoosh() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const t = audioCtx.currentTime; const bufferSize = audioCtx.sampleRate * 4.0; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate); const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1; const noise = audioCtx.createBufferSource(); noise.buffer = buffer; const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.Q.value = 1; filter.frequency.setValueAtTime(100, t); filter.frequency.exponentialRampToValueAtTime(3000, t + 1.5); filter.frequency.exponentialRampToValueAtTime(100, t + 4.0); const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.1, t + 1.0); gain.gain.linearRampToValueAtTime(0, t + 4.0); noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination); noise.start(t); noise.stop(t + 4.0); }
+        function playSoftPing() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1); gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3); }
+
+        function startListening() {
+            const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!Speech) return; 
+            
+            if (isSpeaking) {
+                stopAudio();
+                return;
+            }
+
+            const rec = new Speech(); rec.lang = 'fr-FR'; rec.interimResults = false;
+            rec.onstart = () => { document.getElementById('btn-mic').classList.add('mic-listening'); document.getElementById('status').innerText = "Je t'écoute..."; };
+            rec.onresult = (e) => { const p = e.results[0][0].transcript; document.getElementById('manualInput').value = p; traiterInput(p); };
+            rec.onend = () => document.getElementById('btn-mic').classList.remove('mic-listening');
+            rec.onerror = (e) => { document.getElementById('btn-mic').classList.remove('mic-listening'); if (interactionMode === 'NAME_INPUT') document.getElementById('status').innerText = "Comment t'appelles-tu ?"; else if (interactionMode === 'GENDER_INPUT') document.getElementById('status').innerText = "Garçon ou fille ?"; else if (interactionMode === 'COLOR_INPUT') document.getElementById('status').innerText = "Tes couleurs préférées ?"; else if (interactionMode === 'DOUDOU_INPUT') document.getElementById('status').innerText = "Ton doudou ?"; else if (interactionMode === 'PET_INPUT') document.getElementById('status').innerText = "Un animal ?"; else if (interactionMode === 'AGE_INPUT') document.getElementById('status').innerText = "Quel âge as-tu ?"; else if (interactionMode === 'STORY_INPUT' || interactionMode === 'QUESTION_INPUT' || interactionMode === 'CHAT_INPUT' || interactionMode === 'MUSIC_INPUT') document.getElementById('status').innerText = "Je n'ai pas entendu..."; };
+            try { rec.start(); } catch (e) {}
+        }
+
+        function selectMode(mode) {
+            currentAppMode = mode;
+            if (mode === 'CHAT') {
+                chatHistory = []; 
+                currentChatActivity = 'TALK'; // Reset au défaut
+            }
+            
+            if (mode === 'DRAW') {
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; document.getElementById('slate-layer').style.display = 'block'; initSlate(); }, 800);
             } 
+            else if (mode === 'COLORING') {
+                document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                setTimeout(() => {
+                    document.getElementById('intro-overlay').style.display = 'none';
+                    document.getElementById('main-interface').classList.add('content-visible');
+                    document.getElementById('main-logo-coloring').classList.remove('hidden');
+                    document.getElementById('coloring-layer').style.display = 'block'; 
+                    document.getElementById('coloring-layer').style.zIndex = "40"; 
+                    initColoring(); 
+                    lancerColoriageAleatoire();
+                }, 800);
+            }
+            else {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume();
+                playSimpleWoosh(); triggerBurst(); document.getElementById('white-flash').classList.add('flash-active');
+                setTimeout(() => {
+                    document.getElementById('intro-overlay').classList.add('intro-fade-out');
+                    document.getElementById('main-interface').classList.add('content-visible');
+                    
+                    if(mode === 'STORY') {
+                        document.getElementById('main-logo-story').classList.remove('hidden');
+                        document.body.classList.add('story-mode'); // ACTIVE MODE NUIT
+                    }
+                    else if(mode === 'QUESTION') document.getElementById('main-logo-question').classList.remove('hidden');
+                    else if(mode === 'CHAT') document.getElementById('main-logo-chat').classList.remove('hidden');
+                    else if(mode === 'MUSIC') document.getElementById('main-logo-music').classList.remove('hidden');
+
+                    if (userColor) applyMixedTheme(userColor);
+                    startInteractionSequence();
+                }, 1000);
+                setTimeout(() => { document.getElementById('intro-overlay').style.display = 'none'; }, 2000);
+            }
         }
 
-        function resetTimer() { clearInterval(timerInterval);isTimerRunning=false;timeLeft=25*60;updateTimerDisplay(); }
-        function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
-        function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
-        async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
-        function stopThinkingAnimation() { }
-
-        // --- ENREGISTREMENT PWA (SERVICE WORKER) ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // On enregistre sw.js (qui s'occupe de l'offline)
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('Erreur SW', err));
-                // OneSignal enregistre son propre worker automatiquement via le script OneSignalSDKWorker.js
-            });
+        function lancerColoriageAleatoire() {
+            const sujets = ["un mignon chaton", "un dinosaure gentil", "une licorne magique", "un robot rigolo", "une belle voiture de course", "un grand château", "un papillon coloré", "un super-héros courageux", "un dragon mignon", "une jolie fée"];
+            const sujet = sujets[Math.floor(Math.random() * sujets.length)];
+            
+            interactionMode = 'TELLING'; 
+            document.getElementById('status').innerText = "Je prépare ton dessin...";
+            document.getElementById('ai-thinking').classList.remove('hidden');
+            genererColoriage(sujet);
         }
+
+        function startInteractionSequence() {
+            if (!userPrenom || !userGenre || !userAge || !userColor || !userDoudou || !userPet) {
+                if (interactionMode === 'INIT') {
+                    speechQueue.push("Coucou ! Je suis la petite voix de ta boîte magique. On va créer ton monde merveilleux ensemble, rien que pour toi.");
+                    speechQueue.push("Pour commencer, dis-moi : es-tu un garçon ou une fille ?");
+                    interactionMode = 'GENDER_INPUT';
+                    document.getElementById('status').innerText = "Garçon ou fille ?";
+                    parler();
+                }
+                return;
+            }
+
+            if (currentAppMode === 'STORY') {
+                interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Quelle histoire veux-tu ?";
+                const storyGreetings = [`Coucou ${userPrenom} ! Je suis prête pour une nouvelle aventure. De quoi veux-tu que je parle ?`, `Te revoilà ${userPrenom} ! Ouvre grand tes oreilles, quelle histoire veux-tu entendre ?`, `Bonjour ${userPrenom}. J'ai plein d'histoires en tête aujourd'hui. Dis-moi un mot magique !`, `C'est l'heure de l'histoire ${userPrenom} ! Qu'allons-nous imaginer ensemble ?`, `Salut ${userPrenom} ! Choisis le thème de notre aventure !`];
+                speechQueue.push(storyGreetings[Math.floor(Math.random() * storyGreetings.length)]);
+            } else if (currentAppMode === 'QUESTION') {
+                interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Pose ta question...";
+                const questionGreetings = [`Bonjour ${userPrenom}. Je suis curieuse de t'entendre. Quelle est ta question ?`, `Salut ${userPrenom} ! Le monde est rempli de mystères. Qu'est-ce qui t'intrigue ?`, `Coucou ${userPrenom}. Je t'écoute, pose-moi n'importe quelle question.`, `Je suis prête ${userPrenom}. Qu'est-ce que tu aimerais savoir aujourd'hui ?`];
+                speechQueue.push(questionGreetings[Math.floor(Math.random() * questionGreetings.length)]);
+            } else if (currentAppMode === 'CHAT') {
+                // MODIFICATION : PROPOSITION DE CHOIX
+                interactionMode = 'CHAT_CHOICE_INPUT'; 
+                document.getElementById('status').innerText = "On fait quoi ?";
+                speechQueue.push(`Coucou ${userPrenom} ! Je suis contente de te voir.`);
+                speechQueue.push(`On peut juste **discuter**, je peux te raconter des **blagues**, ou on peut jouer aux **devinettes**. Que préfères-tu faire ?`);
+            } else if (currentAppMode === 'COLORING') {
+                interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Que veux-tu colorier ?";
+                speechQueue.push(`C'est l'heure des couleurs ! Dis-moi ${userPrenom}, que veux-tu colorier aujourd'hui ?`);
+            } else if (currentAppMode === 'MUSIC') {
+                interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Que veux-tu écouter ?";
+                speechQueue.push(`Bienvenue dans la boîte à musique ${userPrenom} ! Dis-moi ce que tu veux : de la guitare, du piano, des chansons de Noël, ou du rock ?`);
+            }
+            parler();
+        }
+
+        function traiterInput(texte) {
+            if (!texte.trim()) return;
+            stopAudio(); 
+            document.getElementById('manualInput').value = "";
+            const lowerText = texte.toLowerCase();
+
+            if (interactionMode === 'GENDER_INPUT') {
+                if (lowerText.includes('garçon') || lowerText.includes('homme')) { userGenre = 'garçon'; next(); } else if (lowerText.includes('fille') || lowerText.includes('femme')) { userGenre = 'fille'; next(); } else { speechQueue.push(`Je n'ai pas bien compris. Es-tu un garçon ou une fille ?`); parler(); }
+                function next() { localStorage.setItem('BOITE_GENRE', userGenre); interactionMode = 'NAME_INPUT'; document.getElementById('status').innerText = `Comment t'appelles-tu ?`; speechQueue.push(`D'accord. Et comment t'appelles-tu ?`); parler(); }
+            } else if (interactionMode === 'NAME_INPUT') {
+                userPrenom = texte.replace(/je m'appelle /i, "").replace(/c'est /i, "").trim(); localStorage.setItem('BOITE_PRENOM', userPrenom);
+                interactionMode = 'COLOR_INPUT'; document.getElementById('status').innerText = `Tes couleurs préférées ?`; speechQueue.push(`Enchantée ${userPrenom} ! Quelles sont tes couleurs préférées ?`); parler();
+            } else if (interactionMode === 'COLOR_INPUT') {
+                userColor = texte; localStorage.setItem('BOITE_COLOR', userColor); applyMixedTheme(userColor);
+                interactionMode = 'DOUDOU_INPUT'; document.getElementById('status').innerText = `Ton doudou ?`; speechQueue.push(`C'est noté. Dis-moi, comment s'appelle ton doudou et à quoi ressemble-t-il ?`); parler();
+            } else if (interactionMode === 'DOUDOU_INPUT') {
+                userDoudou = texte; localStorage.setItem('BOITE_DOUDOU', userDoudou);
+                interactionMode = 'PET_INPUT'; document.getElementById('status').innerText = `Un animal ?`; speechQueue.push(`Oh, il a l'air super ! Et dis-moi, as-tu un animal de compagnie ou un animal préféré ?`); parler();
+            } else if (interactionMode === 'PET_INPUT') {
+                userPet = texte; localStorage.setItem('BOITE_ANIMAL', userPet);
+                interactionMode = 'AGE_INPUT'; document.getElementById('status').innerText = `Quel âge as-tu ?`; speechQueue.push(`Merci ! Et pour finir, quel âge as-tu ?`); parler();
+            } else if (interactionMode === 'AGE_INPUT') {
+                userAge = texte.replace(/j'ai /i, "").replace(/ans/i, "").trim(); localStorage.setItem('BOITE_AGE', userAge);
+                
+                // Conclusion Magique
+                speechQueue.push("Merci ! Je mélange tes réponses avec un peu de poussière d'étoiles...");
+                speechQueue.push("Et voilà ! Ta boite magique est prête ! Tu peux maintenant me demander l'histoire que tu veux.");
+                
+                startInteractionSequence(); 
+            } 
+            
+            else if (interactionMode === 'CHAT_CHOICE_INPUT') {
+                // DÉTECTION DU CHOIX DE L'ENFANT
+                if (lowerText.includes('blague') || lowerText.includes('rigoler')) {
+                    currentChatActivity = 'JOKE';
+                    speechQueue.push("Super ! J'adore les blagues. Écoute bien celle-ci...");
+                    interactionMode = 'TELLING'; 
+                    appelIA("Raconte-moi une blague", 'CHAT');
+                } else if (lowerText.includes('devinette') || lowerText.includes('jouer') || lowerText.includes('jeu')) {
+                    currentChatActivity = 'RIDDLE';
+                    speechQueue.push("Génial, on va jouer ! Je vais te poser une devinette.");
+                    interactionMode = 'TELLING'; 
+                    appelIA("Pose-moi une devinette", 'CHAT');
+                } else {
+                    currentChatActivity = 'TALK'; // Par défaut : discussion
+                    interactionMode = 'TELLING';
+                    appelIA(texte, 'CHAT');
+                }
+            }
+
+            else if (interactionMode === 'STORY_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'STORY'); } 
+            else if (interactionMode === 'QUESTION_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'QUESTION'); }
+            else if (interactionMode === 'CHAT_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'CHAT'); }
+            else if (interactionMode === 'MUSIC_INPUT') { interactionMode = 'TELLING'; appelIA(texte, 'MUSIC'); }
+            else if (interactionMode === 'COLORING_INPUT') { 
+                interactionMode = 'TELLING';
+                document.getElementById('status').innerText = "Je dessine...";
+                document.getElementById('ai-thinking').classList.remove('hidden');
+                genererColoriage(texte);
+            }
+        }
+
+        function playSpotify(key) {
+            const playlistId = SPOTIFY_DB[key] || SPOTIFY_DB['POP'];
+            const container = document.getElementById('spotify-container');
+            const iframe = document.getElementById('spotify-frame');
+            
+            // Masquer le visualiseur audio car Spotify prend la place
+            document.getElementById('story-card').classList.add('hidden');
+            
+            // Format URL Spotify standard et fiable
+            iframe.src = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`;
+            container.classList.add('active');
+            
+            speechQueue.push("C'est parti ! Musique maestro !");
+            parler();
+        }
+
+        function stopAudio() {
+            isWaitingForResponse = false; 
+            
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            stopVisualizer(); speechQueue = []; isSpeaking = false;
+            document.getElementById('main-header').classList.remove('cinema-mode');
+            document.getElementById('status').classList.remove('hidden');
+            document.getElementById('ai-thinking').classList.add('hidden');
+            
+            if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'DOUDOU_INPUT', 'PET_INPUT', 'AGE_INPUT'].includes(interactionMode)) {} 
+            else if (currentAppMode === 'STORY') { interactionMode = 'STORY_INPUT'; document.getElementById('status').innerText = "Une autre histoire ?"; } 
+            else if (currentAppMode === 'QUESTION') { interactionMode = 'QUESTION_INPUT'; document.getElementById('status').innerText = "Une autre question ?"; }
+            else if (currentAppMode === 'CHAT') { 
+                // Retour au mode actif après une interaction
+                if (interactionMode === 'CHAT_CHOICE_INPUT') {
+                     // On reste en attente du choix
+                     document.getElementById('status').innerText = "Blague, Devinette ou Papote ?";
+                } else {
+                    interactionMode = 'CHAT_INPUT';
+                    document.getElementById('status').innerText = "À toi..."; 
+                }
+            }
+            else if (currentAppMode === 'COLORING') { interactionMode = 'COLORING_INPUT'; document.getElementById('status').innerText = "Autre chose ?"; }
+            else if (currentAppMode === 'MUSIC') { interactionMode = 'MUSIC_INPUT'; document.getElementById('status').innerText = "Une autre chanson ?"; }
+
+            toggleStopButton(false); document.getElementById('story-card').classList.add('hidden'); 
+        }
+
+        function toggleStopButton(active) {
+            const container = document.getElementById('stop-container');
+            if (active) { container.classList.remove('opacity-20', 'pointer-events-none'); container.classList.add('opacity-100'); } else { container.classList.add('opacity-20', 'pointer-events-none'); container.classList.remove('opacity-100'); }
+        }
+
+        async function appelIA(sujet, mode) {
+            stopAudio();
+            interactionMode = 'TELLING'; 
+            isWaitingForResponse = true; 
+            
+            const btnMic = document.getElementById('btn-mic');
+            const statusLabel = document.getElementById('status');
+            const waves = document.getElementById('ai-thinking');
+            
+            // --- MODIFICATION ICI : PHRASE D'ATTENTE SEULEMENT POUR HISTOIRE ---
+            if (mode === 'STORY') {
+                const randomPhrase = MAGIC_PHRASES[Math.floor(Math.random() * MAGIC_PHRASES.length)];
+                document.getElementById('status').innerText = randomPhrase;
+                speechQueue.push(randomPhrase); 
+                parler();
+            } else {
+                // Pour Question et Chat, pas de phrase orale d'attente
+                document.getElementById('status').innerText = "Je réfléchis...";
+                // On n'appelle pas parler(), l'animation des vagues se lance ci-dessous
+            }
+            // --------------------------------------------------------------------
+            
+            playSoftPing(); btnMic.classList.add('understood-flash'); 
+            statusLabel.classList.add('hidden'); 
+            waves.classList.remove('hidden');
+            
+            setTimeout(() => { btnMic.classList.remove('understood-flash'); toggleStopButton(true); }, 800);
+            
+            // Construction du prompt
+            let promptIA = "";
+            let contextChild = ""; 
+            if (userPrenom) contextChild += `L'enfant s'appelle ${userPrenom} (${userGenre}, ${userAge} ans). `; 
+            if (userDoudou) contextChild += `Son doudou est ${userDoudou}. `;
+            if (userPet) contextChild += `Il aime les animaux, surtout : ${userPet}. `;
+
+            if (mode === 'STORY') {
+                promptIA = `Tu es une conteuse. ${contextChild} Raconte une aventure sur : "${sujet}". RÈGLES : Pas de violence, ton doux, fin heureuse. Tu peux faire un clin d'œil à son doudou ou à son animal préféré si ça s'y prête. IMPORTANT : Ne jamais utiliser d'interjections comme 'Ohlala', 'Hmm', 'Hé bien', 'Oh'. Commence directement l'histoire.`;
+            } else if (mode === 'QUESTION') {
+                promptIA = `Encyclopédie bienveillante. ${contextChild} L'enfant demande : "${sujet}". Réponds simplement (3-4 phrases).`;
+            } else if (mode === 'CHAT') {
+                chatHistory.push({ role: "user", content: sujet });
+                const recentHistory = chatHistory.slice(-6).map(msg => `${msg.role === 'user' ? 'Enfant' : 'Toi (IA)'}: ${msg.content}`).join('\n');
+                
+                let instructionSpecifique = "";
+                if (currentChatActivity === 'JOKE') {
+                    instructionSpecifique = "Ton but est de faire rire l'enfant. Raconte une blague courte et adaptée à son âge. Si l'enfant a déjà ri, propose-en une autre.";
+                } else if (currentChatActivity === 'RIDDLE') {
+                    instructionSpecifique = "Tu es un maître des énigmes gentil. Pose une devinette simple adaptée à son âge. Si l'enfant répond, dis-lui si c'est bon ou donne un indice. Ne donne pas la réponse tout de suite.";
+                } else {
+                    instructionSpecifique = "Tu es une amie magique bienveillante. Discute simplement avec lui, pose des questions sur sa journée ou ses goûts.";
+                }
+
+                promptIA = `Tu parles avec ${userPrenom}, ${userAge} ans. ${instructionSpecifique} Historique : ${recentHistory} Réponds à l'enfant :`;
+            
+            } else if (mode === 'MUSIC') {
+                const availableKeys = Object.keys(SPOTIFY_DB).join(', ');
+                promptIA = `Tu es un DJ. L'enfant demande : "${sujet}". Clés dispos : ${availableKeys}. Réponds UNIQUEMENT par le mot clé (ex: ROCK). Si inconnu, répond POP.`;
+            }
+
+            try {
+                console.log("Envoi demande IA...");
+                
+                const response = await fetch('/api/gemini', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ prompt: promptIA }) 
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    const errMessage = errData.error || "Erreur serveur " + response.status;
+                    throw new Error(errMessage);
+                }
+
+                const data = await response.json();
+                
+                if (!data.text) {
+                    throw new Error("Réponse IA vide (data.text missing)");
+                }
+
+                isWaitingForResponse = false;
+
+                waves.classList.add('hidden'); statusLabel.classList.remove('hidden'); 
+                
+                if (mode === 'MUSIC') {
+                    const cleanKey = data.text.trim().toUpperCase().replace(/[^A-Z_]/g, '');
+                    playSpotify(cleanKey);
+                    interactionMode = 'MUSIC_INPUT';
+                } else {
+                    if (mode === 'STORY') {
+                        statusLabel.innerText = STORY_START_PHRASES[Math.floor(Math.random() * STORY_START_PHRASES.length)];
+                    } else {
+                        statusLabel.innerText = "Je te réponds...";
+                    }
+                    
+                    const parts = data.text.split(/([.!?;:]|\n)/);
+                    let foundText = false;
+                    for (let i = 0; i < parts.length - 1; i += 2) { 
+                        const p = (parts[i] + (parts[i+1] || "")).trim(); 
+                        if (p.length > 2) { 
+                            speechQueue.push(p); 
+                            if(!isSpeaking) parler(); 
+                            foundText = true;
+                        } 
+                    }
+                    if (!foundText && data.text.trim().length > 0) {
+                        speechQueue.push(data.text.trim());
+                        if(!isSpeaking) parler();
+                    }
+
+                    if (mode === 'CHAT') chatHistory.push({ role: "model", content: data.text });
+                    
+                    if (mode === 'CHAT') interactionMode = 'CHAT_INPUT';
+                    else if (mode === 'STORY') interactionMode = 'STORY_INPUT';
+                    else if (mode === 'QUESTION') interactionMode = 'QUESTION_INPUT';
+                }
+
+            } catch (e) { 
+                console.error("ERREUR APP:", e);
+                isWaitingForResponse = false; 
+                waves.classList.add('hidden'); 
+                statusLabel.classList.remove('hidden'); 
+                statusLabel.innerText = "Oups !"; 
+                alert("Erreur technique : " + e.message);
+            }
+        }
+
+        async function textToSpeechAzure(text) {
+            try {
+                const response = await fetch('/api/azure', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ text: text }) 
+                });
+                if (!response.ok) throw new Error("Erreur Azure"); 
+                return await response.blob();
+            } catch (e) { return null; }
+        }
+
+        async function parler() {
+            if (isSpeaking || speechQueue.length === 0) return;
+            isSpeaking = true; toggleStopButton(true); document.getElementById('main-header').classList.add('cinema-mode'); 
+            
+            // Note: Le mode sommeil est activé dans selectMode() pour les histoires et reste actif.
+
+            const spotifyActive = document.getElementById('spotify-container').classList.contains('active');
+            if(!spotifyActive) {
+                document.getElementById('story-card').classList.remove('hidden'); 
+                resizeViz();
+            }
+
+            let txt = speechQueue.shift().replace(/[#*`_]/g, '');
+            
+            const audioBlob = await textToSpeechAzure(txt);
+            if (audioBlob) {
+                const audioUrl = URL.createObjectURL(audioBlob); currentAudio = new Audio(audioUrl); 
+                if(!spotifyActive) {
+                    const source = audioCtx.createMediaElementSource(currentAudio); startVisualizer(source, audioCtx);
+                }
+                currentAudio.onended = () => {
+                    isSpeaking = false;
+                    if (speechQueue.length === 0) { 
+                        if (isWaitingForResponse) return; 
+
+                        stopAudio();
+                        // AJOUT DE 'CHAT_CHOICE_INPUT' DANS LA LISTE DE RELANCE
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'CHAT_CHOICE_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT', 'DOUDOU_INPUT', 'PET_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
+                        }
+                    } else parler(); 
+                };
+                currentAudio.play();
+            } else {
+                // FALLBACK NAVIGATEUR
+                const utterance = new SpeechSynthesisUtterance(txt);
+                utterance.lang = 'fr-FR';
+                utterance.rate = 0.9;
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    if (speechQueue.length === 0) {
+                        if (isWaitingForResponse) return; 
+                        stopAudio();
+                        if (['NAME_INPUT', 'GENDER_INPUT', 'COLOR_INPUT', 'AGE_INPUT', 'STORY_INPUT', 'QUESTION_INPUT', 'CHAT_INPUT', 'CHAT_CHOICE_INPUT', 'COLORING_INPUT', 'MUSIC_INPUT', 'DOUDOU_INPUT', 'PET_INPUT'].includes(interactionMode)) {
+                            setTimeout(() => { startListening(); }, 500);
+                        }
+                    } else parler();
+                };
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function oublierTout() { localStorage.removeItem('BOITE_PRENOM'); localStorage.removeItem('BOITE_AGE'); localStorage.removeItem('BOITE_GENRE'); localStorage.removeItem('BOITE_COLOR'); localStorage.removeItem('BOITE_DOUDOU'); localStorage.removeItem('BOITE_ANIMAL'); location.reload(); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-mic').onclick = () => { startListening(); };
+            document.getElementById('btn-stop').onclick = stopAudio;
+        });
     </script>
 </body>
 </html>
