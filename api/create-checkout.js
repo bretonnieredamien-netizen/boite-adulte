@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // Récupérer l'URL de base
+    // Récupérer l'URL de base pour les redirections
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const host = req.headers.host;
     const domainUrl = `${protocol}://${host}`;
@@ -39,16 +39,16 @@ export default async function handler(req, res) {
     // 4. Création de la session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-allow_promotion_codes: true, // <--- AJOUTEZ CETTE LIGNE ICI
+      allow_promotion_codes: true, // Autoriser les codes promo
       line_items: [
         {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: 'Abonnement Boîte Magique',
-              description: 'Accès illimité + 7 jours offerts',
+              name: 'Abonnement NEURO - Assistant Personnel',
+              description: 'Accès illimité à l\'IA + 7 jours d\'essai offerts',
             },
-            unit_amount: 999,
+            unit_amount: 599, // 5.99€ (en centimes)
             recurring: { interval: 'month' },
           },
           quantity: 1,
@@ -56,10 +56,12 @@ allow_promotion_codes: true, // <--- AJOUTEZ CETTE LIGNE ICI
       ],
       mode: 'subscription',
       subscription_data: {
-        trial_period_days: 7,
+        trial_period_days: 7, // La période d'essai gratuit
       },
-      success_url: `${domainUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domainUrl}/`,
+      // Redirection après paiement réussi (créez un fichier success.html si besoin)
+      success_url: `${domainUrl}/index.html?session_id={CHECKOUT_SESSION_ID}`,
+      // Redirection si l'utilisateur annule (retour à la landing page)
+      cancel_url: `${domainUrl}/landing.html`,
     });
 
     return res.status(200).json({ url: session.url });
