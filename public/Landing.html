@@ -418,9 +418,10 @@
                         <div class="flex items-center gap-3"><div class="bg-neuro-success/20 p-1 rounded-full"><svg class="w-4 h-4 text-neuro-success" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M12 12h.01M12 6h.01"></path></svg></div><span class="text-white font-bold">BONUS: Application PWA (Hors-ligne)</span></div>
                     </div>
 
-                    <a href="https://checkout.stripe.com/c/pay/cs_live_b1u6SlDZF4TUPgEGsmZhXfR1Wprh3RlF2w3649DG7YFiJZEBHopMq2Nk98#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdkdWxOYHwnPyd1blppbHNgWjA0VnBER2xNY0M8aGhVcFxXNDRmR21fR3dsSmh2ME5na2ZmYnR8RkxmcjFuN01XVWR3S018TXFGXXd1c0kzSjFxfEZWS2JWcE09Z2t3czxPQHxjZEhPajdtNTVyMWsxV3RiQycpJ2N3amhWYHdzYHcnP3F3cGApJ2dkZm5id2pwa2FGamlqdyc%2FJyZjY2NjY2MnKSdpZHxqcHFRfHVgJz8naHBpcWxabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl" class="block w-full bg-white text-black font-black text-center py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors mb-4 transform hover:scale-[1.02]">
+                    <button onclick="startCheckout()" class="block w-full bg-white text-black font-black text-center py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors mb-4 transform hover:scale-[1.02] cursor-pointer">
                         COMMENCER L'ESSAI DE 7 JOURS
-                    </a>
+                    </button>
+                    <div id="error-message" class="text-red-500 text-xs text-center mt-2 hidden"></div>
                     
                     <div class="text-center">
                         <p class="text-[10px] text-gray-500 uppercase tracking-widest">Paiement Sécurisé via Stripe • Annulable à tout moment</p>
@@ -456,6 +457,7 @@
     </footer>
 
     <script>
+        // Animations Scroll
         const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -466,6 +468,39 @@
             });
         }, observerOptions);
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // FONCTION DE PAIEMENT STRIPE
+        async function startCheckout() {
+            const btn = document.querySelector('button[onclick="startCheckout()"]');
+            const errorDiv = document.getElementById('error-message');
+            const originalText = btn.innerText;
+            
+            btn.innerText = "Chargement sécurisé...";
+            btn.disabled = true;
+            errorDiv.classList.add('hidden');
+            
+            try {
+                // Appel au fichier backend sur Vercel
+                const response = await fetch('/api/create-checkout', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url; // Redirection vers Stripe
+                } else {
+                    throw new Error(data.error || "Impossible de créer la session");
+                }
+            } catch (e) {
+                console.error(e);
+                errorDiv.innerText = "Erreur : " + e.message;
+                errorDiv.classList.remove('hidden');
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 </html>
