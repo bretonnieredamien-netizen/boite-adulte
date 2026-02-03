@@ -13,16 +13,16 @@
 
     <script>
         (function() {
-            // Vérifie si le jeton de paiement est présent
+            // Vérifie si le jeton de paiement est présent dans le navigateur
             const hasLicense = localStorage.getItem('claris_license_active');
             
-            // Mode test : on autorise l'accès sur localhost sans licence
+            // Mode test : on autorise l'accès sur localhost sans licence pour tes tests
             const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
             if (!hasLicense && !isLocal) {
                 // REDIRECTION SI PAS DE LICENCE
-                // REMPLACE CE LIEN PAR TA PAGE DE VENTE :
-                window.location.href = 'https://claris-app.com/'; 
+                // On renvoie vers la racine du site (la page de vente index.html)
+                window.location.replace("/"); 
             }
         })();
     </script>
@@ -434,7 +434,6 @@
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true,
             });
-            console.log("OneSignal Init. ID actuel:", OneSignal.User.PushSubscription.id);
             if(OneSignal.User.PushSubscription.optedIn){
                 document.getElementById('notif-btn').classList.add('bell-active');
                 document.getElementById('notif-btn').innerText = "🔔 ON";
@@ -444,12 +443,9 @@
         async function requestNotificationPermission() {
              await OneSignal.User.PushSubscription.optIn();
              const id = OneSignal.User.PushSubscription.id;
-             console.log("Permission accordée. ID:", id);
              if(id) {
                  document.getElementById('notif-btn').classList.add('bell-active');
                  alert("Notifications activées !");
-             } else {
-                 alert("Erreur : Impossible de récupérer l'ID OneSignal.");
              }
         }
 
