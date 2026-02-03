@@ -20,29 +20,23 @@
         /* --- DESIGN CLARIS V1 --- */
         :root { 
             --bg-main: #121212; --bg-card: #1E1E1E; 
-            --accent: #2979FF; /* Bleu Tâche */
-            --text-main: #E0E0E0;
-            --success: #00E676; 
-            --warning: #FFAB00; 
-            --danger: #FF1744; /* Rouge Urgent */
-            --calendar: #D500F9; /* VIOLET CALENDRIER */
-            --capacity: #00E5FF; 
-            --date-badge: #FF4081;
+            --accent: #2979FF; --text-main: #E0E0E0;
+            --success: #00E676; --warning: #FFAB00; --danger: #FF1744;
+            --calendar: #D500F9; --reminder: #D500F9; 
+            --capacity: #00E5FF; --date-badge: #FF4081;
         }
-        
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; touch-action: none; display: flex; flex-direction: column; }
 
         /* HEADER */
         .header { background: #121212; z-index: 50; border-bottom: 1px solid #333; padding: 15px 15px 10px 15px; flex-shrink: 0; }
         .header-top { display: flex; align-items: center; justify-content: space-between; height: 50px; }
         
-        /* LOGO CLARIS */
+        /* LOGO */
         .app-logo-container { display: flex; align-items: center; gap: 12px; }
         .logo-point-wrapper { position: relative; width: 12px; height: 12px; display: flex; }
         .logo-point-ping { position: absolute; width: 100%; height: 100%; border-radius: 50%; background: var(--accent); opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; }
         .logo-point-solid { position: relative; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
         .logo-text { font-weight: 900; font-size: 20px; color: white; letter-spacing: 3px; font-family: 'Inter', sans-serif; }
-        
         @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 
         .header-actions { display: flex; gap: 8px; }
@@ -67,38 +61,13 @@
         .view-section { display: none; height: 100%; flex-direction: column; width: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
 
-        /* --- STYLES DES TÂCHES --- */
+        /* TASKS */
         .task-container { padding: 10px 10px 100px 10px; display: flex; flex-direction: column; gap: 10px; }
+        .task-item { background: var(--bg-card); padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid var(--accent); box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s; }
+        .task-item.priority-high { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); order: -3; }
+        .task-item.calendar { border-left-color: var(--calendar); background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); order: -2; }
+        .task-item.reminder { border-left-color: var(--reminder); order: -1; }
         
-        .task-item { 
-            background: var(--bg-card); 
-            padding: 12px 15px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            border-left: 3px solid var(--accent);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            transition: all 0.2s; 
-        }
-
-        .task-item.priority-high { 
-            border-left-color: var(--danger); 
-            background: linear-gradient(90deg, rgba(255, 23, 68, 0.15), var(--bg-card)); 
-            order: -3; 
-        }
-
-        .task-item.calendar { 
-            border-left-color: var(--calendar); 
-            background: linear-gradient(90deg, rgba(213, 0, 249, 0.1), var(--bg-card)); 
-            order: -2; 
-        }
-
-        .task-item.reminder { 
-            border-left-color: var(--reminder); 
-            order: -1; 
-        }
-
         .task-text { font-size: 14px; font-weight: 500; outline: none; flex: 1; color: white; display: flex; align-items: center; gap: 6px; }
         .task-sub { font-size: 9px; opacity: 0.7; text-transform: uppercase; margin-top: 3px; display: flex; gap: 6px; align-items: center; }
         .time-badge, .date-badge { background: #333; padding: 1px 5px; border-radius: 4px; font-weight: bold; font-size: 9px; display: flex; align-items: center; gap: 3px; border: 1px solid rgba(255,255,255,0.1); }
@@ -106,12 +75,13 @@
         .date-badge { color: var(--date-badge); border-color: rgba(255, 64, 129, 0.2); }
         .badge-icon { width: 9px; height: 9px; fill: currentColor; }
         .priority-icon { color: var(--danger); font-size:12px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        .bell-active { color: var(--warning); animation: ring 4s infinite; }
+        @keyframes ring { 0% { transform: rotate(0); } 5% { transform: rotate(20deg); } 10% { transform: rotate(-20deg); } 15% { transform: rotate(0); } 100% { transform: rotate(0); } }
         .actions-group { display: flex; gap: 10px; align-items: center; margin-left: 10px; }
         .done-btn { background: rgba(0, 230, 118, 0.1); border: 1px solid var(--success); color: var(--success); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .done-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-        /* CALENDAR GRID */
+        /* CALENDAR */
         #view-calendar { padding: 15px; }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .month-label { font-size: 16px; font-weight: 900; color: white; text-transform: uppercase; letter-spacing: 2px; }
@@ -154,7 +124,7 @@
         .btn-start { background: var(--success); color: black; box-shadow: 0 0 20px rgba(0, 230, 118, 0.4); }
         .btn-stop { background: #333; color: white; }
 
-        /* FOOTER & CONTROLS */
+        /* FOOTER */
         .bottom-controls { background: linear-gradient(to top, #121212 90%, transparent); padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; z-index: 50; padding-left:15px; }
         .mode-selector { display: flex; gap: 5px; overflow-x: auto; padding: 5px 10px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
         .mode-card { background: var(--bg-card); padding: 8px 4px; border-radius: 12px; flex: 1; min-width: 0; text-align: center; border: 1px solid transparent; opacity: 0.5; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -214,7 +184,7 @@
                 <div class="logo-text">CLARIS</div>
             </div>
             <div class="header-actions">
-                <button class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
+                <button id="notif-btn" class="header-btn" onclick="requestNotificationPermission()">🔔 ON</button>
                 <button id="mood-btn" class="header-btn mood-btn active zen" onclick="toggleMood()"><span>🛡️</span> ZEN</button>
                 <button id="sound-btn" class="header-btn sound-btn" onclick="togglePinkNoise()"><span>🎧</span> FOCUS</button>
                 <button class="header-btn brief-btn" onclick="startMorningBrief()"><span>☀️</span> BRIEF</button>
@@ -298,53 +268,58 @@
     </div>
 
     <script>
-        // --- CONSTANTES ---
-        const API_BASE_URL = "https://boite-adulte.vercel.app";
-        // REMPLACE CES VALEURS PAR LES TIENNES
+        // --- CONFIGURATION ---
+        // N'OUBLIE PAS DE REMPLACER L'APP ID ICI !
         const ONESIGNAL_APP_ID = "REMPLACE_PAR_TON_APP_ID_ICI"; 
-        const ONESIGNAL_REST_API_KEY = "REMPLACE_PAR_TA_REST_API_KEY_ICI";
 
-        // --- INIT ONESIGNAL (Push & Permissions) ---
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         window.OneSignalDeferred.push(async function(OneSignal) {
             await OneSignal.init({
                 appId: ONESIGNAL_APP_ID,
-                // safari_web_id: "web.onesignal.auto.xxxxx", // Décommenter si tu as configuré Safari Legacy sur OneSignal
                 notifyButton: { enable: false },
                 allowLocalhostAsSecureOrigin: true,
             });
+            // Vérifier si déjà abonné pour changer le bouton
+            if(OneSignal.User.PushSubscription.optedIn){
+                document.getElementById('notif-btn').classList.add('bell-active');
+            }
         });
 
         async function requestNotificationPermission() {
              await OneSignal.User.PushSubscription.optIn();
-             alert("Vérifie les permissions !");
+             document.getElementById('notif-btn').classList.add('bell-active');
+             alert("Notifications activées !");
         }
 
-        // --- FONCTION DE NOTIFICATION GRATUITE (DIRECT API) ---
+        // --- ENVOI VERS LE BACKEND POUR PROGRAMMER LA NOTIF ---
         async function scheduleNotification(minutes, message) {
             if(!OneSignal.User.PushSubscription.id) { console.log("Pas d'ID utilisateur pour la notif"); return; }
             
+            // Calcul de la date d'envoi
             const now = new Date();
             const sendTime = new Date(now.getTime() + minutes * 60000);
-            const sendTimeString = sendTime.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
+            // Format OneSignal: "YYYY-MM-DD HH:MM:SS GMT+XXXX"
+            // Pour simplifier on envoie le timestamp ou un format ISO que le backend traitera,
+            // ou on laisse le backend calculer si on envoie juste le délai.
+            // Ici, on va envoyer le format attendu par OneSignal approximatif ou laisser le backend gérer.
+            // Le plus simple pour le backend que je t'ai donné est d'envoyer le timestamp ISO.
+            
+            // Note: Mon code backend attendait "sendAfter".
+            // Convertissons pour être sûr.
+            const sendAfterISO = sendTime.toISOString().replace('T', ' ').split('.')[0] + " GMT+0000";
 
-            const options = {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`,
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    app_id: ONESIGNAL_APP_ID,
-                    include_player_ids: [OneSignal.User.PushSubscription.id],
-                    contents: { "en": message },
-                    headings: { "en": "CLARIS" },
-                    send_after: sendTimeString
-                })
-            };
-
-            try { await fetch('https://onesignal.com/api/v1/notifications', options); console.log("Notif programmée."); } 
+            try { 
+                await fetch('/api/schedule-notification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: OneSignal.User.PushSubscription.id,
+                        message: message,
+                        sendAfter: sendAfterISO
+                    })
+                });
+                console.log("Notif programmée via Backend."); 
+            } 
             catch (err) { console.error('Erreur notif:', err); }
         }
 
@@ -364,6 +339,7 @@
             switchView('dump', document.querySelector('.mode-card.active'));
         });
 
+        // ... (Reste des fonctions d'affichage inchangées : switchView, togglePinkNoise, etc.) ...
         function switchView(viewName, btn) {
             document.querySelectorAll('.mode-card').forEach(el => el.classList.remove('active')); if(btn) btn.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -414,7 +390,7 @@
             const currentPrompts = getPrompts(); 
             const finalPrompt = `${currentPrompts[forcedMode]}\n\nUTILISATEUR : "${userInput}"`;
             try {
-                const rep = await fetch(`${API_BASE_URL}/api/gemini`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
+                const rep = await fetch('/api/gemini', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt: finalPrompt }) });
                 const data = await rep.json();
                 let parsed = JSON.parse(data.text.replace(/```json/g, '').replace(/```/g, '').trim());
                 
@@ -427,7 +403,20 @@
                 if(actionsList) { 
                     actionsList.forEach(act => { 
                         const validText = act.detail || act.text || act.task || act.title || "Tâche";
-                        // ON PASSE MAINTENANT L'HEURE (act.time)
+                        
+                        // PROGRAMMATION NOTIFICATION SI HEURE PRÉSENTE
+                        if (act.time && act.due_date) {
+                            // On tente de calculer le délai pour la notif
+                            const targetDateStr = `${act.due_date}T${act.time}:00`;
+                            const target = new Date(targetDateStr);
+                            const now = new Date();
+                            const diffMinutes = Math.floor((target - now) / 60000);
+                            
+                            if (diffMinutes > 0) {
+                                scheduleNotification(diffMinutes, `Rappel : ${validText}`);
+                            }
+                        }
+
                         addTaskToUI(validText, act.type, act.priority || 'NORMAL', act.duration, act.due_date, act.time); 
                     }); 
                 }
@@ -452,7 +441,6 @@
             let dateBadge = ''; 
             if(date) { 
                 const dObj = new Date(date); 
-                // AJOUT DE L'HEURE DANS LE BADGE
                 let timeStr = time ? ` à ${time}` : '';
                 dateBadge = `<span class="date-badge"><svg class="badge-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ${dObj.getDate()}/${dObj.getMonth()+1}${timeStr}</span>`; 
             }
@@ -523,7 +511,7 @@
         function changeMonth(d) { currentCalDate.setMonth(currentCalDate.getMonth()+d); renderCalendar(); }
         function showTasksForDay(t,d) { const l=document.getElementById('cal-task-list'); if(t.length===0)l.innerHTML=`<div style="text-align:center; opacity:0.5; font-size:12px;">Rien de prévu le ${d}.</div>`; else { l.innerHTML=""; t.forEach(x=>{const d=document.createElement('div');d.innerHTML=x.h;if(d.querySelector('.done-btn'))d.querySelector('.done-btn').style.display='none';l.appendChild(d.firstChild);}); } }
         function renderFocusGrid() { const g=document.getElementById('focus-grid'); const h=document.getElementById('task-list').innerHTML; document.getElementById('focus-picker-wrapper').style.display='block'; document.getElementById('focus-laser-wrapper').style.display='none'; if(h.includes("Mémoire vide")){g.innerHTML=`<div style="text-align:center; opacity:0.5; margin-top:40px;">Rien.</div>`;return;} g.innerHTML=""; const t=document.createElement('div'); t.innerHTML=h; t.querySelectorAll('.task-item').forEach(i=>{ const txt=i.querySelector('.task-text').innerText; const d=document.createElement('div'); d.className="focus-card"; d.innerHTML=`<span class="focus-icon">🎯</span><span class="focus-text">${txt}</span>`; d.onclick=()=>activateLaserMode(txt); g.appendChild(d); }); }
-        async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
+        async function activateLaserMode(t) { currentFocusTask=t; document.getElementById('focus-picker-wrapper').style.display='none'; document.getElementById('focus-laser-wrapper').style.display='flex'; document.getElementById('laser-current-task').innerText=t; document.getElementById('laser-ai-suggestion').style.display='none'; document.getElementById('status-text').innerText="Analyse..."; try{const p=`Coach. Tâche: "${t}". Une micro-étape.`; const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); document.getElementById('laser-micro-text').innerText=d.text.replace(/\*/g,''); document.getElementById('laser-ai-suggestion').style.display='block'; playVocalResponse(`Cible: ${d.text}`);}catch(e){} }
         function completeLaserTask() { triggerConfetti(); playVocalResponse("Bravo!"); const l=document.getElementById('task-list'); l.querySelectorAll('.task-item').forEach(i=>{if(i.querySelector('.task-text').innerText.includes(currentFocusTask))i.remove();}); saveTasks(); updateMentalLoad(); updateDailyCapacity(); setTimeout(exitLaserMode,2000); }
         function exitLaserMode() { document.getElementById('focus-laser-wrapper').style.display='none'; document.getElementById('focus-picker-wrapper').style.display='block'; renderFocusGrid(); }
         function toggleInputMode(b) { isTextMode=!isTextMode; const u=document.getElementById('text-input-ui'); if(isTextMode){u.classList.add('show');b.classList.add('active');document.getElementById('user-input').focus();}else{u.classList.remove('show');b.classList.remove('active');} }
@@ -550,7 +538,7 @@
         function resetTimer() { clearInterval(timerInterval);isTimerRunning=false;timeLeft=25*60;updateTimerDisplay(); }
         function closeZen() { document.getElementById('zen-popup').classList.remove('show'); }
         function triggerConfetti() { confetti({particleCount:100,spread:70,origin:{y:0.6}}); }
-        async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch(`${API_BASE_URL}/api/gemini`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
+        async function startMorningBrief() { if(isProcessing)return; isProcessing=true; document.getElementById('status-text').innerText="Brief..."; const b=document.querySelector('.brief-btn'); b.classList.add('loading'); const l=[]; document.querySelectorAll('#task-list .task-text').forEach(e=>l.push(e.innerText)); const p=`Date: ${new Date().toLocaleDateString()}. Tâches: ${l.join(", ")}. Brief 30s. Bonjour ${username}.`; try{const r=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:p})}); const d=await r.json(); playVocalResponse(d.text);}catch(e){} b.classList.remove('loading'); isProcessing=false; }
         function stopThinkingAnimation() { }
 
         // --- ENREGISTREMENT PWA (SERVICE WORKER) ---
