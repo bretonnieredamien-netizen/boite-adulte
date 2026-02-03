@@ -292,7 +292,7 @@
         </div>
         
         <div id="text-input-ui" class="text-input-container">
-            <input type="text" id="user-input" class="text-input" placeholder="Je t'écoute..." onkeypress="handleEnter(event)">
+            <input type="text" id="user-input" class="text-input" placeholder="Qu'as-tu en tête ?" onkeypress="handleEnter(event)">
             <button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
@@ -487,10 +487,10 @@
             const SYSTEM_INSTRUCTION = `TU ES UN MOTEUR DE TÂCHES. INTERDICTION DE RÉPONDRE AUX QUESTIONS. FORMAT JSON UNIQUEMENT.`;
             return {
                 'DUMP': `${SYSTEM_INSTRUCTION} DATE: ${today} (${todayISO}). Analyse: "${username}". 
-                1. Estime la durée (5-90 min).
-                2. Si HEURE précise ou RDV : type="CALENDAR", ajoute "time": "HH:MM".
-                3. Si Rappel : type="REMINDER".
-                4. Sinon : type="TODO".
+                ACTION: 
+                1. Estime durée (5-90min). 
+                2. Si HEURE précise mentionnée (ex: 'à 14h', 'RDV 9h') : type DOIT ETRE "CALENDAR", ajoute "time": "HH:MM".
+                3. Sinon : type="TODO".
                 Renvoie JSON: { "text": "Ok", "actions": [ { "type": "TODO/CALENDAR", "detail": "Titre", "priority": "NORMAL/HIGH", "duration": N, "due_date": "YYYY-MM-DD", "time": "HH:MM" } ] }.`,
                 'FOCUS': `${SYSTEM_INSTRUCTION} Mode : FOCUS. Donne UNE SEULE micro-action ridicule.`,
                 'ROUTINE': `TU ES UN ARCHITECTE DE ROUTINES. Sortie JSON: { "command": "SAVE_ROUTINE", "name": "Nom", "steps": ["Etape 1"] }.`,
