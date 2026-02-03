@@ -175,8 +175,25 @@
         .btn-mic.recording svg { fill: var(--danger); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 23, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 23, 68, 0); } }
 
-        .text-input-container { position: absolute; bottom: 80px; left: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 30px; padding: 10px 15px; display: none; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); z-index: 60; }
-        .text-input-container.show { display: flex; }
+        /* INPUT REMONTÉ POUR NE PAS CACHER LE MENU */
+        .text-input-container { 
+            position: absolute; 
+            bottom: 160px; /* Remonté pour être au-dessus des icônes */
+            left: 20px; 
+            right: 20px; 
+            background: rgba(30, 30, 30, 0.95); 
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--accent); 
+            border-radius: 30px; 
+            padding: 10px 15px; 
+            display: none; 
+            align-items: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6); 
+            z-index: 60; 
+        }
+        .text-input-container.show { display: flex; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
         .text-input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; outline: none; }
         .send-btn { background: var(--accent); border: none; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; margin-left: 10px; }
         .ai-feedback { height: 20px; font-size: 12px; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
@@ -293,7 +310,7 @@
         </div>
         
         <div id="text-input-ui" class="text-input-container">
-            <input type="text" id="user-input" class="text-input" placeholder="Qu'as-tu en tête ?" onkeypress="handleEnter(event)">
+            <input type="text" id="user-input" class="text-input" placeholder="Quel est ton objectif ?" onkeypress="handleEnter(event)">
             <button class="send-btn" onclick="sendText()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
         </div>
     </div>
@@ -301,6 +318,7 @@
     <script>
         // --- CONSTANTES ---
         const API_BASE_URL = "https://boite-adulte.vercel.app"; 
+        // REMPLACE PAR TON APP ID ICI !
         const ONESIGNAL_APP_ID = "REMPLACE_PAR_TON_APP_ID_ICI"; 
 
         // --- INIT ONESIGNAL ---
